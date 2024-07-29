@@ -21,6 +21,6 @@ app.get("/", (req, res) => {
   res.send("Welcome to the API");
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

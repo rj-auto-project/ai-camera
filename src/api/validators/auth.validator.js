@@ -2,13 +2,13 @@ import Joi from "joi";
 ("joi");
 
 const registerSchema = Joi.object({
-  email: Joi.string().email().required(),
+  employeeId: Joi.string().required(),
   password: Joi.string().min(6).required(),
   name: Joi.string().required(),
 });
 
 const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  employeeId: Joi.string().required(),
   password: Joi.string().required(),
 });
 
