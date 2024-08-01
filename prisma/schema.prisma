@@ -20,3 +20,9 @@ model User {
   employee_Id String   @unique
   createdAt   DateTime @default(now())
 }
+
+model CrowdCount {
+  id        Int      @id @default(autoincrement())
+  count     Int
+  timestamp DateTime @default(now())
+}
