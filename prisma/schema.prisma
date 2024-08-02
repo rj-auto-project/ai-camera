@@ -25,6 +25,7 @@ model CrowdCount {
   id        Int      @id @default(autoincrement())
   count     Int
   timestamp DateTime @default(now())
+  camera_ip String   @db.VarChar(30)
 }
 
 model DetectionLog {
@@ -34,6 +35,7 @@ model DetectionLog {
   detectionId Int
   metadata    Json
   trackId     String?
+  camera_ip   String   @db.VarChar(30)
 }
 
 model OperationLog {
@@ -45,6 +47,7 @@ model OperationLog {
   cameraId         String   @db.VarChar(20)
   userId           String   @db.VarChar(20)
   closeTimestamp   DateTime
+  camera_ip        String   @db.VarChar(30)
 }
 
 model AnprLogs {
