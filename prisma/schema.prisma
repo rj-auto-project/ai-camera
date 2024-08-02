@@ -26,3 +26,34 @@ model CrowdCount {
   count     Int
   timestamp DateTime @default(now())
 }
+
+model DetectionLog {
+  id          Int      @id @default(autoincrement())
+  timestamp   DateTime
+  cameraId    String
+  detectionId Int
+  metadata    Json
+  trackId     String?
+}
+
+model OperationLog {
+  id               Int      @id @default(autoincrement())
+  operationType    String   @db.VarChar(20)
+  operationData    Json
+  initialTimestamp DateTime
+  finalTimestamp   DateTime
+  cameraId         String   @db.VarChar(20)
+  userId           String   @db.VarChar(20)
+  closeTimestamp   DateTime
+}
+
+model AnprLogs {
+  id                    Int      @id @default(autoincrement())
+  camera_ip             String   @db.VarChar(30)
+  camera_id             String   @db.VarChar(30)
+  time_stamp            DateTime @db.Timestamp(6)
+  detection_id          Int
+  meta_data             Json
+  license_number        String?  @db.VarChar(20)
+  prediction_confidence Float
+}
