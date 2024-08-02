@@ -14,11 +14,12 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String
-  password    String
-  employee_Id String   @unique
-  createdAt   DateTime @default(now())
+  id           Int         @id @default(autoincrement())
+  name         String
+  password     String
+  employee_Id  String      @unique
+  createdAt    DateTime    @default(now())
+  access_level ACCESSLEVEL @default(VIEW)
 }
 
 model CrowdCount {
@@ -59,4 +60,30 @@ model AnprLogs {
   meta_data             Json
   license_number        String?  @db.VarChar(20)
   prediction_confidence Float
+}
+
+model Camera {
+  cameraId       String   @id @db.VarChar(30)
+  cameraIp       String   @db.VarChar(30)
+  facingAngle    String   @db.VarChar(5)
+  location       String   @db.VarChar(50)
+  coordinates    String   @db.VarChar(50)
+  cameraName     String   @db.VarChar(50)
+  connectionType String   @db.VarChar(10)
+  cameraType     String   @db.VarChar(10)
+  status         Status
+  installed      DateTime
+  lastOnline     DateTime
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum ACCESSLEVEL {
+  ADMIN
+  WORK
+  VIEW
+  SERVER
 }
