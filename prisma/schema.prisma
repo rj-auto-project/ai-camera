@@ -24,10 +24,11 @@ model User {
 }
 
 model CrowdCount {
-  id        Int      @id @default(autoincrement())
-  count     Int
-  timestamp DateTime @default(now())
-  camera_ip String   @db.VarChar(30)
+  id         Int      @id @default(autoincrement())
+  count      Int
+  timestamp  DateTime @default(now())
+  camera_ip  String   @db.VarChar(30)
+  confidence Float
 }
 
 model DetectionLog {
@@ -37,7 +38,7 @@ model DetectionLog {
   metadata        Json
   trackId         String?
   camera_ip       String   @db.VarChar(30)
-  boxCoords       String   @db.VarChar(50)
+  boxCoords       String   @db.VarChar(255)
   detectionClass  String   @db.VarChar(20)
   classConfidence Float
 }
