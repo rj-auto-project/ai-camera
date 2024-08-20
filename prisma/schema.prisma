@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
@@ -71,7 +72,7 @@ model Camera {
   cameraIp       String   @db.VarChar(30)
   facingAngle    String   @db.VarChar(5)
   location       String   @db.VarChar(50)
-  coordinates    String   @db.VarChar(50)
+  coordinates    Json
   cameraName     String   @db.VarChar(50)
   connectionType String   @db.VarChar(10)
   cameraType     String   @db.VarChar(10)
