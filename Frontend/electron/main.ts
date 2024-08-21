@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, Menu } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -33,8 +33,11 @@ function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
+
     },
   });
+
+  win.setMinimumSize(800, 600); 
 
   // Test active push message to Renderer-process.
   win.webContents.on("did-finish-load", () => {
@@ -47,6 +50,8 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
+
+
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
