@@ -82,6 +82,12 @@ model Camera {
   lastOnline     DateTime
 }
 
+model Class {
+  id          Int    @id @default(autoincrement())
+  className   String @db.VarChar(255)
+  classStatus Status
+}
+
 enum Status {
   ACTIVE
   INACTIVE

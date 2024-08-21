@@ -1,7 +1,4 @@
-import {
-  getCamerasFormap,
-  performOperation,
-} from "../services/map.services.js";
+import { getCamerasFormap } from "../services/map.services.js";
 
 const getCamerars = async (req, res, next) => {
   try {
