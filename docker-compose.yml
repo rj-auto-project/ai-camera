@@ -6,7 +6,7 @@ services:
       context: ./Backend
       dockerfile: backend.dockerfile
     ports:
-    - "4000:4000"
+      - "4000:4000"
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
 

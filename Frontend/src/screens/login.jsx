@@ -17,9 +17,7 @@ function Login() {
   };
 
   return (
-    <Container
-    className=""
-    >
+    <Container className="">
       <Typography variant="h4" className="text-white mb-4">
         Login
       </Typography>

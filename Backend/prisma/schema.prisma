@@ -37,7 +37,7 @@ model DetectionLog {
   timestamp       DateTime
   cameraId        String
   metadata        Json
-  trackId         String?
+  trackId         String   @db.VarChar(255)
   camera_ip       String   @db.VarChar(30)
   boxCoords       String   @db.VarChar(255)
   detectionClass  String   @db.VarChar(20)
@@ -65,6 +65,7 @@ model AnprLogs {
   meta_data             Json
   license_number        String?  @db.VarChar(20)
   prediction_confidence Float
+  trackId               String   @db.VarChar(255)
 }
 
 model Camera {
