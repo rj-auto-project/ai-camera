@@ -1,5 +1,9 @@
 import fs from "fs";
-import { faceDetection } from "../services/operations.service";
+import {
+  faceDetectionService,
+  suspectSearchService,
+  getClasses,
+} from "../services/operations.service.js";
 
 const faceDetection = async (req, res) => {
   try {
@@ -44,3 +48,63 @@ const faceDetection = async (req, res) => {
     });
   }
 };
+
+const suspectSearch = async (req, res) => {
+  try {
+    const {
+      classname,
+      top_color,
+      bottom_color,
+      start_time,
+      end_time,
+      cameras,
+      location,
+    } = req.body;
+    if (
+      !classname ||
+      !top_color ||
+      !bottom_color ||
+      !start_time ||
+      !end_time ||
+      (!cameras && !location)
+    ) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Missing required fields" });
+    }
+
+    const result = await suspectSearchService(
+      classname,
+      top_color,
+      bottom_color,
+      start_time,
+      end_time,
+      cameras,
+      location,
+    );
+
+    res.json({
+      status: "ok",
+      message: "Face detection completed successfully",
+      result,
+    });
+  } catch (error) {
+    console.error("Error performing operation:", error);
+    res.status(500).json({
+      status: "fail",
+      message: "Face detection failed",
+      error: error.message,
+    });
+  }
+};
+
+const getClassList = async (req, res, next) => {
+  try {
+    const classes = await getClasses();
+    res.status(200).json(classes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getClassList };

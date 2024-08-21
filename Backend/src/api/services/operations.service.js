@@ -1,3 +1,31 @@
-const faceDetection = async (imagepath) => {};
+import prisma from "../../config/prismaClient.js";
 
-export { faceDetection };
+const faceDetectionService = async (imagepath) => {};
+
+const suspectSearchService = async (
+  classname,
+  top_color,
+  bottom_color,
+  start_time,
+  end_time,
+  cameras,
+  location,
+) => {};
+
+const getClasses = async () => {
+  const result = await prisma.class.findMany();
+  return result;
+};
+
+// utility functions
+
+//get cameras by location
+async function getCamerasByLocation(location) {
+  const cameras = await prisma.camera.findMany({
+    where: {
+      location: location,
+    },
+  });
+}
+
+export { suspectSearchService, getClasses, faceDetectionService };
