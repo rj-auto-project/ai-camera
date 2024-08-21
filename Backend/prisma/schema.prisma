@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
@@ -14,9 +15,80 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String
-  password    String
-  employee_Id String   @unique
-  createdAt   DateTime @default(now())
+  id             Int         @id @default(autoincrement())
+  name           String
+  password       String
+  employee_Id    String      @unique
+  createdAt      DateTime    @default(now())
+  access_level   ACCESSLEVEL @default(VIEW)
+  view_detection Boolean     @default(false)
+}
+
+model CrowdCount {
+  id         Int      @id @default(autoincrement())
+  count      Int
+  timestamp  DateTime @default(now())
+  camera_ip  String   @db.VarChar(30)
+  confidence Float
+}
+
+model DetectionLog {
+  id              Int      @id @default(autoincrement())
+  timestamp       DateTime
+  cameraId        String
+  metadata        Json
+  trackId         String?
+  camera_ip       String   @db.VarChar(30)
+  boxCoords       String   @db.VarChar(255)
+  detectionClass  String   @db.VarChar(20)
+  classConfidence Float
+}
+
+model OperationLog {
+  id               Int      @id @default(autoincrement())
+  operationType    String   @db.VarChar(20)
+  operationData    Json
+  initialTimestamp DateTime
+  finalTimestamp   DateTime
+  cameraId         String   @db.VarChar(20)
+  userId           String   @db.VarChar(20)
+  closeTimestamp   DateTime
+  camera_ip        String   @db.VarChar(30)
+}
+
+model AnprLogs {
+  id                    Int      @id @default(autoincrement())
+  camera_ip             String   @db.VarChar(30)
+  camera_id             String   @db.VarChar(30)
+  time_stamp            DateTime @db.Timestamp(6)
+  detection_id          Int
+  meta_data             Json
+  license_number        String?  @db.VarChar(20)
+  prediction_confidence Float
+}
+
+model Camera {
+  cameraId       String   @id @db.VarChar(30)
+  cameraIp       String   @db.VarChar(30)
+  facingAngle    String   @db.VarChar(5)
+  location       String   @db.VarChar(50)
+  coordinates    Json
+  cameraName     String   @db.VarChar(50)
+  connectionType String   @db.VarChar(10)
+  cameraType     String   @db.VarChar(10)
+  status         Status
+  installed      DateTime
+  lastOnline     DateTime
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum ACCESSLEVEL {
+  ADMIN
+  WORK
+  VIEW
+  SERVER
 }
