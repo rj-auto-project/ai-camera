@@ -8,31 +8,31 @@ const getCamerasFormap = async () => {
   return cameras;
 };
 
-const performOperation = async (req, res, next) => {
-  try {
-    const { cameras, operation_type } = req.body;
+// const performOperation = async (req, res, next) => {
+//   try {
+//     const { cameras, operation_type } = req.body;
 
-    let result;
-    switch (operation_type) {
-      case "ANPR":
-        result = await runWorker("../workers/anpr.worker.js", cameras);
-        break;
+//     let result;
+//     switch (operation_type) {
+//       case "ANPR":
+//         result = await runWorker("../workers/anpr.worker.js", cameras);
+//         break;
 
-      case "Crowd Detection":
-        result = await runWorker(
-          "../workers/crowdDetection.worker.js",
-          cameras,
-        );
-        break;
+//       case "Crowd Detection":
+//         result = await runWorker(
+//           "../workers/crowdDetection.worker.js",
+//           cameras
+//         );
+//         break;
 
-      default:
-        throw new Error("Invalid operation type");
-    }
-    return result;
-  } catch (error) {
-    console.error("Error performing operation:", error);
-    return next(error);
-  }
-};
+//       default:
+//         throw new Error("Invalid operation type");
+//     }
+//     return result;
+//   } catch (error) {
+//     console.error("Error performing operation:", error);
+//     return next(error);
+//   }
+// };
 
-export { getCamerasFormap, performOperation };
+export { getCamerasFormap };

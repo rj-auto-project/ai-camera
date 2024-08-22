@@ -1,18 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextField, Button, Typography, CircularProgress, Alert } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Alert,
+  InputAdornment,
+  Grid,
+  Box,
+} from "@mui/material";
 import { useLogin } from "../api/api";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { IoIosUnlock } from "react-icons/io";
+import PersonIcon from "@mui/icons-material/Person";
 
 function Login() {
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
-  const { mutate: login, isLoading, isError, error } = useLogin();
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const { mutate: login, isPending, isError, error } = useLogin();
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
     event.preventDefault();
     login(
-      { employeeId , password },
+      { employeeId, password },
       {
         onSuccess: () => {
           navigate("/dashboard");
@@ -26,59 +39,111 @@ function Login() {
 
   return (
     <>
-      <nav className="bg-blue-600 p-4 px-32 ">
-        <ul className="container mx-auto flex justify-between items-center">
-          <li>
-            <a href="">Home</a>
-          </li>
-          <li className="flex">Icon</li>
-          <li className="flex items-center justify-center gap-3">
-            <p>Not a Member? </p>
-            <Button size="small">Sign up</Button>
-          </li>
-        </ul>
-      </nav>
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-1/2 grid items-center justify-center p-8 rounded-lg shadow-lg">
-          <Typography variant="h4" className="text-white text-2xl font-bold text-center">
-            Login
-          </Typography>
-          {isError && (
-            <Alert severity="error" className="mb-4">
-              {error?.response?.data?.message || error.message}
-            </Alert>
-          )}
-          <div className="flex items-center justify-center">
+      <Box p={3}>
+        <nav>
+          <Grid container justifyContent="space-between" alignItems="center">
+            <Grid item>
+              <a href="#">Home</a>
+            </Grid>
+            <Grid item>Icon</Grid>
+            <Grid item>
+              <Grid container alignItems="center" spacing={1}>
+                <Grid item>
+                  <p>Not a Member? </p>
+                </Grid>
+                <Grid item>
+                  <Button size="small" onClick={() => navigate("/signup")}>
+                    Sign up
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </nav>
+      </Box>
+
+      <Grid container justifyContent="center" alignItems="center" style={{ height: "80vh" }}>
+        <Grid item xs={7} sm={6} md={6} lg={3}>
+          <Box p={4} style={{ backgroundColor: "#333", borderRadius: "8px" }}>
+            <Typography
+              variant="h4"
+              align="center"
+              gutterBottom
+              style={{ color: "white", fontWeight: "bold" }}
+            >
+              Login
+            </Typography>
+
+            {isError && (
+              <Alert severity="error" className="mb-4">
+                {error?.response?.data?.message || error.message}
+              </Alert>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-4">
               <TextField
                 label="Employee Id"
+                type="text"
                 fullWidth
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
                 variant="standard"
-                className="rounded"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
               />
+
               <TextField
                 label="Password"
-                type="password"
+                type={isPasswordHidden ? "password" : "text"}
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 variant="standard"
-                className=""
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IoIosUnlock />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <button
+                        type="button"
+                        onClick={() => setIsPasswordHidden(!isPasswordHidden)}
+                        style={{ background: "none", border: "none", padding: 0, margin: 0 }}
+                      >
+                        {isPasswordHidden ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <div className="w-full flex items-center justify-center">
-                <Button type="submit" className="" size="large" disabled={isLoading}>
-                  {isLoading ? <CircularProgress size={24} /> : "Login"}
+
+              <Box mt={2}>
+                <Button
+                  type="submit"
+                  size="large"
+                  disabled={isPending}
+                  className="bg-yellow-500 text-white"
+                  fullWidth
+                  startIcon={isPending ? <CircularProgress size={20} color="inherit" /> : null}
+                >
+                  {isPending ? "Logging in..." : "Login"}
                 </Button>
-              </div>
+              </Box>
             </form>
-          </div>
-          <div className="py-5 hover:text-gray-400">
-            <a href="">Forget Your Password?</a>
-          </div>
-        </div>
-      </div>
+
+            <Box mt={2} textAlign="center">
+              <a href="#" className="hover:text-gray-400">Forget Your Password?</a>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     </>
   );
 }
