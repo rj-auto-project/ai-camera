@@ -1,20 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextField, Button, Container, Typography } from "@mui/material";
-
+import { TextField, Button, Typography, CircularProgress, Alert } from "@mui/material";
+import { useLogin } from "../api/api";
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
+  const { mutate: login, isLoading, isError, error } = useLogin();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    if (email === "test@test.com" && password === "password") {
-      localStorage.setItem("auth", "true");
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
-    }
+  const handleLogin = (event) => {
+    event.preventDefault();
+    login(
+      { employeeId , password },
+      {
+        onSuccess: () => {
+          navigate("/dashboard");
+        },
+        onError: () => {
+          console.error("Login failed:", error);
+        },
+      }
+    );
   };
 
   return (
@@ -31,24 +38,25 @@ function Login() {
           </li>
         </ul>
       </nav>
-      <div className=" flex items-center justify-center  h-screen height">
-        <div className="w-1/2 grid items-center justify-center  p-8 rounded-lg shadow-lg ">
-          <Typography
-            variant="h4"
-            className="text-white  text-2xl font-bold   text-center"
-          >
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-1/2 grid items-center justify-center p-8 rounded-lg shadow-lg">
+          <Typography variant="h4" className="text-white text-2xl font-bold text-center">
             Login
           </Typography>
+          {isError && (
+            <Alert severity="error" className="mb-4">
+              {error?.response?.data?.message || error.message}
+            </Alert>
+          )}
           <div className="flex items-center justify-center">
-            <form onSubmit={handleLogin} className="space-y-4 ">
+            <form onSubmit={handleLogin} className="space-y-4">
               <TextField
-                label="Email"
-                type="email"
+                label="Employee Id"
                 fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
                 variant="standard"
-                className=" rounded "
+                className="rounded"
               />
               <TextField
                 label="Password"
@@ -59,16 +67,14 @@ function Login() {
                 variant="standard"
                 className=""
               />
-              <div className="w-full  flex items-center justify-center">
-              <Button type="submit" className=" " size="large">
-                Login
-              </Button>
+              <div className="w-full flex items-center justify-center">
+                <Button type="submit" className="" size="large" disabled={isLoading}>
+                  {isLoading ? <CircularProgress size={24} /> : "Login"}
+                </Button>
               </div>
-              {/* fullWidth */}
             </form>
           </div>
-
-          <div className="py-5  hover:text-gray-400">
+          <div className="py-5 hover:text-gray-400">
             <a href="">Forget Your Password?</a>
           </div>
         </div>

@@ -8,8 +8,10 @@ import Dashboard from "./screens/dashboard";
 import Streams from "./screens/streams";
 import Operations from "./screens/operations";
 import PrivateRoute from "./components/privateRoute";
-import NotFound from "./screens/notFound"; 
+import NotFound from "./screens/notFound";
 import Map from "./screens/map/map";
+import SplashScreen from "./screens/splashScreen"; // Import SplashScreen
+import Logout from "./screens/logout";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -20,34 +22,17 @@ const App = () => {
       <div className={darkMode ? "dark" : ""}>
         <Router>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<SplashScreen />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route element={<PrivateRoute />}>
-              <Route path="/dashboard/" element={<Dashboard />}>
-                <Route
-                  path=""
-                  element={<Typography>Welcome to the Dashboard</Typography>}
-                />
-                <Route
-                  path="map"
-                  element={<Map />}
-                />
-                <Route
-                  path="streams"
-                  element={<Streams/>}
-                />
-                <Route
-                  path="operations"
-                  element={<Operations/>}
-                />
-                <Route
-                  path="settings"
-                  element={<Typography>Settings</Typography>}
-                />
-                <Route
-                  path="logout"
-                  element={<Typography>Logout</Typography>}
-                />
+              <Route path="/dashboard" element={<Dashboard />}>
+                <Route path="" element={<Typography>Welcome to the Dashboard</Typography>} />
+                <Route path="map" element={<Map />} />
+                <Route path="streams" element={<Streams />} />
+                <Route path="operations" element={<Operations />} />
+                <Route path="settings" element={<Typography>Settings</Typography>} />
+                <Route path="logout" element={<Logout/>} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
