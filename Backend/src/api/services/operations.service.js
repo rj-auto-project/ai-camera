@@ -12,7 +12,15 @@ const suspectSearchService = async (
   location,
 ) => {};
 
-const getClasses = async () => {
+const getClasses = async (objectType) => {
+  if (objectType) {
+    const result = await prisma.class.findMany({
+      where: {
+        objectType: objectType,
+      },
+    });
+    return result;
+  }
   const result = await prisma.class.findMany();
   return result;
 };
@@ -26,6 +34,12 @@ async function getCamerasByLocation(location) {
       location: location,
     },
   });
+  return cameras;
 }
 
-export { suspectSearchService, getClasses, faceDetectionService };
+export {
+  suspectSearchService,
+  getClasses,
+  faceDetectionService,
+  getCamerasByLocation,
+};
