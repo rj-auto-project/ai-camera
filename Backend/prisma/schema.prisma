@@ -85,7 +85,7 @@ model Camera {
 model Class {
   id          Int    @id @default(autoincrement())
   className   String @db.VarChar(255)
-  classStatus Status
+  objectType  String? @db.VarChar(255) 
 }
 
 enum Status {
