@@ -14,8 +14,7 @@ import {
   fetchCamerasSuccess,
   fetchCamerasFailure,
 } from "../features/camera/cameraSlice";
-
-const apiBaseURL = "https://ai-camera.onrender.com/api/v1";
+import { BASE_URL } from "./url";
 
 export const useLogin = () => {
   const dispatch = useDispatch();
@@ -23,8 +22,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (data) => {
       dispatch(loginStart());
-      console.log(data);
-      const response = await axios.post(`${apiBaseURL}/auth/login`, data);
+      const response = await axios.post(`${BASE_URL}/auth/login`, data);
       return response.data;
     },
     onSuccess: (data) => {
@@ -43,7 +41,7 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: async (data) => {
       dispatch(signupStart());
-      const response = await axios.post(`${apiBaseURL}/auth/register`, data);
+      const response = await axios.post(`${BASE_URL}/auth/register`, data);
       return response.data;
     },
     onSuccess: (data) => {
@@ -66,7 +64,14 @@ export const useFetchCameras = () => {
     queryKey: ["cameras"],
     queryFn: async () => {
       dispatch(fetchCamerasStart());
-      const response = await axios.get(`${apiBaseURL}/map/cameras`);
+      const token = localStorage.getItem("token");
+      console.log(token);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.get(`${BASE_URL}/map/cameras`, config);
       return response.data;
     },
     onSuccess: (data) => {

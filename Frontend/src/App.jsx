@@ -10,8 +10,9 @@ import Operations from "./screens/operations";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
 import Map from "./screens/map/map";
-import SplashScreen from "./screens/splashScreen"; // Import SplashScreen
+import SplashScreen from "./screens/splashScreen";
 import Logout from "./screens/logout";
+import Reports from "./screens/reports";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -32,6 +33,7 @@ const App = () => {
                 <Route path="streams" element={<Streams />} />
                 <Route path="operations" element={<Operations />} />
                 <Route path="settings" element={<Typography>Settings</Typography>} />
+                <Route path="reports" element={<Reports/>} />
                 <Route path="logout" element={<Logout/>} />
               </Route>
             </Route>
