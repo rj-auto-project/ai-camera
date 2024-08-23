@@ -1,59 +1,67 @@
 import fs from "fs";
 import {
-  faceDetectionService,
   suspectSearchService,
   getClasses,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
-const faceDetection = async (req, res) => {
-  try {
-    const files = req.files;
-    if (!files || files.length === 0) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "No images uploaded" });
-    }
+// to be done
+// const faceDetection = async (req, res) => {
+//   try {
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ status: "fail", message: "No images uploaded" });
+//     }
 
-    const result = await Promise.all(
-      files.map(async (file) => {
-        try {
-          const matchingImage = await faceDetection(file.path);
-          fs.unlinkSync(file.path);
-          return {
-            file: file.originalname,
-            matchingImage,
-          };
-        } catch (error) {
-          console.error("Error detecting face:", error);
-          return {
-            status: "fail",
-            message: "Face detection failed",
-            error: error.message,
-          };
-        }
-      }),
-    );
+//     const result = await Promise.all(
+//       files.map(async (file) => {
+//         try {
+//           const matchingImage = await faceDetection(file.path);
+//           fs.unlinkSync(file.path);
+//           return {
+//             file: file.originalname,
+//             matchingImage,
+//           };
+//         } catch (error) {
+//           console.error("Error detecting face:", error);
+//           return {
+//             status: "fail",
+//             message: "Face detection failed",
+//             error: error.message,
+//           };
+//         }
+//       })
+//     );
 
-    res.json({
-      status: "ok",
-      message: "Face detection completed successfully",
-      result,
-    });
-  } catch (error) {
-    console.error("Error performing operation:", error);
-    res.status(500).json({
-      status: "fail",
-      message: "Face detection failed",
-      error: error.message,
-    });
-  }
-};
+//     res.json({
+//       status: "ok",
+//       message: "Face detection completed successfully",
+//       result,
+//     });
+//   } catch (error) {
+//     console.error("Error performing operation:", error);
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Face detection failed",
+//       error: error.message,
+//     });
+//   }
+// };
 
 const suspectSearch = async (req, res) => {
   try {
     const { cameras, classes, startTime, endTime, top_color, bottom_color } =
       req.body;
+    const employeeId = req.userId;
+    console.log("Employee ID:", employeeId);
+    if (!employeeId) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Unauthorized access",
+      });
+    }
 
     // Ensure the required fields are provided
     if (!cameras || !classes || !startTime || !endTime) {
@@ -64,69 +72,26 @@ const suspectSearch = async (req, res) => {
       });
     }
 
-    // Convert startTime and endTime to ISO-8601 Date strings
-    const start_time = new Date(startTime).toISOString();
-    const end_time = new Date(endTime).toISOString();
+    const results = await suspectSearchService(
+      cameras,
+      classes,
+      startTime,
+      endTime,
+      top_color,
+      bottom_color,
+      employeeId,
+    );
 
-    // Check if the dates are valid
-    if (isNaN(new Date(start_time)) || isNaN(new Date(end_time))) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid date format provided.",
-      });
-    }
-
-    // Perform the search in the DetectionLog model
-    const results = await prisma.detectionLog.findMany({
-      where: {
-        OR: [
-          {
-            metadata: {
-              path: ["top"],
-              equals: top_color, // Use topColor from req.body
-            },
-          },
-          {
-            metadata: {
-              path: ["bottom"],
-              equals: bottom_color, // Use bottomColor from req.body
-            },
-          },
-        ],
-        AND: [
-          {
-            cameraId: {
-              in: cameras, // Use cameraIds array from req.body
-            },
-          },
-          {
-            timestamp: {
-              gte: new Date(startTime), // Start time from req.body
-              lte: new Date(endTime), // End time from req.body
-            },
-          },
-          {
-            detectionClass: {
-              in: classes,
-            },
-          },
-        ],
-      },
-      distinct: ["trackId"],
-    });
-
-    // Handle case where no results are found
     if (!results || results.length === 0) {
-      return res.status(404).json({
-        status: "fail",
+      return res.json({
+        status: "ok",
         message: "No results found",
       });
     }
-
-    // Send the response with the search results
-    res.status(200).json({
-      status: "success",
-      data: results,
+    return res.json({
+      status: "ok",
+      message: "Suspect search completed successfully",
+      results,
     });
   } catch (error) {
     console.error("Error performing operation:", error);
@@ -172,4 +137,16 @@ const getClassList = async (req, res) => {
   }
 };
 
-export { getClassList, suspectSearch };
+const anprOperation = async (req, res) => {
+  try {
+  } catch (error) {
+    console.error("Error performing operation:", error);
+    res.status(500).json({
+      status: "fail",
+      message: "ANPR operation failed",
+      error: error.message,
+    });
+  }
+};
+
+export { getClassList, suspectSearch, anprOperation };

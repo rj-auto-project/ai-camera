@@ -50,10 +50,11 @@ model OperationLog {
   operationData    Json
   initialTimestamp DateTime
   finalTimestamp   DateTime
-  cameraId         String   @db.VarChar(20)
   userId           String   @db.VarChar(20)
   closeTimestamp   DateTime
-  camera_ip        String   @db.VarChar(30)
+  operationStatus  Status   @default(ACTIVE)
+
+  cameras Camera[]
 }
 
 model AnprLogs {
@@ -69,23 +70,25 @@ model AnprLogs {
 }
 
 model Camera {
-  cameraId       String   @id @db.VarChar(30)
-  cameraIp       String   @db.VarChar(30)
-  facingAngle    String   @db.VarChar(5)
-  location       String   @db.VarChar(50)
+  cameraId       String        @id @db.VarChar(30)
+  cameraIp       String        @db.VarChar(30)
+  facingAngle    String        @db.VarChar(5)
+  location       String        @db.VarChar(50)
   coordinates    Json
-  cameraName     String   @db.VarChar(50)
-  connectionType String   @db.VarChar(10)
-  cameraType     String   @db.VarChar(10)
+  cameraName     String        @db.VarChar(50)
+  connectionType String        @db.VarChar(10)
+  cameraType     String        @db.VarChar(10)
   status         Status
   installed      DateTime
   lastOnline     DateTime
+  OperationLog   OperationLog? @relation(fields: [operationLogId], references: [id])
+  operationLogId Int?
 }
 
 model Class {
-  id          Int    @id @default(autoincrement())
-  className   String @db.VarChar(255)
-  objectType  String? @db.VarChar(255) 
+  id         Int    @id @default(autoincrement())
+  className  String @db.VarChar(255)
+  objectType String @db.VarChar(255)
 }
 
 enum Status {
