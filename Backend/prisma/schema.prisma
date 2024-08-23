@@ -45,16 +45,17 @@ model DetectionLog {
 }
 
 model OperationLog {
-  id               Int      @id @default(autoincrement())
-  operationType    String   @db.VarChar(20)
-  operationData    Json
-  initialTimestamp DateTime
-  finalTimestamp   DateTime
-  userId           String   @db.VarChar(20)
-  closeTimestamp   DateTime
-  operationStatus  Status   @default(ACTIVE)
+  id                    Int      @id @default(autoincrement())
+  operationType         String   @db.VarChar(255)
+  operationRequestData  Json?     @db.Json
+  operationResponseData Json?     @db.Json
+  initialTimestamp      DateTime
+  finalTimestamp        DateTime
+  userId                String   @db.VarChar(20)
+  closeTimestamp        DateTime
+  operationStatus       Status   @default(ACTIVE)
 
-  cameras Camera[]
+  cameras Camera[] @relation("OperationCameras")
 }
 
 model AnprLogs {
@@ -70,19 +71,20 @@ model AnprLogs {
 }
 
 model Camera {
-  cameraId       String        @id @db.VarChar(30)
-  cameraIp       String        @db.VarChar(30)
-  facingAngle    String        @db.VarChar(5)
-  location       String        @db.VarChar(50)
+  cameraId       String   @id @db.VarChar(30)
+  cameraIp       String   @db.VarChar(30)
+  facingAngle    String   @db.VarChar(5)
+  location       String   @db.VarChar(50)
   coordinates    Json
-  cameraName     String        @db.VarChar(50)
-  connectionType String        @db.VarChar(10)
-  cameraType     String        @db.VarChar(10)
+  cameraName     String   @db.VarChar(50)
+  connectionType String   @db.VarChar(10)
+  cameraType     String   @db.VarChar(10)
   status         Status
   installed      DateTime
   lastOnline     DateTime
-  OperationLog   OperationLog? @relation(fields: [operationLogId], references: [id])
-  operationLogId Int?
+
+  // Relation to OperationLog, without referencing back to OperationLog directly
+  operations OperationLog[] @relation("OperationCameras")
 }
 
 model Class {
