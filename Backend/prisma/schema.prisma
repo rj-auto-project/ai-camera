@@ -47,8 +47,8 @@ model DetectionLog {
 model OperationLog {
   id                    Int      @id @default(autoincrement())
   operationType         String   @db.VarChar(255)
-  operationRequestData  Json?     @db.Json
-  operationResponseData Json?     @db.Json
+  operationRequestData  Json?    @db.Json
+  operationResponseData Json?    @db.Json
   initialTimestamp      DateTime
   finalTimestamp        DateTime
   userId                String   @db.VarChar(20)
@@ -65,7 +65,7 @@ model AnprLogs {
   time_stamp            DateTime @db.Timestamp(6)
   detection_id          Int
   meta_data             Json
-  license_number        String?  @db.VarChar(20)
+  license_number        String  @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
 }
