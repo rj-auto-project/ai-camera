@@ -33,7 +33,13 @@ const suspectSearchService = async (
           cameraId: camera?.cameraId,
         })),
       },
-      operationData: "Pending",
+      operationRequestData: {
+        classes: classes,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        topColor: top_color,
+        bottomColor: bottom_color,
+      },
       initialTimestamp: new Date(),
       finalTimestamp: new Date(),
       userId: employeeId,
@@ -49,26 +55,26 @@ const suspectSearchService = async (
         {
           metadata: {
             path: ["top"],
-            equals: top_color, // Use topColor from req.body
+            equals: top_color,
           },
         },
         {
           metadata: {
             path: ["bottom"],
-            equals: bottom_color, // Use bottomColor from req.body
+            equals: bottom_color,
           },
         },
       ],
       AND: [
         {
           cameraId: {
-            in: cameras, // Use cameraIds array from req.body
+            in: cameras,
           },
         },
         {
           timestamp: {
-            gte: new Date(startTime), // Start time from req.body
-            lte: new Date(endTime), // End time from req.body
+            gte: new Date(startTime),
+            lte: new Date(endTime),
           },
         },
         {
@@ -101,7 +107,9 @@ const suspectSearchService = async (
       id: newOperation?.id,
     },
     data: {
-      operationData: results,
+      operationResponseData: {
+        results: results,
+      },
       finalTimestamp: new Date(),
       closeTimestamp: new Date(),
       operationStatus: "INACTIVE",
