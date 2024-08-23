@@ -139,6 +139,43 @@ const getClassList = async (req, res) => {
 
 const anprOperation = async (req, res) => {
   try {
+    const {
+      cameras,
+      startTime,
+      endTime,
+      licensePlate,
+      vehicleClass,
+      topColor,
+      bottomColor = topColor,
+    } = req.body;
+    const employeeId = req.userId;
+    if (!employeeId) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Unauthorized access",
+      });
+    }
+
+    if (!cameras || cameras.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "No cameras provided",
+      });
+    }
+
+    if (!startTime || !endTime) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Start and end time are required",
+      });
+    }
+
+    if (!vehicleClass || !topColor || !bottomColor) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Vehicle class, top color, and bottom color are required",
+      });
+    }
   } catch (error) {
     console.error("Error performing operation:", error);
     res.status(500).json({
