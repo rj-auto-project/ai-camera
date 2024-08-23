@@ -2,7 +2,7 @@ import React from 'react'
 
 const Streams = () => {
   return (
-    <div className='bg-white'>
+    <div>
       <h1>Streams</h1>
     </div>
   )

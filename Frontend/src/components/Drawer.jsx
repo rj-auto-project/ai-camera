@@ -20,6 +20,7 @@ import {
   Logout,
   Stream,
   TaskAltOutlined,
+  Report,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
@@ -36,6 +37,7 @@ export default function CustomDrawer() {
     { text: "Map", path: "map", icon: <GrMapLocation size={23} /> },
     { text: "Streams", path: "streams", icon: <Stream /> },
     { text: "Operations", path: "operations", icon: <TaskAltOutlined /> },
+    { text: "Reports", path: "reports", icon: <Report /> },
   ];
 
   const drawer = (

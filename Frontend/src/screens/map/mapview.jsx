@@ -11,6 +11,7 @@ const MapView = ({ center, DEFAULT_ZOOM, mapRef, children }) => (
     maxZoom={18}
     style={{ width: "100%", height: "100%" }}
     ref={mapRef}
+    zoomControl={false}
   >
     <TileLayer
       url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
