@@ -89,7 +89,6 @@ const suspectSearchService = async (
     const thumbnailPath = await getThumbnail(
       "D:\\RJ ai cam\\traffic_light.mp4",
       result?.timestamp,
-      result?.boxCoords,
     );
     result.thumbnail = thumbnailPath;
     return result;

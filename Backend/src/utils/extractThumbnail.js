@@ -2,6 +2,7 @@ import ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import crypto from "crypto";
 
 // Resolve __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -21,56 +22,38 @@ ffmpeg.setFfmpegPath(
 
 const formatTimeWithinMinute = (isoTimestamp) => {
   const date = new Date(isoTimestamp);
-
-  // Calculate relative time within the current minute
   const seconds = date.getSeconds();
   const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
 
   return `${seconds}.${milliseconds}`;
 };
 
-const getThumbnail = async (videoPath, timestamp, boxCoords) => {
-  const dateTimestamp = new Date(timestamp); // Convert to Date object
+const getThumbnail = async (videoPath, timestamp) => {
+  const dateTimestamp = new Date(timestamp);
 
-  // Get the relative timecode within the 1-minute video segment
   const timeCode = formatTimeWithinMinute(dateTimestamp);
   console.log("Relative Timecode:", timeCode);
 
+  const outputDir = path.resolve(__dirname, "../../../../suspectThumbnails");
+
+  const uniqueId = crypto.randomBytes(8).toString("hex");
   const highlightedImagePath = path.join(
-    __dirname,
-    "../../../../ai-camera/suspectThumbnails",
-    `highlighted-${dateTimestamp.toISOString().replace(/:/g, "-")}.jpg`,
+    outputDir,
+    `highlighted-${dateTimestamp
+      .toISOString()
+      .replace(/:/g, "-")}-${uniqueId}.jpg`,
   );
 
-  // Ensure the output directory exists
-  ensureDirectoryExists(
-    path.join(__dirname, "../../../../ai-camera/suspectThumbnails"),
-  );
+  ensureDirectoryExists(outputDir);
 
   try {
-    // Scaling factors for the original image resolution (1920x1080) to 480x640
-    const originalWidth = 1920;
-    const originalHeight = 1080;
-    const videoWidth = 640;
-    const videoHeight = 480;
-
-    const scaleX = videoWidth / originalWidth;
-    const scaleY = videoHeight / originalHeight;
-
-    const [left, top, width, height] = JSON.parse(boxCoords);
-    const scaledLeft = Math.round(left * scaleX);
-    const scaledTop = Math.round(top * scaleY);
-    const scaledWidth = Math.round(width * scaleX);
-    const scaledHeight = Math.round(height * scaleY);
-
-    // Extract frame and add a red border directly, saving the highlighted image
+    console.log("Starting ffmpeg process..."); // Log before starting
     await new Promise((resolve, reject) => {
       ffmpeg(videoPath)
-        .on("start", (commandLine) => {
-          console.log("Spawned ffmpeg with command!");
-        })
-        .on("stderr", (stderrLine) => {
-          console.log("stderr output:", stderrLine);
+        .on("start", () => {
+          console.log(
+            `Spawned ffmpeg with command for ${highlightedImagePath}`,
+          );
         })
         .on("end", () => {
           console.log("Highlighted image created at:", highlightedImagePath);
@@ -80,16 +63,12 @@ const getThumbnail = async (videoPath, timestamp, boxCoords) => {
           console.error("Error:", err.message);
           reject(err);
         })
-        .seekInput(timeCode) // Go to the correct frame
-        .outputOptions([
-          `-vf drawbox=x=${scaledLeft - 5}:y=${scaledTop - 5}:w=${
-            scaledWidth + 10
-          }:h=${scaledHeight + 10}:color=red@1.0:t=5`, // Red border
-        ])
+        .seekInput(timeCode)
+        .frames(1)
         .output(highlightedImagePath)
-        .run(); // Run the command
+        .run();
     });
-
+    console.log("Finished ffmpeg process"); // Log after completion
     return highlightedImagePath;
   } catch (err) {
     console.error("Error processing image:", err.message);
