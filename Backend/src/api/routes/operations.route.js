@@ -9,12 +9,6 @@ import {
 
 const router = express.Router();
 
-// router.post(
-//   "/face-detection",
-//   authMiddleware,
-//   upload.array("images", 4),
-//   faceDetection,
-// );
 router.post("/suspect-search", authMiddleware, suspectSearch);
 router.post("/anpr", authMiddleware, anprOperation);
 
