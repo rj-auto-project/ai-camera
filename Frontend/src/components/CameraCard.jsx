@@ -3,60 +3,31 @@ import CloseIcon from "@mui/icons-material/Close";
 
 const CameraCard = ({ camera, onRemove }) => {
   return (
-    <div style={cardStyle}>
-      <div style={cardHeaderStyle}>
-        <div>
-          <strong>{camera.cameraName}</strong>
-          <br />
-          <b>Camera Id:</b> {camera.cameraId}
+    <div className="border border-gray-300 rounded-lg mb-1.5 bg-white overflow-hidden">
+      <div className="flex justify-between items-start bg-gray-700 text-white p-1.5 border-b border-gray-300">
+        <div className="flex flex-col">
+          <strong className="text-sm tracking-wide">{camera.cameraName}</strong>
+          <div className="mt-0.5 text-xs tracking-wide">
+            <b>Camera Id:</b> {camera.cameraId}
+          </div>
         </div>
-        <button onClick={onRemove} style={removeButtonStyle}>
-          <CloseIcon style={iconStyle} />
+        <button onClick={onRemove} className="border-none bg-none cursor-pointer ml-1 p-0">
+          <CloseIcon fontSize="24px" className="bg-red-600 rounded-full text-sm hover:bg-red-400" />
         </button>
       </div>
-      <div style={cardBodyStyle}>
-        <b>Location:</b> {camera.location}
-        <br />
-        <b>Status:</b> {camera.status}
-        <br />
-        <b>Type:</b> {camera.cameraType}
+      <div className="p-1">
+        <div className="mb-1 text-xs">
+          <b>Location:</b> {camera.location}
+        </div>
+        <div className="mb-1 text-xs">
+          <b>Status:</b> {camera.status}
+        </div>
+        <div className="text-xs">
+          <b>Type:</b> {camera.cameraType}
+        </div>
       </div>
     </div>
   );
-};
-
-const cardStyle = {
-  border: "1px solid #ddd",
-  borderRadius: "8px",
-  marginBottom: "10px",
-  backgroundColor: "#fff",
-  overflow: "hidden",
-};
-
-const cardHeaderStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  backgroundColor: "gray",
-  color: "white",
-  padding: "10px",
-  borderBottom: "1px solid #ddd",
-};
-
-const removeButtonStyle = {
-  border: "none",
-  background: "none",
-  cursor: "pointer",
-};
-
-const iconStyle = {
-  backgroundColor:"red",
-  borderRadius: "50%",
-  fontSize: "24px",
-};
-
-const cardBodyStyle = {
-  padding: "10px",
 };
 
 export default CameraCard;

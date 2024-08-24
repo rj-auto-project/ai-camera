@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./DraggablePanel.css";
+import Close from "@mui/icons-material/Close";
 
 const DraggablePanel = ({
   children,
-  top = "5%",
+  top = "7%",
   left,
   right = "2%",
   bottom = "5%",
-  width = "400px",
+  width = "300px",
   minWidth = "300px",
   maxWidth = "90%",
   initialMaximized = true,
@@ -16,11 +17,17 @@ const DraggablePanel = ({
   zIndex = 1000,
   footerButtonLabel = "Continue",
   onFooterButtonClick,
+  setCameraList,
 }) => {
   const [isMaximized, setIsMaximized] = useState(initialMaximized);
 
   const toggleMaximize = () => {
     setIsMaximized(!isMaximized);
+  };
+
+  const closePanel = () => {
+    sessionStorage.removeItem('selectedCameraList');
+    setCameraList([]);
   };
 
   const panelStyles = isMaximized
@@ -44,6 +51,8 @@ const DraggablePanel = ({
         minWidth,
       };
 
+
+
   return (
     <div className="resizable-panel" style={{ ...panelStyles, zIndex }}>
       <div className="panel-header">
@@ -56,16 +65,20 @@ const DraggablePanel = ({
           >
             {isMaximized ? "🗗" : "🗖"}
           </button>
+          <button
+            className="panel-button"
+            onClick={closePanel}
+            aria-label="Close"
+          >
+            <Close/>
+          </button>
         </div>
       </div>
       {isMaximized && (
         <div className="panel-content">
           {children}
           <div className="panel-footer">
-            <button
-              className="footer-button"
-              onClick={onFooterButtonClick}
-            >
+            <button className="footer-button" onClick={onFooterButtonClick}>
               {footerButtonLabel}
             </button>
           </div>
