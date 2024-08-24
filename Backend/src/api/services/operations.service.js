@@ -208,8 +208,8 @@ const anprOperationService = async (
         },
         {
           time_stamp: {
-            gte: new Date(startTime),
-            lte: new Date(endTime),
+            gte: startTime,
+            lte: endTime,
           },
         },
       ],
