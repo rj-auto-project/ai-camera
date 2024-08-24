@@ -1,7 +1,7 @@
 import fs from "fs";
 import {
   suspectSearchService,
-  getClasses,
+  anprOperationService,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
@@ -103,51 +103,9 @@ const suspectSearch = async (req, res) => {
   }
 };
 
-const getClassList = async (req, res) => {
-  try {
-    const { objectType } = req.query;
-    if (objectType) {
-      const classes = await getClasses(objectType);
-      if (!classes || classes.length === 0) {
-        return res.json({
-          status: "fail",
-          message: "No classes found",
-        });
-      }
-      return res.json({
-        status: "ok",
-        message: "Classes fetched successfully",
-        classes,
-      });
-    } else {
-      const classes = await getClasses();
-      return res.json({
-        status: "ok",
-        message: "Classes fetched successfully",
-        classes,
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching classes:", error);
-    res.status(500).json({
-      status: "fail",
-      message: "Failed to fetch classes",
-      error: error.message,
-    });
-  }
-};
-
 const anprOperation = async (req, res) => {
   try {
-    const {
-      cameras,
-      startTime,
-      endTime,
-      licensePlate,
-      vehicleClass,
-      topColor,
-      bottomColor = topColor,
-    } = req.body;
+    const { cameras, startTime, endTime, licensePlate, ownerName } = req.body;
     const employeeId = req.userId;
     if (!employeeId) {
       return res.status(401).json({
@@ -170,12 +128,26 @@ const anprOperation = async (req, res) => {
       });
     }
 
-    if (!vehicleClass || !topColor || !bottomColor) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Vehicle class, top color, and bottom color are required",
+    const results = await anprOperationService(
+      cameras,
+      startTime,
+      endTime,
+      licensePlate,
+      employeeId,
+      ownerName,
+    );
+    if (!results || results.length === 0) {
+      return res.json({
+        status: "ok",
+        message: "No results found",
       });
     }
+
+    return res.json({
+      status: "ok",
+      message: "ANPR operation completed successfully",
+      results,
+    });
   } catch (error) {
     console.error("Error performing operation:", error);
     res.status(500).json({
@@ -186,4 +158,4 @@ const anprOperation = async (req, res) => {
   }
 };
 
-export { getClassList, suspectSearch, anprOperation };
+export { suspectSearch, anprOperation };

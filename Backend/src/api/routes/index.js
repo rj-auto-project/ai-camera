@@ -3,13 +3,16 @@ import express from "express";
 import authRoutes from "./auth.routes.js";
 import mapRoutes from "./map.routes.js";
 import operationsRoutes from "./operations.route.js";
-import prisma from "../../config/prismaClient.js";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
 
 const router = express.Router();
 
 router.use("/auth", authRoutes);
 router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
+router.get("/objectTypes", authMiddleware, getObjectTypes);
+router.get("/classlist", authMiddleware, getClassList);
 
 // router.post("/insert-data", async (req, res) => {
 //   try {
