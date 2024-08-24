@@ -39,7 +39,7 @@ const getThumbnail = async (videoPath, timestamp) => {
   const uniqueId = crypto.randomBytes(8).toString("hex");
   const highlightedImagePath = path.join(
     outputDir,
-    `highlighted-${dateTimestamp
+    `thumbnail-${dateTimestamp
       .toISOString()
       .replace(/:/g, "-")}-${uniqueId}.jpg`,
   );

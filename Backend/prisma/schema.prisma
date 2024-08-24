@@ -65,9 +65,10 @@ model AnprLogs {
   time_stamp            DateTime @db.Timestamp(6)
   detection_id          Int
   meta_data             Json
-  license_number        String  @db.VarChar(20)
+  license_number        String   @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
+  boxCoords             String   @db.VarChar(255)
 }
 
 model Camera {
@@ -83,7 +84,6 @@ model Camera {
   installed      DateTime
   lastOnline     DateTime
 
-  // Relation to OperationLog, without referencing back to OperationLog directly
   operations OperationLog[] @relation("OperationCameras")
 }
 
@@ -99,8 +99,8 @@ enum Status {
 }
 
 enum ACCESSLEVEL {
-  ADMIN
-  WORK
-  VIEW
-  SERVER
+  ADMIN // access to everything  eg. creation of user
+  WORK // access to operations
+  VIEW // for viewer developers
+  SERVER //for server developers
 }
