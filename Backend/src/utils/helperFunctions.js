@@ -54,4 +54,19 @@ const getClassList = async (req, res) => {
   }
 };
 
-export { getObjectTypes, getClassList };
+const formatTimestamp = (timestamp) => {
+  const dateObj = new Date(timestamp);
+
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+
+  const hours = String(dateObj.getHours()).padStart(2, "0");
+  const formattedTime = `${hours}-00-00`;
+
+  const formattedDate = `${year}-${month}-${day}`;
+
+  return { datefolder: formattedDate, videotime: formattedTime };
+};
+
+export { getObjectTypes, getClassList, formatTimestamp };

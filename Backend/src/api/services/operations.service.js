@@ -1,5 +1,6 @@
 import prisma from "../../config/prismaClient.js";
 import { getThumbnail } from "../../utils/extractThumbnail.js";
+import { formatTimestamp } from "../../utils/helperFunctions.js";
 
 // const faceDetectionService = async (imagepath) => {};
 
@@ -90,8 +91,9 @@ const suspectSearchService = async (
   }
 
   const thumbnailPromises = results.map(async (result) => {
+    const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
-      "D:\\RJ ai cam\\traffic_light.mp4",
+      `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
       result?.timestamp,
     );
     result.thumbnail = thumbnailPath;
@@ -224,7 +226,7 @@ const anprOperationService = async (
 
   const thumbnailPromises = results.map(async (result) => {
     const thumbnailPath = await getThumbnail(
-      "D:\\RJ ai cam\\traffic_light.mp4",
+      "D:\\RJ ai cam\\sample.mp4",
       result?.time_stamp,
     );
     result.thumbnail = thumbnailPath;
