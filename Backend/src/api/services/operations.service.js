@@ -116,19 +116,6 @@ const suspectSearchService = async (
   return results;
 };
 
-const getClasses = async (objectType) => {
-  if (objectType) {
-    const result = await prisma.class.findMany({
-      where: {
-        objectType: objectType,
-      },
-    });
-    return result;
-  }
-  const result = await prisma.class.findMany();
-  return result;
-};
-
 const anprOperationService = async (
   cameras,
   startTime,
@@ -265,4 +252,4 @@ const anprOperationService = async (
 };
 
 // utility functions
-export { suspectSearchService, getClasses, anprOperationService };
+export { suspectSearchService, anprOperationService };

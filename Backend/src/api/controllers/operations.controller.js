@@ -2,43 +2,8 @@ import fs from "fs";
 import {
   suspectSearchService,
   anprOperationService,
-  getClasses,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
-
-const getClassList = async (req, res) => {
-  try {
-    const { objectType } = req.query;
-    if (objectType) {
-      const classes = await getClasses(objectType);
-      if (!classes || classes.length === 0) {
-        return res.json({
-          status: "fail",
-          message: "No classes found",
-        });
-      }
-      return res.json({
-        status: "ok",
-        message: "Classes fetched successfully",
-        classes,
-      });
-    } else {
-      const classes = await getClasses();
-      return res.json({
-        status: "ok",
-        message: "Classes fetched successfully",
-        classes,
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching classes:", error);
-    res.status(500).json({
-      status: "fail",
-      message: "Failed to fetch classes",
-      error: error.message,
-    });
-  }
-};
 
 // to be done
 // const faceDetection = async (req, res) => {
@@ -193,4 +158,4 @@ const anprOperation = async (req, res) => {
   }
 };
 
-export { getClassList, suspectSearch, anprOperation };
+export { suspectSearch, anprOperation };
