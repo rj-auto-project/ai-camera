@@ -5,17 +5,21 @@ const SplashScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard");
-    } else {
-      navigate("/login");
-    }
+    const timer = setTimeout(() => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        navigate("/dashboard");
+      } else {
+        navigate("/login");
+      }
+    }, 5000); 
+
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   return (
     <div className="splash-screen">
-      <h1>Loading...</h1>
+      <h1>Splash Screen...</h1>
     </div>
   );
 };

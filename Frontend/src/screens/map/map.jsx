@@ -9,6 +9,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
+  const [isVisible, setIsVisible] = useState(true);
   const { data, isLoading, isError, error } = useFetchCameras();
 
   if (isLoading) {
@@ -65,7 +66,7 @@ const Map = () => {
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
       {cameraList.length > 0 && (
-        <DraggablePanel headerTitle="Camera List">
+        <DraggablePanel setCameraList={setCameraList} isVisible={isVisible} headerTitle="Camera List">
           {cameraList.map((camera) => (
             <CameraCard
               key={camera.cameraId}

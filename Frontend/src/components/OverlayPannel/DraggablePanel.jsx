@@ -8,7 +8,7 @@ const DraggablePanel = ({
   left,
   right = "2%",
   bottom = "5%",
-  width = "400px",
+  width = "300px",
   minWidth = "300px",
   maxWidth = "90%",
   initialMaximized = true,
@@ -16,11 +16,17 @@ const DraggablePanel = ({
   zIndex = 1000,
   footerButtonLabel = "Continue",
   onFooterButtonClick,
+  setCameraList,
+  isVisible,
 }) => {
   const [isMaximized, setIsMaximized] = useState(initialMaximized);
 
   const toggleMaximize = () => {
     setIsMaximized(!isMaximized);
+  };
+
+  const closePanel = () => {
+    setCameraList([]);
   };
 
   const panelStyles = isMaximized
@@ -44,6 +50,8 @@ const DraggablePanel = ({
         minWidth,
       };
 
+  if (!isVisible) return null;
+
   return (
     <div className="resizable-panel" style={{ ...panelStyles, zIndex }}>
       <div className="panel-header">
@@ -56,16 +64,20 @@ const DraggablePanel = ({
           >
             {isMaximized ? "🗗" : "🗖"}
           </button>
+          <button
+            className="panel-button"
+            onClick={closePanel}
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
       </div>
       {isMaximized && (
         <div className="panel-content">
           {children}
           <div className="panel-footer">
-            <button
-              className="footer-button"
-              onClick={onFooterButtonClick}
-            >
+            <button className="footer-button" onClick={onFooterButtonClick}>
               {footerButtonLabel}
             </button>
           </div>

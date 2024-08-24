@@ -18,7 +18,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #888787;
+  border-bottom: 1px solid #383838;
 }
 
 .panel-title {
@@ -43,7 +43,7 @@
 }
 
 .panel-button:hover {
-  background-color: #e0e0e0;
+  background-color: #e0e0e05e;
 }
 
 .panel-content {
@@ -80,5 +80,5 @@
 }
 
 .footer-button:hover {
-  background-color: #b8753e;
+  background-color: #1c1c1c;
 }
