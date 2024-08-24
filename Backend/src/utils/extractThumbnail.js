@@ -22,10 +22,11 @@ ffmpeg.setFfmpegPath(
 
 const formatTimeWithinMinute = (isoTimestamp) => {
   const date = new Date(isoTimestamp);
+  const minutes = date.getMinutes();
   const seconds = date.getSeconds();
   const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
 
-  return `${seconds}.${milliseconds}`;
+  return `${minutes}:${seconds}.${milliseconds}`;
 };
 
 const getThumbnail = async (videoPath, timestamp) => {
