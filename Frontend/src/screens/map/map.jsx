@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
 import MapView from "./MapView";
 import { useFetchCameras } from "../../api/api";
@@ -6,11 +6,29 @@ import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
 import CameraCard from "../../components/CameraCard";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import {
+  CameraAlt as CameraAltIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Visibility as VisibilityIcon,
+  Group as GroupIcon,
+  DirectionsCar as DirectionsCarIcon,
+} from "@mui/icons-material";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
-  const [isVisible, setIsVisible] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All Cameras");
   const { data, isLoading, isError, error } = useFetchCameras();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedCameraList = sessionStorage.getItem("selectedCameraList");
+    if (storedCameraList) {
+      setCameraList(JSON.parse(storedCameraList));
+    }
+  }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -23,50 +41,114 @@ const Map = () => {
   const center = calculateCenter(data);
 
   const handleMarkerClick = (camera) => {
-   
     if (!cameraList.find((item) => item.cameraId === camera.cameraId)) {
       setCameraList((prevList) => [...prevList, camera]);
-      toast.success(`CAM-${camera.cameraId} successfully added`,{
+      toast.success(`CAM-${camera.cameraId} successfully added`, {
         style: {
-          borderRadius: '10px',
-          background: '#333',
-          color: '#fff',
-          marginLeft:"4%"
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+          marginLeft: "4%",
+        },
+      });
+    } else {
+      toast.error(`CAM-${camera.cameraId} Already added`, {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+          marginLeft: "4%",
         },
       });
     }
-    else{
-      toast.error(`CAM-${camera.cameraId} Already added`,{
-        style: {
-          borderRadius: '10px',
-          background: '#333',
-          color: '#fff',
-          marginLeft:"4%"
-        }});
-    }
-   
   };
-
-  console.log(data);
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
       prevList.filter((camera) => camera.cameraId !== cameraId)
-    )
-    
-    toast.success(`CAM-${cameraId} successfully removed`,{
+    );
+    toast.success(`CAM-${cameraId} successfully removed`, {
       style: {
-        borderRadius: '10px',
-        background: '#333',
-        color: '#fff',
-        marginLeft:"4%"
-      }});
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+        marginLeft: "4%",
+      },
+    });
   };
+
+  const onFooterButtonClick = () => {
+    sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
+    navigate("/dashboard/map/operations", { state: { cameras: cameraList } });
+  };
+
+  const chipData = [
+    { label: "All Cameras", icon: <CameraAltIcon color="black" /> },
+    { label: "Inactive Cameras", icon: <VisibilityOffIcon color="black" /> },
+    { label: "Active Cameras", icon: <VisibilityIcon color="black" /> },
+    { label: "Crowd", icon: <GroupIcon color="black" /> },
+    { label: "Traffic", icon: <DirectionsCarIcon color="black" /> },
+  ];
+
+  const handleChipClick = (label) => {
+    setActiveCategory(label);
+  };
+
+  const filteredCameras = data.filter((camera) => {
+    if (activeCategory === "All Cameras") return true;
+    if (activeCategory === "Inactive Cameras")
+      return camera.status === "INACTIVE";
+    if (activeCategory === "Active Cameras") return camera.status === "ACTIVE";
+    if (activeCategory === "Crowd") return camera.cameraType === "Crowd";
+    if (activeCategory === "Traffic") return camera.cameraType === "Traffic";
+    return false;
+  });
+
+  console.log(data);
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          padding: 2,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          overflow: "hidden",
+          flexWrap: "wrap",
+        }}
+        justifyContent="center"
+      >
+        {chipData.map((chip, index) => (
+          <Chip
+            key={index}
+            icon={chip.icon}
+            label={chip.label}
+            onClick={() => handleChipClick(chip.label)}
+            sx={{
+              backgroundColor:
+                activeCategory === chip.label ? "#B0B0B0" : "white",
+              border: `1.5px solid ${activeCategory === chip.label ? "white" : "black"}`,
+              color: "black",
+              "&:hover": {
+                backgroundColor:
+                  activeCategory === chip.label ? "#B0B0B0" : "#D3D3D3",
+              },
+            }}
+          />
+        ))}
+      </Stack>
+
       {cameraList.length > 0 && (
-        <DraggablePanel setCameraList={setCameraList} isVisible={isVisible} headerTitle="Camera List">
+        <DraggablePanel
+          setCameraList={setCameraList}
+          onFooterButtonClick={onFooterButtonClick}
+          headerTitle="Camera List"
+        >
           {cameraList.map((camera) => (
             <CameraCard
               key={camera.cameraId}
@@ -77,36 +159,44 @@ const Map = () => {
         </DraggablePanel>
       )}
       <MapView center={center} DEFAULT_ZOOM={16}>
-        {data &&
-          data.map((camera) => (
-            <Marker
-              key={camera.cameraId}
-              position={camera.coordinates}
-              eventHandlers={{
-                click: () => handleMarkerClick(camera),
-              }}
-            >
-              <Popup>
+        {filteredCameras.map((camera) => (
+          <Marker
+            key={camera.cameraId}
+            position={camera.coordinates}
+            eventHandlers={{
+              click: () => handleMarkerClick(camera),
+            }}
+          >
+            <Popup>
+              <div className="flex flex-col">
                 <strong>{camera.cameraName}</strong>
-                <br />
-                <b>Camera Id:</b> {camera.cameraId}
-                <br />
-                <b>Location:</b> {camera.location}
-                <br />
-                <b>Status:</b> {camera.status}
-                <br />
-                <b>Installed:</b>{" "}
-                {new Date(camera.installed).toLocaleDateString()}
-                <br />
-                <b>Last Online:</b>{" "}
-                {new Date(camera.lastOnline).toLocaleDateString()}
-                <br />
-                <b>Type:</b> {camera.cameraType}
-                <br />
-                <b>Connection:</b> {camera.connectionType}
-              </Popup>
-            </Marker>
-          ))}
+                <span>
+                  <b>Camera Id:</b> {camera.cameraId}
+                </span>
+                <span>
+                  <b>Location:</b> {camera.location}
+                </span>
+                <span>
+                  <b>Status:</b> {camera.status}
+                </span>
+                <span>
+                  <b>Installed:</b>{" "}
+                  {new Date(camera.installed).toLocaleDateString()}
+                </span>
+                <span>
+                  <b>Last Online:</b>{" "}
+                  {new Date(camera.lastOnline).toLocaleDateString()}
+                </span>
+                <span>
+                  <b>Type:</b> {camera.cameraType}
+                </span>
+                <span>
+                  <b>Connection:</b> {camera.connectionType}
+                </span>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapView>
       <Toaster position="bottom-left" reverseOrder={false} />
     </div>

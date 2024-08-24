@@ -9,11 +9,11 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 1000, // Set default staleTime to 5 seconds
-      refetchOnWindowFocus: true, // Optional: Refetch on window focus
-      retry: 1, // Optional: Number of retries on failure
-      refetchOnReconnect: true, // Optional: Refetch on network reconnect
-      refetchOnMount: true, // Optional: Refetch on mount
+      staleTime: 5 * 1000, 
+      refetchOnWindowFocus: true, 
+      retry: 1, 
+      refetchOnReconnect: true,
+      refetchOnMount: true,
     },
   },
 });
