@@ -9,13 +9,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
-import {
-  CameraAlt as CameraAltIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Visibility as VisibilityIcon,
-  Group as GroupIcon,
-  DirectionsCar as DirectionsCarIcon,
-} from "@mui/icons-material";
+import { chipData } from "../../data/data";
+import { activeCam, inActiveCam } from "../../icons/icon";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -81,14 +76,6 @@ const Map = () => {
     sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
     navigate("/dashboard/map/operations", { state: { cameras: cameraList } });
   };
-
-  const chipData = [
-    { label: "All Cameras", icon: <CameraAltIcon color="black" /> },
-    { label: "Inactive Cameras", icon: <VisibilityOffIcon color="black" /> },
-    { label: "Active Cameras", icon: <VisibilityIcon color="black" /> },
-    { label: "Crowd", icon: <GroupIcon color="black" /> },
-    { label: "Traffic", icon: <DirectionsCarIcon color="black" /> },
-  ];
 
   const handleChipClick = (label) => {
     setActiveCategory(label);
@@ -163,6 +150,7 @@ const Map = () => {
           <Marker
             key={camera.cameraId}
             position={camera.coordinates}
+            icon={camera.status === "ACTIVE" ? activeCam : inActiveCam}
             eventHandlers={{
               click: () => handleMarkerClick(camera),
             }}
