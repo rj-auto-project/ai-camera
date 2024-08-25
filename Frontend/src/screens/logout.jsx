@@ -17,7 +17,11 @@ import toast from "react-hot-toast";
 const Logout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const open = useSelector((state) => state.auth.openLogoutDialog);
+
+ const open = useSelector((state) => state.auth.openLogoutDialog);
+
+ console.log("open", open);
+
 
   const handleClose = () => {
     dispatch(closeLogoutDialog());
@@ -26,7 +30,6 @@ const Logout = () => {
   const handleLogout = () => {
     dispatch(logout());
     dispatch(closeLogoutDialog());
-    navigate("/");
     toast.success("Log out successfully", {
       style: {
         borderRadius: "10px",
@@ -35,6 +38,7 @@ const Logout = () => {
         marginLeft: "4%",
       },
     });
+    navigate("/");
     console.log("User logged out");
   };
 
@@ -44,6 +48,8 @@ const Logout = () => {
         open={open}
         aria-labelledby="logout-dialog-title"
         aria-describedby="logout-dialog-description"
+        maxWidth="xs" 
+        fullWidth
       >
         <DialogTitle id="logout-dialog-title" sx={{ textAlign: "center" }}>
           <IconButton disableRipple sx={{ color: "red", fontSize: 40 }}>

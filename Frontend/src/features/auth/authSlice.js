@@ -15,17 +15,24 @@ const loadAuthDataFromLocalStorage = () => {
 
 const clearAuthDataFromLocalStorage = () => {
   localStorage.clear();
+  sessionStorage.clear();
 };
+
+const initialState = {
+  employeeId: null,
+  name: null,
+  token: null,
+  isLoading: false,
+  error: null,
+  openLogoutDialog: false,
+};
+
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: loadAuthDataFromLocalStorage() || {
-    employeeId: null,
-    name: null,
-    token: null,
-    isLoading: false,
-    error: null,
-    openLogoutDialog: false,
+  initialState: {
+    ...initialState,
+    ...loadAuthDataFromLocalStorage(),
   },
   reducers: {
     // Login actions
@@ -76,19 +83,6 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Logout action
-    logout(state) {
-      state.token = null;
-      state.employeeId = null;
-      state.name = null;
-      state.isLoading = false;
-      state.error = null;
-
-      // Clear local storage
-      clearAuthDataFromLocalStorage();
-    },
-
-
     openLogoutDialog: (state) => {
       state.openLogoutDialog = true;
     },
@@ -97,7 +91,14 @@ const authSlice = createSlice({
       state.openLogoutDialog = false;
     },
 
-
+    logout(state) {
+      state.token = null;
+      state.employeeId = null;
+      state.name = null;
+      state.isLoading = false;
+      state.error = null;
+      clearAuthDataFromLocalStorage();
+    },
   },
 });
 

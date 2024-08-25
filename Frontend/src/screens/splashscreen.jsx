@@ -14,7 +14,7 @@ const SplashScreen = () => {
       } else {
         navigate("/login");
       }
-    }, 5000);
+    }, 3000);
     const spinTimer = setTimeout(() => {
       setAnimationSpeed("4s");
     }, 2000);
@@ -65,7 +65,7 @@ const SplashScreen = () => {
         <h1>AI Surveillance System</h1>
       </div>
       <CircularProgress
-        style={{ position: "absolute", bottom: "50px", color: "#fff" }}
+        style={{ position: "absolute", bottom: "100px", color: "#fff" }}
         size={40}
         thickness={4}
       />
