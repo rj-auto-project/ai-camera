@@ -14,7 +14,7 @@ const loadAuthDataFromLocalStorage = () => {
 };
 
 const clearAuthDataFromLocalStorage = () => {
-  localStorage.removeItem("authData");
+  localStorage.clear();
 };
 
 const authSlice = createSlice({
@@ -25,6 +25,7 @@ const authSlice = createSlice({
     token: null,
     isLoading: false,
     error: null,
+    openLogoutDialog: false,
   },
   reducers: {
     // Login actions
@@ -86,6 +87,17 @@ const authSlice = createSlice({
       // Clear local storage
       clearAuthDataFromLocalStorage();
     },
+
+
+    openLogoutDialog: (state) => {
+      state.openLogoutDialog = true;
+    },
+
+    closeLogoutDialog: (state) => {
+      state.openLogoutDialog = false;
+    },
+
+
   },
 });
 
@@ -97,6 +109,8 @@ export const {
   signupSuccess,
   signupFailure,
   logout,
+  openLogoutDialog,
+  closeLogoutDialog,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -52,7 +52,6 @@ const App = () => {
                     element={<Typography>Settings</Typography>}
                   />
                   <Route path="reports" element={<Reports />} />
-                  <Route path="logout" element={<Logout />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

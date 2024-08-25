@@ -23,6 +23,8 @@ import {
   Report,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { openLogoutDialog } from "../features/auth/authSlice";
 
 const drawerWidth = 240;
 
@@ -32,6 +34,8 @@ export default function CustomDrawer() {
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
   };
+  const dispatch = useDispatch()
+  const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
 
   const drawerItems = [
     { text: "Map", path: "map", icon: <GrMapLocation size={23} /> },
@@ -90,9 +94,9 @@ export default function CustomDrawer() {
             </ListItemIcon>
             <ListItemText primary={"Settings"} />
           </ListItem>
-          <ListItem button component={Link} to={`/dashboard/Logout`}>
+          <ListItem button   onClick={handleOpenLogoutDialog}>
             <ListItemIcon>
-              <Logout />
+              <Logout />             
             </ListItemIcon>
             <ListItemText primary={"Logout"} />
           </ListItem>
