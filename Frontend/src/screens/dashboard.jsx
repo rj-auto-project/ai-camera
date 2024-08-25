@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CustomDrawer from "../components/Drawer";
 import { Outlet } from "react-router-dom";
 
-function Dashboard() {
+const Dashboard = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -11,6 +11,6 @@ function Dashboard() {
       <Outlet />
     </div>
   );
-}
+};
 
 export default Dashboard;

@@ -15,6 +15,9 @@ const Operations = lazy(() => import("./screens/operations"));
 const Map = lazy(() => import("./screens/map/map"));
 const Logout = lazy(() => import("./screens/logout"));
 const Reports = lazy(() => import("./screens/reports"));
+const CameraPage = lazy(() => import("./screens/camerapage"));
+
+
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -35,10 +38,15 @@ const App = () => {
                     index
                     element={<Typography>Welcome to the Dashboard</Typography>}
                   />
-                  <Route path="map" element={<Map />} />
-                  <Route path="map/operations" element={<Operations />} />
+                  <Route path="map">
+                    <Route index element={<Map />} />
+                    <Route path="operations" element={<Operations />} />
+                  </Route>
                   <Route path="operations" element={<Operations />} />
-                  <Route path="streams" element={<Streams />} />
+                  <Route path="streams">
+                    <Route index element={<Streams />} />
+                    <Route path=":cameraId" element={<CameraPage />} />
+                  </Route>
                   <Route
                     path="settings"
                     element={<Typography>Settings</Typography>}

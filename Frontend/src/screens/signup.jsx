@@ -11,7 +11,7 @@ import {
   Box,
   Grid,
 } from "@mui/material";
-import { useSignup } from "../api/api";
+import { useSignup } from "../api/hooks/useSignup";
 import { IoIosUnlock } from "react-icons/io";
 import { FaEye, FaEyeSlash, FaEnvelope } from "react-icons/fa";
 
