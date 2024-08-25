@@ -1,11 +1,17 @@
 export const calculateCenter = (cameras) => {
-    if (cameras.length === 0) return [51.505, -0.09]; // Default center
+  if (cameras.length === 0) return [51.505, -0.09]; // Default center
 
-    const latSum = cameras.reduce((sum, camera) => sum + camera.coordinates[0], 0);
-    const lonSum = cameras.reduce((sum, camera) => sum + camera.coordinates[1], 0);
+  const latSum = cameras.reduce(
+    (sum, camera) => sum + camera.coordinates[0],
+    0,
+  );
+  const lonSum = cameras.reduce(
+    (sum, camera) => sum + camera.coordinates[1],
+    0,
+  );
 
-    const latCenter = latSum / cameras.length;
-    const lonCenter = lonSum / cameras.length;
+  const latCenter = latSum / cameras.length;
+  const lonCenter = lonSum / cameras.length;
 
-    return [latCenter, lonCenter];
-  };
+  return [latCenter, lonCenter];
+};

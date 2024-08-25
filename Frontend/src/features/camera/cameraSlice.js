@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const cameraSlice = createSlice({
-  name: 'camera',
+  name: "camera",
   initialState: {
     cameras: [],
     isLoading: false,
@@ -23,10 +23,7 @@ const cameraSlice = createSlice({
   },
 });
 
-export const {
-  fetchCamerasStart,
-  fetchCamerasSuccess,
-  fetchCamerasFailure,
-} = cameraSlice.actions;
+export const { fetchCamerasStart, fetchCamerasSuccess, fetchCamerasFailure } =
+  cameraSlice.actions;
 
 export default cameraSlice.reducer;

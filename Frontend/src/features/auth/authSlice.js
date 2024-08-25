@@ -1,12 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 // Helper functions for local storage
 const saveAuthDataToLocalStorage = (authData) => {
-  localStorage.setItem('authData', JSON.stringify(authData));
+  localStorage.setItem("authData", JSON.stringify(authData));
 };
 
 const loadAuthDataFromLocalStorage = () => {
-  const storedData = localStorage.getItem('authData');
+  const storedData = localStorage.getItem("authData");
   if (storedData) {
     return JSON.parse(storedData);
   }
@@ -14,11 +14,11 @@ const loadAuthDataFromLocalStorage = () => {
 };
 
 const clearAuthDataFromLocalStorage = () => {
-  localStorage.removeItem('authData');
+  localStorage.removeItem("authData");
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: loadAuthDataFromLocalStorage() || {
     employeeId: null,
     name: null,

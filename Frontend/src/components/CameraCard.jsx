@@ -11,8 +11,14 @@ const CameraCard = ({ camera, onRemove }) => {
             <b>Camera Id:</b> {camera.cameraId}
           </div>
         </div>
-        <button onClick={onRemove} className="border-none bg-none cursor-pointer ml-1 p-0">
-          <CloseIcon fontSize="24px" className="bg-red-600 rounded-full text-sm hover:bg-red-400" />
+        <button
+          onClick={onRemove}
+          className="border-none bg-none cursor-pointer ml-1 p-0"
+        >
+          <CloseIcon
+            fontSize="24px"
+            className="bg-red-600 rounded-full text-sm hover:bg-red-400"
+          />
         </button>
       </div>
       <div className="p-1">

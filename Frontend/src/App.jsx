@@ -1,6 +1,6 @@
 import React, { useState, Suspense, lazy } from "react";
 import { ThemeProvider, CssBaseline, Typography } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
@@ -15,6 +15,9 @@ const Operations = lazy(() => import("./screens/operations"));
 const Map = lazy(() => import("./screens/map/map"));
 const Logout = lazy(() => import("./screens/logout"));
 const Reports = lazy(() => import("./screens/reports"));
+const CameraPage = lazy(() => import("./screens/camerapage"));
+
+
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -24,19 +27,30 @@ const App = () => {
       <CssBaseline />
       <div className={darkMode ? "dark" : ""}>
         <Router>
-          <Suspense >
+          <Suspense>
             <Routes>
               <Route path="/" element={<SplashScreen />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard" element={<Dashboard />}>
-                  <Route index element={<Typography>Welcome to the Dashboard</Typography>} />
-                  <Route path="map" element={<Map />} />
-                  <Route path="map/operations" element={<Operations />} />
+                  <Route
+                    index
+                    element={<Typography>Welcome to the Dashboard</Typography>}
+                  />
+                  <Route path="map">
+                    <Route index element={<Map />} />
+                    <Route path="operations" element={<Operations />} />
+                  </Route>
                   <Route path="operations" element={<Operations />} />
-                  <Route path="streams" element={<Streams />} />
-                  <Route path="settings" element={<Typography>Settings</Typography>} />
+                  <Route path="streams">
+                    <Route index element={<Streams />} />
+                    <Route path=":cameraId" element={<CameraPage />} />
+                  </Route>
+                  <Route
+                    path="settings"
+                    element={<Typography>Settings</Typography>}
+                  />
                   <Route path="reports" element={<Reports />} />
                   <Route path="logout" element={<Logout />} />
                 </Route>

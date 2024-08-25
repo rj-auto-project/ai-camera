@@ -1,0 +1,25 @@
+# Node.js Backend
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# IDE and Editor Directories
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.vs/
+.DS_Store
+*.swp
+*.swo
+
+# Miscellaneous
+*.md
+*.json
+*.yml
+*.yaml
+*.xml
+*.csv
+*.tsbuildinfo
