@@ -9,9 +9,9 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 1000, 
-      refetchOnWindowFocus: true, 
-      retry: 1, 
+      staleTime: 10 * 1000,
+      refetchOnWindowFocus: true,
+      retry: 1,
       refetchOnReconnect: true,
       refetchOnMount: true,
     },
@@ -25,7 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <App />
       </QueryClientProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 window.ipcRenderer.on("main-process-message", (_event, message) => {

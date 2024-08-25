@@ -1,12 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 // Helper functions for local storage
 const saveAuthDataToLocalStorage = (authData) => {
-  localStorage.setItem('authData', JSON.stringify(authData));
+  localStorage.setItem("authData", JSON.stringify(authData));
 };
 
 const loadAuthDataFromLocalStorage = () => {
-  const storedData = localStorage.getItem('authData');
+  const storedData = localStorage.getItem("authData");
   if (storedData) {
     return JSON.parse(storedData);
   }
@@ -14,17 +14,18 @@ const loadAuthDataFromLocalStorage = () => {
 };
 
 const clearAuthDataFromLocalStorage = () => {
-  localStorage.removeItem('authData');
+  localStorage.clear();
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: loadAuthDataFromLocalStorage() || {
     employeeId: null,
     name: null,
     token: null,
     isLoading: false,
     error: null,
+    openLogoutDialog: false,
   },
   reducers: {
     // Login actions
@@ -86,6 +87,17 @@ const authSlice = createSlice({
       // Clear local storage
       clearAuthDataFromLocalStorage();
     },
+
+
+    openLogoutDialog: (state) => {
+      state.openLogoutDialog = true;
+    },
+
+    closeLogoutDialog: (state) => {
+      state.openLogoutDialog = false;
+    },
+
+
   },
 });
 
@@ -97,6 +109,8 @@ export const {
   signupSuccess,
   signupFailure,
   logout,
+  openLogoutDialog,
+  closeLogoutDialog,
 } = authSlice.actions;
 
 export default authSlice.reducer;

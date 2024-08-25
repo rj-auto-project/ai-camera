@@ -6,7 +6,6 @@ import path from "node:path";
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-
 // ├─┬─┬ dist
 // │ │ └── index.html
 // │ │
@@ -31,11 +30,10 @@ function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
-
     },
   });
 
-  win.setMinimumSize(800, 600); 
+  win.setMinimumSize(800, 600);
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
@@ -44,11 +42,8 @@ function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
-
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
-
-
 }
 
 app.on("window-all-closed", () => {
