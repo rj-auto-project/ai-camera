@@ -5,6 +5,7 @@ import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
 import SplashScreen from "./screens/splashScreen";
+import { Toaster } from "react-hot-toast";
 
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
@@ -44,6 +45,7 @@ const App = () => {
             </Routes>
           </Suspense>
         </Router>
+        <Toaster position="center" reverseOrder={false} />
       </div>
     </ThemeProvider>
   );

@@ -14,7 +14,7 @@ import { useLogin } from "../api/api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { IoIosUnlock } from "react-icons/io";
 import PersonIcon from "@mui/icons-material/Person";
-
+import toast from "react-hot-toast";
 
 function Login() {
   const [employeeId, setEmployeeId] = useState("");
@@ -29,6 +29,7 @@ function Login() {
       { employeeId, password },
       {
         onSuccess: () => {
+          toast.success("Login successful!");
           navigate("/dashboard");
         },
         onError: () => {
@@ -85,11 +86,15 @@ function Login() {
               <TextField
                 label="Employee Id"
                 type="text"
+                InputLabelProps={{
+                  style: { fontSize: '18px', fontWeight: '500'}, 
+                }}
                 fullWidth
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
                 variant="standard"
                 InputProps={{
+                  style: { fontSize: '18px',fontWeight: '500'},
                   startAdornment: (
                     <InputAdornment position="start">
                       <PersonIcon />
@@ -102,10 +107,15 @@ function Login() {
                 label="Password"
                 type={isPasswordHidden ? "password" : "text"}
                 fullWidth
+                fontSize={22}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 variant="standard"
+                InputLabelProps={{
+                  style: { fontSize: '18px', fontWeight: '500'}, 
+                }}
                 InputProps={{
+                  style: { fontSize: '18px',fontWeight: 'bold'},
                   startAdornment: (
                     <InputAdornment position="start">
                       <IoIosUnlock />
@@ -142,6 +152,7 @@ function Login() {
             <Box mt={2} textAlign="center">
               <a href="#" className="hover:text-gray-400">Forget Your Password?</a>
             </Box>
+           
           </Box>
         </Grid>
       </Grid>
