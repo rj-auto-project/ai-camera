@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./DraggablePanel.css";
+import Close from "@mui/icons-material/Close";
 
 const DraggablePanel = ({
   children,
-  top = "5%",
+  top = "7%",
   left,
   right = "2%",
   bottom = "5%",
@@ -17,7 +18,6 @@ const DraggablePanel = ({
   footerButtonLabel = "Continue",
   onFooterButtonClick,
   setCameraList,
-  isVisible,
 }) => {
   const [isMaximized, setIsMaximized] = useState(initialMaximized);
 
@@ -26,6 +26,7 @@ const DraggablePanel = ({
   };
 
   const closePanel = () => {
+    sessionStorage.removeItem('selectedCameraList');
     setCameraList([]);
   };
 
@@ -50,7 +51,7 @@ const DraggablePanel = ({
         minWidth,
       };
 
-  if (!isVisible) return null;
+
 
   return (
     <div className="resizable-panel" style={{ ...panelStyles, zIndex }}>
@@ -69,7 +70,7 @@ const DraggablePanel = ({
             onClick={closePanel}
             aria-label="Close"
           >
-            ×
+            <Close/>
           </button>
         </div>
       </div>

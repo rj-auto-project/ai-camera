@@ -45,15 +45,17 @@ model DetectionLog {
 }
 
 model OperationLog {
-  id               Int      @id @default(autoincrement())
-  operationType    String   @db.VarChar(20)
-  operationData    Json
-  initialTimestamp DateTime
-  finalTimestamp   DateTime
-  cameraId         String   @db.VarChar(20)
-  userId           String   @db.VarChar(20)
-  closeTimestamp   DateTime
-  camera_ip        String   @db.VarChar(30)
+  id                    Int      @id @default(autoincrement())
+  operationType         String   @db.VarChar(255)
+  operationRequestData  Json?    @db.Json
+  operationResponseData Json?    @db.Json
+  initialTimestamp      DateTime
+  finalTimestamp        DateTime
+  userId                String   @db.VarChar(20)
+  closeTimestamp        DateTime
+  operationStatus       Status   @default(ACTIVE)
+
+  cameras Camera[] @relation("OperationCameras")
 }
 
 model AnprLogs {
@@ -63,9 +65,10 @@ model AnprLogs {
   time_stamp            DateTime @db.Timestamp(6)
   detection_id          Int
   meta_data             Json
-  license_number        String?  @db.VarChar(20)
+  license_number        String   @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
+  boxCoords             String   @db.VarChar(255)
 }
 
 model Camera {
@@ -80,12 +83,14 @@ model Camera {
   status         Status
   installed      DateTime
   lastOnline     DateTime
+
+  operations OperationLog[] @relation("OperationCameras")
 }
 
 model Class {
-  id          Int    @id @default(autoincrement())
-  className   String @db.VarChar(255)
-  objectType  String? @db.VarChar(255) 
+  id         Int    @id @default(autoincrement())
+  className  String @db.VarChar(255)
+  objectType String @db.VarChar(255)
 }
 
 enum Status {
@@ -94,8 +99,8 @@ enum Status {
 }
 
 enum ACCESSLEVEL {
-  ADMIN
-  WORK
-  VIEW
-  SERVER
+  ADMIN // access to everything  eg. creation of user
+  WORK // access to operations
+  VIEW // for viewer developers
+  SERVER //for server developers
 }

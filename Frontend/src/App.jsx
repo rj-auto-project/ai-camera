@@ -1,10 +1,11 @@
 import React, { useState, Suspense, lazy } from "react";
 import { ThemeProvider, CssBaseline, Typography } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
 import SplashScreen from "./screens/splashScreen";
+import { Toaster } from "react-hot-toast";
 
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
@@ -23,7 +24,7 @@ const App = () => {
       <CssBaseline />
       <div className={darkMode ? "dark" : ""}>
         <Router>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense >
             <Routes>
               <Route path="/" element={<SplashScreen />} />
               <Route path="/login" element={<Login />} />
@@ -32,8 +33,9 @@ const App = () => {
                 <Route path="/dashboard" element={<Dashboard />}>
                   <Route index element={<Typography>Welcome to the Dashboard</Typography>} />
                   <Route path="map" element={<Map />} />
-                  <Route path="streams" element={<Streams />} />
+                  <Route path="map/operations" element={<Operations />} />
                   <Route path="operations" element={<Operations />} />
+                  <Route path="streams" element={<Streams />} />
                   <Route path="settings" element={<Typography>Settings</Typography>} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="logout" element={<Logout />} />
@@ -43,6 +45,7 @@ const App = () => {
             </Routes>
           </Suspense>
         </Router>
+        <Toaster position="center" reverseOrder={false} />
       </div>
     </ThemeProvider>
   );
