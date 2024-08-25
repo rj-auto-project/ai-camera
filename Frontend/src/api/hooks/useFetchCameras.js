@@ -8,8 +8,6 @@ import {
 } from "../../features/camera/cameraSlice";
 import { BASE_URL } from "../url";
 
-
-
 export const useFetchCameras = () => {
   const dispatch = useDispatch();
 
@@ -25,7 +23,7 @@ export const useFetchCameras = () => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });

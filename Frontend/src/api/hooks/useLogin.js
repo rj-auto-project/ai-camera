@@ -1,4 +1,4 @@
-import { useMutation} from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import {
@@ -7,7 +7,6 @@ import {
   loginFailure,
 } from "../../features/auth/authSlice";
 import { BASE_URL } from "../url";
-
 
 export const useLogin = () => {
   const dispatch = useDispatch();
@@ -27,4 +26,3 @@ export const useLogin = () => {
     },
   });
 };
-

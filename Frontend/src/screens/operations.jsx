@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-
 const Operations = () => {
   const [cameraList, setCameraList] = useState([]);
   useEffect(() => {
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
-   
+
     if (storedCameraList) {
       setCameraList(JSON.parse(storedCameraList));
     }

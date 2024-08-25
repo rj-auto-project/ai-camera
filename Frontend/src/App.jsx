@@ -1,6 +1,6 @@
 import React, { useState, Suspense, lazy } from "react";
 import { ThemeProvider, CssBaseline, Typography } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
@@ -24,19 +24,25 @@ const App = () => {
       <CssBaseline />
       <div className={darkMode ? "dark" : ""}>
         <Router>
-          <Suspense >
+          <Suspense>
             <Routes>
               <Route path="/" element={<SplashScreen />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard" element={<Dashboard />}>
-                  <Route index element={<Typography>Welcome to the Dashboard</Typography>} />
+                  <Route
+                    index
+                    element={<Typography>Welcome to the Dashboard</Typography>}
+                  />
                   <Route path="map" element={<Map />} />
                   <Route path="map/operations" element={<Operations />} />
                   <Route path="operations" element={<Operations />} />
                   <Route path="streams" element={<Streams />} />
-                  <Route path="settings" element={<Typography>Settings</Typography>} />
+                  <Route
+                    path="settings"
+                    element={<Typography>Settings</Typography>}
+                  />
                   <Route path="reports" element={<Reports />} />
                   <Route path="logout" element={<Logout />} />
                 </Route>

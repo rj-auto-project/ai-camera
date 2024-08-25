@@ -79,7 +79,7 @@ export const useFetchCameras = () => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });

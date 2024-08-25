@@ -35,7 +35,7 @@ function Login() {
         onError: () => {
           console.error("Login failed:", error);
         },
-      }
+      },
     );
   };
 
@@ -64,7 +64,12 @@ function Login() {
         </nav>
       </Box>
 
-      <Grid container justifyContent="center" alignItems="center" style={{ height: "80vh" }}>
+      <Grid
+        container
+        justifyContent="center"
+        alignItems="center"
+        style={{ height: "80vh" }}
+      >
         <Grid item xs={7} sm={6} md={6} lg={3}>
           <Box p={4} style={{ backgroundColor: "#333", borderRadius: "8px" }}>
             <Typography
@@ -87,14 +92,14 @@ function Login() {
                 label="Employee Id"
                 type="text"
                 InputLabelProps={{
-                  style: { fontSize: '18px', fontWeight: '500'}, 
+                  style: { fontSize: "18px", fontWeight: "500" },
                 }}
                 fullWidth
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
                 variant="standard"
                 InputProps={{
-                  style: { fontSize: '18px',fontWeight: '500'},
+                  style: { fontSize: "18px", fontWeight: "500" },
                   startAdornment: (
                     <InputAdornment position="start">
                       <PersonIcon />
@@ -112,10 +117,10 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 variant="standard"
                 InputLabelProps={{
-                  style: { fontSize: '18px', fontWeight: '500'}, 
+                  style: { fontSize: "18px", fontWeight: "500" },
                 }}
                 InputProps={{
-                  style: { fontSize: '18px',fontWeight: 'bold'},
+                  style: { fontSize: "18px", fontWeight: "bold" },
                   startAdornment: (
                     <InputAdornment position="start">
                       <IoIosUnlock />
@@ -126,7 +131,12 @@ function Login() {
                       <button
                         type="button"
                         onClick={() => setIsPasswordHidden(!isPasswordHidden)}
-                        style={{ background: "none", border: "none", padding: 0, margin: 0 }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          margin: 0,
+                        }}
                       >
                         {isPasswordHidden ? <FaEyeSlash /> : <FaEye />}
                       </button>
@@ -142,7 +152,11 @@ function Login() {
                   disabled={isPending}
                   className="bg-yellow-500 text-white"
                   fullWidth
-                  startIcon={isPending ? <CircularProgress size={20} color="inherit" /> : null}
+                  startIcon={
+                    isPending ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : null
+                  }
                 >
                   {isPending ? "Logging in..." : "Login"}
                 </Button>
@@ -150,9 +164,10 @@ function Login() {
             </form>
 
             <Box mt={2} textAlign="center">
-              <a href="#" className="hover:text-gray-400">Forget Your Password?</a>
+              <a href="#" className="hover:text-gray-400">
+                Forget Your Password?
+              </a>
             </Box>
-           
           </Box>
         </Grid>
       </Grid>

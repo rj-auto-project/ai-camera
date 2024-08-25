@@ -26,7 +26,7 @@ const DraggablePanel = ({
   };
 
   const closePanel = () => {
-    sessionStorage.removeItem('selectedCameraList');
+    sessionStorage.removeItem("selectedCameraList");
     setCameraList([]);
   };
 
@@ -51,8 +51,6 @@ const DraggablePanel = ({
         minWidth,
       };
 
-
-
   return (
     <div className="resizable-panel" style={{ ...panelStyles, zIndex }}>
       <div className="panel-header">
@@ -70,7 +68,7 @@ const DraggablePanel = ({
             onClick={closePanel}
             aria-label="Close"
           >
-            <Close/>
+            <Close />
           </button>
         </div>
       </div>

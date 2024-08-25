@@ -5,7 +5,7 @@ const isAuthenticated = () => {
   return !!localStorage.getItem("token");
 };
 
-console.log("token",typeof localStorage.getItem("token"))
+console.log("token", typeof localStorage.getItem("token"));
 
 const PrivateRoute = () => {
   const location = useLocation();

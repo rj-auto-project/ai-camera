@@ -1,8 +1,7 @@
 import { MapContainer, TileLayer } from "react-leaflet";
 import osm from "./osm-provider";
 import "leaflet/dist/leaflet.css";
-import "./Style.css"
-
+import "./Style.css";
 
 const MapView = ({ center, DEFAULT_ZOOM, mapRef, children }) => (
   <MapContainer

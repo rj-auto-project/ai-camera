@@ -6,7 +6,7 @@ function Dashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div style={{display:"flex"}}>
+    <div style={{ display: "flex" }}>
       <CustomDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <Outlet />
     </div>

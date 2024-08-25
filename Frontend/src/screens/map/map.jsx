@@ -60,7 +60,7 @@ const Map = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     toast.success(`CAM-${cameraId} successfully removed`, {
       style: {
