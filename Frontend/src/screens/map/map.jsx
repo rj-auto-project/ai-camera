@@ -186,7 +186,6 @@ const Map = () => {
           </Marker>
         ))}
       </MapView>
-      <Toaster position="bottom-left" reverseOrder={false} />
     </div>
   );
 };
