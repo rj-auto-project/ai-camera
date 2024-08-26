@@ -13,6 +13,20 @@ router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
 router.get("/objectTypes", authMiddleware, getObjectTypes);
 router.get("/classlist", authMiddleware, getClassList);
+router.post("/sse", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  setInterval(() => {
+    res.write(`data: ${new Date().toLocaleTimeString()} Hello this is test \n\n`);
+  }, 1000);
+
+  req.on("close", () => {
+    console.log("Connection closed");
+    res.end();
+  });
+})
 
 // router.post("/insert-data", async (req, res) => {
 //   try {
