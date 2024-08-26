@@ -10,12 +10,14 @@ import {
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DynamicForm from "../components/form/dynamicForm";
-import { operationForms } from "../data/operationFormData";
 import { operations } from "../data/data";
+import RestrictedVehicleForm from "../components/form/RestrictedVehicleForm";
+import CrowdRestrictionForm from "../components/form/CrowdRestrictionForm";
+import SuspectSearchForm from "../components/form/SuspectSearchForm";
+import VehicleSearchForm from "../components/form/VehicleSearchForm";
 const CreateOperations = () => {
   const [selectedOperation, setSelectedOperation] = useState("Vehicle Search");
-  
+
   const [cameraList, setCameraList] = useState([]);
 
   const handleOperationSelect = (operation) => {
@@ -24,7 +26,21 @@ const CreateOperations = () => {
 
   const handleFormSubmit = (data) => {
     console.log("Form Data: ", data);
-    // Handle form submission logic
+  };
+
+  const RenderForm = () => {
+    switch (selectedOperation) {
+      case "Vehicle Search":
+        return <VehicleSearchForm onSubmit={handleFormSubmit} />;
+      case "Suspect Search":
+        return <SuspectSearchForm onSubmit={handleFormSubmit} />;
+      case "Restricted Vehicle":
+        return <RestrictedVehicleForm onSubmit={handleFormSubmit} />;
+      case "Crowd Restriction":
+        return <CrowdRestrictionForm onSubmit={handleFormSubmit} />;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -98,10 +114,7 @@ const CreateOperations = () => {
           <Divider />
           {selectedOperation && (
             <Box sx={{ px: 2 }}>
-              <DynamicForm
-                fields={operationForms[selectedOperation]}
-                onSubmit={handleFormSubmit}
-              />
+              <RenderForm />
             </Box>
           )}
         </Paper>
@@ -176,7 +189,7 @@ const CreateOperations = () => {
             <Box sx={{ padding: 1, display: "flex", justifyContent: "center" }}>
               <Button
                 variant="contained"
-                sx={{color: "#fff"}}
+                sx={{ color: "#fff" }}
                 startIcon={<AddIcon />}
               >
                 Add Camera
