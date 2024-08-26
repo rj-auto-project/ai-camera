@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 const CameraCard = ({ camera, onRemove }) => {
   return (
-    <div className="border border-gray-300 rounded-lg mb-1.5 bg-white overflow-hidden">
+    <div className="border border-gray-300 rounded-lg mb-1.5 bg-white overflow-hidden text-black">
       <div className="flex justify-between items-start bg-gray-700 text-white p-1.5 border-b border-gray-300">
         <div className="flex flex-col">
           <strong className="text-sm tracking-wide">{camera.cameraName}</strong>
