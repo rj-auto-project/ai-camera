@@ -20,8 +20,6 @@ const Logout = () => {
 
  const open = useSelector((state) => state.auth.openLogoutDialog);
 
- console.log("open", open);
-
 
   const handleClose = () => {
     dispatch(closeLogoutDialog());
