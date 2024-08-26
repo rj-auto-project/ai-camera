@@ -7,7 +7,7 @@ const darkTheme = createTheme({
       default: "#2e2e2e",
     },
     text: {
-      primary: "#c5c8c6",
+      primary: "#fff",
     },
   },
   typography: {

@@ -26,7 +26,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
 
-const drawerWidth = 240;
+const drawerWidth = 210;
 
 export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -34,7 +34,8 @@ export default function CustomDrawer() {
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
   };
-  const dispatch = useDispatch()
+
+  const dispatch = useDispatch();
   const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
 
   const drawerItems = [
@@ -54,7 +55,7 @@ export default function CustomDrawer() {
       }}
     >
       <div>
-        <Toolbar>
+        <Toolbar sx={{ minHeight: 48 }}> {/* Reduced height */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -64,7 +65,7 @@ export default function CustomDrawer() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography noWrap component="div">
             Dashboard
           </Typography>
         </Toolbar>
@@ -94,9 +95,9 @@ export default function CustomDrawer() {
             </ListItemIcon>
             <ListItemText primary={"Settings"} />
           </ListItem>
-          <ListItem button   onClick={handleOpenLogoutDialog}>
+          <ListItem button onClick={handleOpenLogoutDialog}>
             <ListItemIcon>
-              <Logout />             
+              <Logout />
             </ListItemIcon>
             <ListItemText primary={"Logout"} />
           </ListItem>

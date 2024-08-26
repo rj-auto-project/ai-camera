@@ -11,11 +11,11 @@ const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
 const Dashboard = lazy(() => import("./screens/dashboard"));
 const Streams = lazy(() => import("./screens/streams"));
-const Operations = lazy(() => import("./screens/operations"));
 const Map = lazy(() => import("./screens/map/map"));
-const Logout = lazy(() => import("./screens/logout"));
 const Reports = lazy(() => import("./screens/reports"));
 const CameraPage = lazy(() => import("./screens/camerapage"));
+const CreateOperations = lazy(() => import("./screens/createOperations"));
+const Operations = lazy(() => import("./screens/operations"));
 
 
 
@@ -40,7 +40,7 @@ const App = () => {
                   />
                   <Route path="map">
                     <Route index element={<Map />} />
-                    <Route path="operations" element={<Operations />} />
+                    <Route path="operations" element={<CreateOperations />} />
                   </Route>
                   <Route path="operations" element={<Operations />} />
                   <Route path="streams">
