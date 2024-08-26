@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GrPrevious } from "react-icons/gr";
+import vid from "../assets/vvvid.mp4";
 
 const StreamPage = () => {
-  const itemsPerPage = 9; // Number of items per page
-  const totalItems = 30; // Total number of items
+  const itemsPerPage = 9;
+  const totalItems = 30;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -20,31 +23,42 @@ const StreamPage = () => {
     }
   };
 
+  const handleBoxClick = (cameraId) => {
+    navigate(`${cameraId}`);
+  };
+
   const displayedItems = Array.from({ length: totalItems })
     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
     .map((_, index) => (
       <div
         key={index}
-        className="bg-[#121212] shadow-md rounded-lg h-60 w-[400px] flex items-center justify-center text-xl text-white font-bold"
+        className="bg-[#121212] cursor-pointer shadow-md rounded-lg h-60 w-[400px] flex items-center justify-center text-xl text-white font-bold relative"
+        onClick={() => handleBoxClick(index + 1 + (currentPage - 1) * itemsPerPage)}
       >
-        Box {index + 1 + (currentPage - 1) * itemsPerPage}
+        <video
+          className="absolute inset-0 h-full w-full object-cover rounded-lg"
+          controls
+          autoPlay
+        >
+          <source src={vid} type='video/mp4' />
+        </video>
+         <div />
       </div>
     ));
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-black relative">
-      <div className="grid grid-cols-3 gap-4 mb-[80px] ">
+      <div className="grid grid-cols-3 gap-4 mb-[80px]">
         {displayedItems}
       </div>
 
-      {/* Pagination Controls */}
-      <div className= 'flex justify-center gap-3 items-center  text-black absolute bottom-10'>
+      <div className='flex justify-center gap-3 items-center text-black absolute bottom-10'>
         <button
           onClick={handlePrevious}
           className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
           disabled={currentPage === 1}
         >
-          <GrPrevious  className=''/>
+          <GrPrevious />
         </button>
 
         <div className="flex items-center space-x-2">
@@ -64,7 +78,7 @@ const StreamPage = () => {
           className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
           disabled={currentPage === totalPages}
         >
-          <GrPrevious  className='rotate-180'/>
+          <GrPrevious className='rotate-180' />
         </button>
       </div>
     </div>
@@ -72,6 +86,3 @@ const StreamPage = () => {
 };
 
 export default StreamPage;
-
-
-// {`flex items-center justify-center space-x-2 p-4 text-black ${totalItems <=3 ? 'absolute bottom-0 w-full bg-green-900': 'bg-yellow-700'}`}

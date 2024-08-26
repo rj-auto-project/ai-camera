@@ -6,6 +6,7 @@ import Login from "./screens/login";
 import Signup from "./screens/signup";
 import Dashboard from "./screens/dashboard";
 import Streams from "./screens/streams";
+import ModalPage from './screens/ModelPage';
 import Operations from "./screens/operations";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/notFound";
@@ -30,13 +31,17 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />}>
                 <Route path="" element={<Typography>Welcome to the Dashboard</Typography>} />
                 <Route path="map" element={<Map />} />
-                <Route path="streams" element={<Streams />} />
-                <Route path="operations" element={<Operations />} />
+                <Route path="streams"  >
+                  <Route index element={<Streams />}/>
+                  <Route path=":cameraId"element={<ModalPage />}/>
+                </Route>
+                <Route path="operations" element={<Operations />} />                
                 <Route path="settings" element={<Typography>Settings</Typography>} />
                 <Route path="reports" element={<Reports/>} />
                 <Route path="logout" element={<Logout/>} />
               </Route>
             </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
