@@ -14,7 +14,12 @@ import {
 import Select from "react-select";
 import { useFetchCameras } from "../api/hooks/useFetchCameras";
 
-const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
+const CameraSelectionModal = ({
+  open,
+  handleClose,
+  onAddCameras,
+  cameraList,
+}) => {
   const { data: cameras, isLoading, isError, error } = useFetchCameras();
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedCameras, setSelectedCameras] = useState([]);
@@ -46,15 +51,27 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
     setSelectedCameras((prev) =>
       prev.includes(camera)
         ? prev.filter((c) => c.cameraId !== camera.cameraId)
-        : [...prev, camera]
+        : [...prev, camera, ...cameraList]
     );
   };
 
   const handleAddCameras = () => {
     onAddCameras(selectedCameras);
     handleClose();
+    setSelectedLocations([]);
   };
 
+
+  const handleAddCameraClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+
+  
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -64,7 +81,7 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: 400,
-          bgcolor:  "#1a1a1a",
+          bgcolor: "#1d1c1c",
           borderRadius: 1,
           boxShadow: 24,
           p: 4,
@@ -90,23 +107,23 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
               styles={{
                 placeholder: (provided) => ({
                   ...provided,
-                  color: 'black',
+                  color: "black",
                 }),
                 singleValue: (provided) => ({
                   ...provided,
-                  color: 'black',
+                  color: "black",
                 }),
                 multiValue: (provided) => ({
                   ...provided,
-                  color: 'black',
+                  color: "black",
                 }),
                 multiValueLabel: (provided) => ({
                   ...provided,
-                  color: 'black',
+                  color: "black",
                 }),
                 menu: (provided) => ({
                   ...provided,
-                  backgroundColor: '#f0f0f0', // Background color for dropdown
+                  backgroundColor: "#f0f0f0", // Background color for dropdown
                 }),
                 menuList: (provided) => ({
                   ...provided,
@@ -114,10 +131,10 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
                 }),
                 option: (provided, state) => ({
                   ...provided,
-                  backgroundColor: state.isSelected ? '#c0c0c0' : 'white',
-                  color: 'black',
-                  '&:hover': {
-                    backgroundColor: '#e0e0e0',
+                  backgroundColor: state.isSelected ? "#c0c0c0" : "white",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "#e0e0e0",
                   },
                 }),
               }}
@@ -129,11 +146,11 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
                   mt: 2,
                   maxHeight: 200,
                   overflowY: "scroll", // Allow vertical scrolling
-                  '&::-webkit-scrollbar': {
-                    width: '0px', // Hide scrollbar for WebKit-based browsers
-                    background: 'transparent', // Optional: make scrollbar track transparent
+                  "&::-webkit-scrollbar": {
+                    width: "0px", // Hide scrollbar for WebKit-based browsers
+                    background: "transparent", // Optional: make scrollbar track transparent
                   },
-                  scrollbarWidth: 'none', // Hide scrollbar for Firefox
+                  scrollbarWidth: "none", // Hide scrollbar for Firefox
                 }}
               >
                 {filteredCameras.map((camera) => (
@@ -173,10 +190,9 @@ const CameraSelectionModal = ({ open, handleClose, onAddCameras }) => {
             Cancel
           </Button>
           <Button
-           sx={{ mr: 2 }}
+            sx={{ mr: 2 }}
             onClick={handleAddCameras}
             disabled={selectedCameras.length === 0}
-            
           >
             Add Cameras
           </Button>

@@ -10,14 +10,13 @@ import { Toaster } from "react-hot-toast";
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
 const Dashboard = lazy(() => import("./screens/dashboard"));
-const Streams = lazy(() => import("./screens/streams"));
 const Map = lazy(() => import("./screens/map/map"));
 const Reports = lazy(() => import("./screens/reports"));
-const CameraPage = lazy(() => import("./screens/camerapage"));
+const StreamsConditionalRender = lazy(
+  () => import("./components/conditionalrender/streampage")
+);
 const CreateOperations = lazy(() => import("./screens/createOperations"));
 const Operations = lazy(() => import("./screens/operations"));
-
-
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -44,8 +43,7 @@ const App = () => {
                   </Route>
                   <Route path="operations" element={<Operations />} />
                   <Route path="streams">
-                    <Route index element={<Streams />} />
-                    <Route path=":cameraId" element={<CameraPage />} />
+                    <Route index element={<StreamsConditionalRender />} />
                   </Route>
                   <Route
                     path="settings"
