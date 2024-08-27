@@ -11,7 +11,7 @@ const suspectSearchService = async (
   endTime,
   top_color,
   bottom_color,
-  employeeId
+  employeeId,
 ) => {
   // Convert startTime and endTime to Date objects
   const start = new Date(startTime);
@@ -90,10 +90,11 @@ const suspectSearchService = async (
   // Generate thumbnails
   const thumbnailPromises = results.map(async (result) => {
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
-    const thumbnailPath = await getThumbnail(
-      `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.timestamp
-    );
+    const thumbnailPath =
+      (await getThumbnail(
+        `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
+        result?.timestamp,
+      )) || null;
     result.thumbnail = thumbnailPath;
     return result;
   });
@@ -124,7 +125,7 @@ const anprOperationService = async (
   endTime,
   licensePlate,
   employeeId,
-  ownerName
+  ownerName,
 ) => {
   // Get cameras' details involved in the operation
   const camerasEngagedInOperation = await prisma.camera.findMany({
@@ -227,7 +228,7 @@ const anprOperationService = async (
   const thumbnailPromises = results.map(async (result) => {
     const thumbnailPath = await getThumbnail(
       "D:\\RJ ai cam\\sample.mp4",
-      result?.time_stamp
+      result?.time_stamp,
     );
     result.thumbnail = thumbnailPath;
     return result;
