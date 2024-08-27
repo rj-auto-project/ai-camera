@@ -79,16 +79,17 @@ const suspectSearch = async (req, res) => {
       });
     }
 
-    let currTime = new Date().toISOString();
+    let currTime = new Date();
+    let endtime = new Date(endTime);
 
     // Live search operation
-    if (isLive && currTime < endTime) {
+    if (isLive && currTime < endtime) {
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
       const liveSearch = async () => {
-        while (currTime < endTime) {
+        while (currTime < endtime) {
           const liveResults = await suspectSearchService(
             cameras,
             classes,
@@ -153,7 +154,6 @@ const suspectSearch = async (req, res) => {
     });
   }
 };
-
 
 const anprOperation = async (req, res) => {
   try {

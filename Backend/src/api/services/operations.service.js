@@ -11,8 +11,12 @@ const suspectSearchService = async (
   endTime,
   top_color,
   bottom_color,
-  employeeId,
+  employeeId
 ) => {
+  // Convert startTime and endTime to Date objects
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
   // Get cameras' details involved in the operation
   const camerasEngagedInOperation = await prisma.camera.findMany({
     where: {
@@ -25,7 +29,7 @@ const suspectSearchService = async (
     },
   });
 
-  // log this operation
+  // Log this operation
   const newOperation = await prisma.operationLog.create({
     data: {
       operationType: "SUSPECT SEARCH",
@@ -36,8 +40,8 @@ const suspectSearchService = async (
       },
       operationRequestData: {
         classes: classes,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: start,
+        endTime: end,
         topColor: top_color,
         bottomColor: bottom_color,
       },
@@ -48,37 +52,30 @@ const suspectSearchService = async (
     },
   });
 
+  // Perform the search
   let results = await prisma.detectionLog.findMany({
     where: {
+      cameraId: {
+        in: cameras,
+      },
+      timestamp: {
+        gte: new Date(startTime),
+        lte: new Date(endTime),
+      },
+      detectionClass: {
+        in: classes,
+      },
       OR: [
         {
           metadata: {
-            path: ["top"],
+            path: ["top_color"],
             equals: top_color,
           },
         },
         {
           metadata: {
-            path: ["bottom"],
+            path: ["bottom_color"],
             equals: bottom_color,
-          },
-        },
-      ],
-      AND: [
-        {
-          cameraId: {
-            in: cameras,
-          },
-        },
-        {
-          timestamp: {
-            gte: new Date(startTime),
-            lte: new Date(endTime),
-          },
-        },
-        {
-          detectionClass: {
-            in: classes,
           },
         },
       ],
@@ -90,17 +87,20 @@ const suspectSearchService = async (
     return [];
   }
 
+  // Generate thumbnails
   const thumbnailPromises = results.map(async (result) => {
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.timestamp,
+      result?.timestamp
     );
     result.thumbnail = thumbnailPath;
     return result;
   });
 
   results = await Promise.all(thumbnailPromises);
+
+  // Update operation log with results
   await prisma.operationLog.update({
     where: {
       id: newOperation?.id,
@@ -124,7 +124,7 @@ const anprOperationService = async (
   endTime,
   licensePlate,
   employeeId,
-  ownerName,
+  ownerName
 ) => {
   // Get cameras' details involved in the operation
   const camerasEngagedInOperation = await prisma.camera.findMany({
@@ -227,7 +227,7 @@ const anprOperationService = async (
   const thumbnailPromises = results.map(async (result) => {
     const thumbnailPath = await getThumbnail(
       "D:\\RJ ai cam\\sample.mp4",
-      result?.time_stamp,
+      result?.time_stamp
     );
     result.thumbnail = thumbnailPath;
     return result;

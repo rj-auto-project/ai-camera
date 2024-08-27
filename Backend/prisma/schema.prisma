@@ -33,14 +33,14 @@ model CrowdCount {
 }
 
 model DetectionLog {
-  id              Int       @id @default(autoincrement())
-  timestamp       DateTime? @db.Timestamp(6)
+  id              Int      @id @default(autoincrement())
+  timestamp       DateTime @db.Timestamptz()
   cameraId        String
   metadata        Json
-  trackId         String    @db.VarChar(255)
-  camera_ip       String    @db.VarChar(30)
-  boxCoords       String    @db.VarChar(255)
-  detectionClass  String    @db.VarChar(20)
+  trackId         String   @db.VarChar(255)
+  camera_ip       String   @db.VarChar(30)
+  boxCoords       String   @db.VarChar(255)
+  detectionClass  String   @db.VarChar(20)
   classConfidence Float
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
