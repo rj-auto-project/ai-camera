@@ -52,10 +52,17 @@ import prisma from "../../config/prismaClient.js";
 
 const suspectSearch = async (req, res) => {
   try {
-    const { cameras, classes, startTime, endTime, top_color, bottom_color } =
-      req.body;
+    const {
+      cameras,
+      classes,
+      startTime,
+      endTime,
+      top_color,
+      bottom_color,
+      isLive = false,
+    } = req.body;
     const employeeId = req.userId;
-    console.log("Employee ID:", employeeId);
+
     if (!employeeId) {
       return res.status(401).json({
         status: "fail",
@@ -72,6 +79,50 @@ const suspectSearch = async (req, res) => {
       });
     }
 
+    let currTime = new Date();
+    let endtime = new Date(endTime);
+
+    // Live search operation
+    if (isLive && currTime < endtime) {
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const liveSearch = async () => {
+        while (currTime < endtime) {
+          const liveResults = await suspectSearchService(
+            cameras,
+            classes,
+            startTime,
+            currTime,
+            top_color,
+            bottom_color,
+            employeeId
+          );
+          if (liveResults && liveResults.length > 0) {
+            res.write(`data: ${JSON.stringify(liveResults)}\n\n`);
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
+
+          // Update current time to continue searching until endTime
+          currTime = new Date();
+        }
+
+        res.end(); // End the SSE stream when the loop ends
+      };
+
+      await liveSearch(); // Start the live search and wait until it finishes
+
+      req.on("close", () => {
+        console.log("Connection closed by client");
+        res.end(); // End the SSE stream if the client closes the connection
+      });
+
+      return; // Ensure no further processing happens
+    }
+
+    // Non-live operation: Standard search (historical data)
     const results = await suspectSearchService(
       cameras,
       classes,
@@ -79,7 +130,7 @@ const suspectSearch = async (req, res) => {
       endTime,
       top_color,
       bottom_color,
-      employeeId,
+      employeeId
     );
 
     if (!results || results.length === 0) {
@@ -88,6 +139,7 @@ const suspectSearch = async (req, res) => {
         message: "No results found",
       });
     }
+
     return res.json({
       status: "ok",
       message: "Suspect search completed successfully",
@@ -134,7 +186,7 @@ const anprOperation = async (req, res) => {
       endTime,
       licensePlate,
       employeeId,
-      ownerName,
+      ownerName
     );
     if (!results || results.length === 0) {
       return res.json({

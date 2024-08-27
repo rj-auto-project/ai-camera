@@ -34,7 +34,7 @@ model CrowdCount {
 
 model DetectionLog {
   id              Int      @id @default(autoincrement())
-  timestamp       DateTime
+  timestamp       DateTime @db.Timestamptz()
   cameraId        String
   metadata        Json
   trackId         String   @db.VarChar(255)
@@ -42,6 +42,8 @@ model DetectionLog {
   boxCoords       String   @db.VarChar(255)
   detectionClass  String   @db.VarChar(20)
   classConfidence Float
+
+  camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
 
 model OperationLog {
@@ -83,8 +85,11 @@ model Camera {
   status         Status
   installed      DateTime
   lastOnline     DateTime
+  routerIp       String?  @db.VarChar(30)
+  manufacturer   String?  @db.VarChar(30)
 
-  operations OperationLog[] @relation("OperationCameras")
+  operations   OperationLog[] @relation("OperationCameras")
+  DetectionLog DetectionLog[]
 }
 
 model Class {
