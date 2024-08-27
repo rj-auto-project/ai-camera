@@ -19,14 +19,16 @@ router.post("/sse", (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   setInterval(() => {
-    res.write(`data: ${new Date().toLocaleTimeString()} Hello this is test \n\n`);
+    res.write(
+      `data: ${new Date().toLocaleTimeString()} Hello this is test \n\n`,
+    );
   }, 1000);
 
   req.on("close", () => {
     console.log("Connection closed");
     res.end();
   });
-})
+});
 
 // router.post("/insert-data", async (req, res) => {
 //   try {

@@ -81,6 +81,7 @@ const suspectSearch = async (req, res) => {
 
     let currTime = new Date();
     let endtime = new Date(endTime);
+    let starttime = new Date(startTime);
 
     // Live search operation
     if (isLive && currTime < endtime) {
@@ -93,11 +94,11 @@ const suspectSearch = async (req, res) => {
           const liveResults = await suspectSearchService(
             cameras,
             classes,
-            startTime,
-            currTime,
+            starttime,
+            endTime,
             top_color,
             bottom_color,
-            employeeId
+            employeeId,
           );
           if (liveResults && liveResults.length > 0) {
             res.write(`data: ${JSON.stringify(liveResults)}\n\n`);
@@ -107,6 +108,7 @@ const suspectSearch = async (req, res) => {
 
           // Update current time to continue searching until endTime
           currTime = new Date();
+          starttime = new Date();
         }
 
         res.end(); // End the SSE stream when the loop ends
@@ -130,7 +132,7 @@ const suspectSearch = async (req, res) => {
       endTime,
       top_color,
       bottom_color,
-      employeeId
+      employeeId,
     );
 
     if (!results || results.length === 0) {
@@ -186,7 +188,7 @@ const anprOperation = async (req, res) => {
       endTime,
       licensePlate,
       employeeId,
-      ownerName
+      ownerName,
     );
     if (!results || results.length === 0) {
       return res.json({
