@@ -67,14 +67,22 @@ const suspectSearchService = async (
       },
       OR: [
         {
-          metadata: {
-            path: ["top_color"],
+          topColor: {
             equals: top_color,
           },
         },
         {
-          metadata: {
-            path: ["bottom_color"],
+          bottomColor: {
+            equals: top_color,
+          },
+        },
+        {
+          topColor: {
+            equals: bottom_color,
+          },
+        },
+        {
+          bottomColor: {
             equals: bottom_color,
           },
         },
@@ -90,11 +98,10 @@ const suspectSearchService = async (
   // Generate thumbnails
   const thumbnailPromises = results.map(async (result) => {
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
-    const thumbnailPath =
-      (await getThumbnail(
-        `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-        result?.timestamp,
-      )) || null;
+    const thumbnailPath = await getThumbnail(
+      `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
+      result?.timestamp,
+    );
     result.thumbnail = thumbnailPath;
     return result;
   });
