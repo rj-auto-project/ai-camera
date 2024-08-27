@@ -242,7 +242,8 @@ const CreateOperations = () => {
                 sx={{
                   display: "flex",
                   flex: 1,
-                  alignItems: "center",
+                  height: "100%",
+                  alignItems: "center"
                 }}
               >
                 <Typography sx={{ textAlign: "center", flex: 1 }}>
