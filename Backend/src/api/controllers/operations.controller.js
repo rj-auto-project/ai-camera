@@ -54,7 +54,6 @@ const suspectSearch = async (req, res) => {
   try {
     const {
       cameras,
-      classes,
       startTime,
       endTime,
       top_color,
@@ -70,14 +69,40 @@ const suspectSearch = async (req, res) => {
       });
     }
 
+    if (!cameras || cameras.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "No cameras provided",
+      });
+    }
+
     // Ensure the required fields are provided
-    if (!cameras || !classes || !startTime || !endTime) {
+    if (!startTime || !endTime) {
       return res.status(400).json({
         status: "fail",
         message:
-          "Missing required fields: cameras, classes, startTime, and endTime are required.",
+          "Missing required fields: cameras, classes, startTime, endTime are required.",
       });
     }
+
+    if (!top_color || !bottom_color) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Atleast one color is required",
+      });
+    }
+
+    if (top_color && !bottom_color) bottom_color = top_color;
+    if (!top_color && bottom_color) top_color = bottom_color;
+
+    let classesToSearchIn = await prisma.class.findMany({
+      where: {
+        objectType: {
+          not: "vehicle",
+        },
+      },
+    });
+    classesToSearchIn = classesToSearchIn.map((c) => c.className);
 
     let currTime = new Date();
     let endtime = new Date(endTime);
@@ -93,7 +118,7 @@ const suspectSearch = async (req, res) => {
         while (currTime < endtime) {
           const liveResults = await suspectSearchService(
             cameras,
-            classes,
+            classesToSearchIn,
             starttime,
             endTime,
             top_color,
@@ -127,7 +152,7 @@ const suspectSearch = async (req, res) => {
     // Non-live operation: Standard search (historical data)
     const results = await suspectSearchService(
       cameras,
-      classes,
+      classesToSearchIn,
       startTime,
       endTime,
       top_color,
