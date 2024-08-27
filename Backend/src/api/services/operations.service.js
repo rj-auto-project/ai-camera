@@ -261,5 +261,26 @@ const anprOperationService = async (
   return results;
 };
 
+const getOpearationsService = async (type) => {
+  if (type === "active") {
+    const activeOperations = await prisma.operationLog.findMany({
+      where: {
+        operationStatus: "ACTIVE",
+      },
+    });
+    return activeOperations;
+  } else if (type === "inactive") {
+    const inactiveOperations = await prisma.operationLog.findMany({
+      where: {
+        operationStatus: "INACTIVE",
+      },
+    });
+    return inactiveOperations;
+  } else {
+    const allOperations = await prisma.operationLog.findMany();
+    return allOperations;
+  }
+};
+
 // utility functions
-export { suspectSearchService, anprOperationService };
+export { suspectSearchService, anprOperationService, getOpearationsService };

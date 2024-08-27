@@ -2,6 +2,7 @@ import fs from "fs";
 import {
   suspectSearchService,
   anprOperationService,
+  getOpearationsService,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
@@ -88,7 +89,7 @@ const suspectSearch = async (req, res) => {
     if (!top_color || !bottom_color) {
       return res.status(400).json({
         status: "fail",
-        message: "Atleast one color is required",
+        message: "At least one color is required",
       });
     }
 
@@ -115,28 +116,44 @@ const suspectSearch = async (req, res) => {
       res.setHeader("Connection", "keep-alive");
 
       const liveSearch = async () => {
+        let lastFetchedTimestamp = starttime.getTime(); // Initialize with startTime
+
         while (currTime < endtime) {
+          currTime = new Date(); // Update the current time
+
+          console.log(
+            "Performing live search...",
+            new Date(lastFetchedTimestamp),
+            currTime,
+          );
+
           const liveResults = await suspectSearchService(
             cameras,
             classesToSearchIn,
-            starttime,
-            endTime,
+            new Date(lastFetchedTimestamp).toISOString(), // Start from the last fetched timestamp
+            currTime.toISOString(), // End at the current time
             top_color,
             bottom_color,
             employeeId,
           );
+
           if (liveResults && liveResults.length > 0) {
+            // Send the new results
             res.write(`data: ${JSON.stringify(liveResults)}\n\n`);
+
+            // Update lastFetchedTimestamp to the latest timestamp in the results
+            const latestTimestamp = Math.max(
+              ...liveResults.map((result) =>
+                new Date(result.timestamp).getTime(),
+              ),
+            );
+            lastFetchedTimestamp = latestTimestamp + 1; // Increment slightly to avoid overlap
           }
 
           await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
-
-          // Update current time to continue searching until endTime
-          currTime = new Date();
-          starttime = new Date();
         }
 
-        res.end(); // End the SSE stream when the loop ends
+        res.end(); // End the SSE stream when the loop ends or the end time is reached
       };
 
       await liveSearch(); // Start the live search and wait until it finishes
@@ -237,4 +254,23 @@ const anprOperation = async (req, res) => {
   }
 };
 
-export { suspectSearch, anprOperation };
+const getOperations = async (req, res) => {
+  try {
+    const { type } = req.query;
+    const operations = await getOpearationsService(type);
+    res.json({
+      status: "ok",
+      message: "Operations fetched successfully",
+      operations,
+    });
+  } catch (error) {
+    console.error("Error fetching operations:", error);
+    res.status(500).json({
+      status: "fail",
+      message: "Error fetching operations",
+      error: error.message,
+    });
+  }
+};
+
+export { suspectSearch, anprOperation, getOperations };
