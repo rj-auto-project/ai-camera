@@ -1,8 +1,8 @@
 import fs from "fs";
 import {
   suspectSearchService,
-  anprOperationService,
-  getOpearationsService,
+  getOperationsService,
+  vehicleOperationService,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
@@ -104,21 +104,19 @@ const suspectSearch = async (req, res) => {
       },
     });
     classesToSearchIn = classesToSearchIn.map((c) => c.className);
-
     let currTime = new Date();
-    let endtime = new Date(endTime);
-    let starttime = new Date(startTime);
+    const endtime = new Date(endTime);
 
     // Live search operation
-    if (isLive && currTime < endtime) {
+    if (currTime < endtime) {
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
       const liveSearch = async () => {
-        let lastFetchedTimestamp = starttime.getTime(); // Initialize with startTime
+        let lastFetchedTimestamp = new Date(startTime); // Initialize with startTime
 
-        while (currTime < endtime) {
+        while (new Date() < endtime) {
           currTime = new Date(); // Update the current time
 
           console.log(
@@ -130,8 +128,8 @@ const suspectSearch = async (req, res) => {
           const liveResults = await suspectSearchService(
             cameras,
             classesToSearchIn,
-            new Date(lastFetchedTimestamp).toISOString(), // Start from the last fetched timestamp
-            currTime.toISOString(), // End at the current time
+            new Date(lastFetchedTimestamp),
+            new Date().toISOString(),
             top_color,
             bottom_color,
             employeeId,
@@ -147,7 +145,7 @@ const suspectSearch = async (req, res) => {
                 new Date(result.timestamp).getTime(),
               ),
             );
-            lastFetchedTimestamp = latestTimestamp + 1; // Increment slightly to avoid overlap
+            lastFetchedTimestamp = new Date(latestTimestamp + 1); // Increment slightly to avoid overlap
           }
 
           await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
@@ -156,14 +154,24 @@ const suspectSearch = async (req, res) => {
         res.end(); // End the SSE stream when the loop ends or the end time is reached
       };
 
-      await liveSearch(); // Start the live search and wait until it finishes
+      await liveSearch();
 
       req.on("close", () => {
         console.log("Connection closed by client");
-        res.end(); // End the SSE stream if the client closes the connection
+        res.end();
       });
 
-      return; // Ensure no further processing happens
+      await prisma.operationLog.update({
+        where: {
+          id: newOperation?.id,
+        },
+        data: {
+          closeTimestamp: new Date(),
+          operationStatus: "INACTIVE",
+        },
+      });
+
+      return;
     }
 
     // Non-live operation: Standard search (historical data)
@@ -199,9 +207,22 @@ const suspectSearch = async (req, res) => {
   }
 };
 
-const anprOperation = async (req, res) => {
+const vehicleOperation = async (req, res) => {
   try {
-    const { cameras, startTime, endTime, licensePlate, ownerName } = req.body;
+    const {
+      cameras,
+      startTime,
+      endTime,
+      licensePlate,
+      ownerName,
+      classes,
+      topColor,
+      bottomColor,
+    } = req.body;
+    const { type } = req.query;
+
+    let operationData = {};
+
     const employeeId = req.userId;
     if (!employeeId) {
       return res.status(401).json({
@@ -209,8 +230,7 @@ const anprOperation = async (req, res) => {
         message: "Unauthorized access",
       });
     }
-
-    if (!cameras || cameras.length === 0) {
+    if (!cameras) {
       return res.status(400).json({
         status: "fail",
         message: "No cameras provided",
@@ -223,15 +243,172 @@ const anprOperation = async (req, res) => {
         message: "Start and end time are required",
       });
     }
+    if (!type) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid operation type",
+      });
+    }
 
-    const results = await anprOperationService(
+    if (type === "anpr" && !licensePlate && !ownerName && !classes) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "At least one of [licensePlate], [ownerName and class of vehicle] is required for ANPR",
+      });
+    } else if (
+      type === "anpr" &&
+      !licensePlate &&
+      ((ownerName && !classes) || (!ownerName && classes))
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Both [ownerName] and [classes] are required for ANPR while searching with ownerName",
+      });
+    } else if (
+      type === "vehicle_search" &&
+      (!classes || !topColor || !bottomColor)
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "All of [classes], [topColor] and [bottomColor] are required for vehicle search",
+      });
+    }
+
+    if (type === "anpr") {
+      operationData = {
+        type: "ANPR",
+        licensePlate: licensePlate && licensePlate.toLowerCase(),
+        ownerName: ownerName && ownerName.toLowerCase(),
+        classes,
+      };
+    } else if (type === "vehicle_search") {
+      operationData = {
+        type: "VEHICLE SEARCH",
+        topColor: topColor && topColor.toLowerCase(),
+        bottomColor: bottomColor && bottomColor.toLowerCase(),
+        classes,
+      };
+    }
+
+    // create new operation
+    const newOperation = await prisma.operationLog.create({
+      data: {
+        operationType: operationData?.type,
+        operationRequestData: operationData,
+        initialTimestamp: new Date(startTime),
+        finalTimestamp: new Date(endTime),
+        userId: employeeId,
+        operationStatus: "ACTIVE",
+        closeTimestamp: new Date(),
+      },
+    });
+
+    const currTime = new Date();
+    const endtime = new Date(endTime);
+    if (currTime < endtime) {
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const liveSearch = async () => {
+        let lastFetchedTimestamp = new Date(startTime);
+
+        while (new Date() < endtime) {
+          console.log(
+            "Performing live search...",
+            lastFetchedTimestamp,
+            new Date(),
+          );
+          const liveResults = await vehicleOperationService(
+            operationData,
+            cameras,
+            lastFetchedTimestamp,
+            new Date().toISOString(),
+          );
+
+          if (liveResults && liveResults.length > 0) {
+            res.write(`data: ${JSON.stringify(liveResults)}\n\n`);
+
+            const existingOperaionData = await prisma.operationLog.findUnique({
+              where: {
+                id: newOperation?.id,
+              },
+              select: {
+                operationResponseData: true,
+              },
+            });
+
+            const updatedOperationResponseData =
+              existingOperaionData?.operationResponseData
+                ? [
+                    ...existingOperaionData?.operationResponseData,
+                    ...liveResults,
+                  ]
+                : liveResults;
+
+            await prisma.operationLog.update({
+              where: {
+                id: newOperation?.id,
+              },
+              data: {
+                operationResponseData: updatedOperationResponseData,
+              },
+            });
+
+            const latestTimestamp = Math.max(
+              ...liveResults.map((result) =>
+                new Date(result?.time_stamp || result?.timestamp).getTime(),
+              ),
+            );
+            lastFetchedTimestamp = new Date(latestTimestamp + 1);
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+
+        res.end();
+      };
+
+      await liveSearch();
+
+      req.on("close", () => {
+        console.log("Connection closed by client");
+        res.end();
+      });
+
+      await prisma.operationLog.update({
+        where: {
+          id: newOperation?.id,
+        },
+        data: {
+          closeTimestamp: new Date(),
+          operationStatus: "INACTIVE",
+        },
+      });
+
+      return;
+    }
+
+    //historical search
+    const results = await vehicleOperationService(
+      operationData,
       cameras,
       startTime,
       endTime,
-      licensePlate,
-      employeeId,
-      ownerName,
     );
+
+    await prisma.operationLog.update({
+      where: {
+        id: newOperation?.id,
+      },
+      data: {
+        operationResponseData: results,
+      },
+    });
+
     if (!results || results.length === 0) {
       return res.json({
         status: "ok",
@@ -241,14 +418,14 @@ const anprOperation = async (req, res) => {
 
     return res.json({
       status: "ok",
-      message: "ANPR operation completed successfully",
+      message: `${operationData?.type} operation completed successfully`,
       results,
     });
   } catch (error) {
     console.error("Error performing operation:", error);
     res.status(500).json({
       status: "fail",
-      message: "ANPR operation failed",
+      message: "Vehicle operation failed",
       error: error.message,
     });
   }
@@ -257,7 +434,7 @@ const anprOperation = async (req, res) => {
 const getOperations = async (req, res) => {
   try {
     const { type } = req.query;
-    const operations = await getOpearationsService(type);
+    const operations = await getOperationsService(type);
     res.json({
       status: "ok",
       message: "Operations fetched successfully",
@@ -273,4 +450,4 @@ const getOperations = async (req, res) => {
   }
 };
 
-export { suspectSearch, anprOperation, getOperations };
+export { suspectSearch, vehicleOperation, getOperations };
