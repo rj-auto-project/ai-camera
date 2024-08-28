@@ -3,39 +3,90 @@ import {
   Grid,
   Card,
   CardMedia,
-  Pagination,
   Container,
   Box,
   Typography,
+  Pagination,
+  Stack,
+  Chip,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Streams = React.memo(() => {
   const [streams, setStreams] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeCategory, setActiveCategory] = useState("All");
   const itemsPerPage = 9;
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Mock data for video streams with camera status
+  const chipData = [
+    { label: "All" },
+    { label: "Active" },
+    { label: "Inactive" },
+  ];
+
   useEffect(() => {
     const fetchedStreams = [
-      { id: 1, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", status: "Active" },
-      { id: 2, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4", status: "Inactive" },
-      { id: 3, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_3mb.mp4", status: "Active" },
-      { id: 4, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_4mb.mp4", status: "Inactive" },
-      { id: 5, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4", status: "Active" },
-      { id: 6, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_6mb.mp4", status: "Inactive" },
-      { id: 7, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_7mb.mp4", status: "Active" },
-      { id: 8, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_8mb.mp4", status: "Inactive" },
-      { id: 9, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_9mb.mp4", status: "Active" },
-      { id: 10, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4", status: "Inactive" },
-      { id: 11, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_11mb.mp4", status: "Active" },
+      {
+        id: 1,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+        status: "Active",
+      },
+      {
+        id: 2,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4",
+        status: "Inactive",
+      },
+      {
+        id: 3,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_3mb.mp4",
+        status: "Active",
+      },
+      {
+        id: 4,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_4mb.mp4",
+        status: "Inactive",
+      },
+      {
+        id: 5,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4",
+        status: "Active",
+      },
+      {
+        id: 6,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_6mb.mp4",
+        status: "Inactive",
+      },
+      {
+        id: 7,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_7mb.mp4",
+        status: "Active",
+      },
+      {
+        id: 8,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_8mb.mp4",
+        status: "Inactive",
+      },
+      {
+        id: 9,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_9mb.mp4",
+        status: "Active",
+      },
+      {
+        id: 10,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4",
+        status: "Inactive",
+      },
+      {
+        id: 11,
+        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_11mb.mp4",
+        status: "Active",
+      },
     ];
     setStreams(fetchedStreams);
   }, []);
 
-  // Parse the query parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const page = parseInt(params.get("page"), 10);
@@ -58,15 +109,61 @@ const Streams = React.memo(() => {
     [navigate, currentPage]
   );
 
-  const currentStreams = streams.slice(
+  const handleChipClick = (category) => {
+    setActiveCategory(category);
+    setCurrentPage(1); // Reset to the first page when category changes
+  };
+
+  const filteredStreams = streams.filter(
+    (stream) =>
+      activeCategory === "All" ||
+      (activeCategory === "Active" && stream.status === "Active") ||
+      (activeCategory === "Inactive" && stream.status === "Inactive")
+  );
+
+  const currentStreams = filteredStreams.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
     <Container>
-      <Box mt={2}>
-        <Grid container spacing={4}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          padding: 2,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          overflow: "hidden",
+          flexWrap: "wrap",
+        }}
+        justifyContent="center"
+      >
+        {chipData.map((chip, index) => (
+          <Chip
+            key={index}
+            label={chip.label}
+            onClick={() => handleChipClick(chip.label)}
+            sx={{
+              backgroundColor:
+                activeCategory === chip.label ? "#B0B0B0" : "white",
+              border: `1.5px solid ${activeCategory === chip.label ? "white" : "black"}`,
+              color: "black",
+              "&:hover": {
+                backgroundColor:
+                  activeCategory === chip.label ? "#B0B0B0" : "#D3D3D3",
+              },
+            }}
+          />
+        ))}
+      </Stack>
+
+      <Box mt={9}>
+        <Grid container spacing={2}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
               <Card
@@ -77,42 +174,45 @@ const Streams = React.memo(() => {
                   flexDirection: "column",
                 }}
               >
-                <Box
-                  p={0.5}
-                  bgcolor={stream.status === "Active" ? "success.main" : "error.main"}
-                  color="white"
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography variant="body2">CamId: {stream.id}</Typography>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {stream.status === "Active" && (
-                      <>
-                        <Box
-                          sx={{
-                            width: 10,
-                            height: 10,
-                            bgcolor: "red",
-                            borderRadius: "50%",
-                            mr: 0.5,
-                          }}
-                        />
-                        <Typography variant="body2">Live</Typography>
-                      </>
-                    )}
+                <Box position="relative" sx={{ height: "100%" }}>
+                  {/* Information Overlay */}
+                  <Box
+                    position="absolute"
+                    top={8}
+                    left={8}
+                    right={8}
+                    zIndex={1}
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="body2" color="white">
+                      CamId: {stream.id}
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          bgcolor: stream.status === "Active" ? "red" : "gray",
+                          borderRadius: "50%",
+                          mr: 0.5,
+                        }}
+                      />
+                      <Typography variant="body2" color="white">
+                        {stream.status === "Active" ? "Live" : "Inactive"}
+                      </Typography>
+                    </Box>
                   </Box>
+                  {/* Video Stream */}
+                  <CardMedia
+                    component="video"
+                    controls
+                    src={stream.src}
+                    title={`Stream ${stream.id}`}
+                    sx={{ flex: 1 }}
+                  />
                 </Box>
-                <CardMedia
-                  component="video"
-                  controls
-                  src={stream.src}
-                  title={`Stream ${stream.id}`}
-                  sx={{ flex: 1 }}
-                />
               </Card>
             </Grid>
           ))}
@@ -129,7 +229,7 @@ const Streams = React.memo(() => {
         p={2}
       >
         <Pagination
-          count={Math.ceil(streams.length / itemsPerPage)}
+          count={Math.ceil(filteredStreams.length / itemsPerPage)}
           page={currentPage}
           onChange={handlePageChange}
           color="primary"
