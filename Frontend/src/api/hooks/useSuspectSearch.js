@@ -66,7 +66,7 @@ const useSuspectSearch = () => {
     isError: mutation.isError,
     error: mutation.error,
     eventData,
-    closeEventSource, // Return the close function to allow manual closure
+    closeEventSource, 
   };
 };
 
