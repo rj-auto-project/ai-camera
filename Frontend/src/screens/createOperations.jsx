@@ -86,16 +86,34 @@ const CreateOperations = () => {
     });
   };
 
+
+
   const RenderForm = () => {
     switch (selectedOperation) {
       case "Vehicle Search":
-        return <VehicleSearchForm onSubmit={handleFormSubmit} />;
+        return (
+          <VehicleSearchForm
+            cameraList={cameraList}
+          />
+        );
       case "Suspect Search":
-        return <SuspectSearchForm onSubmit={handleFormSubmit} />;
+        return (
+          <SuspectSearchForm
+            cameraList={cameraList}
+          />
+        );
       case "Restricted Vehicle":
-        return <RestrictedVehicleForm onSubmit={handleFormSubmit} />;
+        return (
+          <RestrictedVehicleForm
+            cameraList={cameraList}
+          />
+        );
       case "Crowd Restriction":
-        return <CrowdRestrictionForm onSubmit={handleFormSubmit} />;
+        return (
+          <CrowdRestrictionForm
+            cameraList={cameraList}
+          />
+        );
       default:
         return null;
     }
@@ -191,7 +209,7 @@ const CreateOperations = () => {
           </Typography>
           <Divider />
           {selectedOperation && (
-            <Box sx={{ px: 2 }}>
+            <Box>
               <RenderForm />
             </Box>
           )}
