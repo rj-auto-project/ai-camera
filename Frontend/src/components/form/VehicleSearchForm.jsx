@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import TextFieldInput from "../Input/TextFieldInput";
 import SelectFieldInput from "../Input/SelectFieldInput";
@@ -11,16 +11,70 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import useVehicleSearch from "../../api/hooks/useVehicleSearch";
+import VehicleSearchTable from "../table/VehicleSearchTable";
+import { formatDateTime } from "../../utils/formatTime";
 
-const VehicleSearchForm = ({ onSubmit }) => {
+const VehicleSearchForm = ({ cameraList }) => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
+  const [camIds, setCamIds] = useState([]);
   const [formType, setFormType] = useState("");
   const [licenseOption, setLicenseOption] = useState(false);
+
+  useEffect(() => {
+    if (cameraList && cameraList.length > 0) {
+      const ids = cameraList.map((camera) => camera.cameraId);
+      setCamIds(ids);
+    }
+  }, [cameraList]);
+
+  const {
+    mutate,
+    eventData,
+    data,
+    isLoading,
+    isError,
+    error,
+    closeEventSource,
+  } = useVehicleSearch();
+
+  const onSubmit = (formData) => {
+    console.log("Form data: ", formData);
+
+    const formattedStartTime = formatDateTime(formData.startTime);
+    const formattedEndTime = formatDateTime(formData.endTime);
+
+    let data;
+
+    if (licenseOption) {
+      data = {
+        cameras: camIds,
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
+        licensePlate: formData.licenseNumber,
+      };
+    } else {
+      data = {
+        cameras: camIds,
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
+        classes: [formData.vehicleClass],
+        ownerName: formData.ownerName,
+      };
+    }
+
+    console.log("Formatted data: ", data);
+
+    mutate(data);
+
+    reset();
+  };
 
   const handleFormTypeChange = (event) => {
     setFormType(event.target.value);
@@ -30,7 +84,9 @@ const VehicleSearchForm = ({ onSubmit }) => {
     setLicenseOption(event.target.checked);
   };
 
-  return (
+  return data ? (
+    <VehicleSearchTable data={data} />
+  ) : (
     <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <FormControl fullWidth style={{ marginBottom: "16px" }}>
         <FormLabel>Select Form Type</FormLabel>
@@ -83,6 +139,8 @@ const VehicleSearchForm = ({ onSubmit }) => {
                   { value: "sedan", label: "Sedan" },
                   { value: "suv", label: "SUV" },
                   { value: "truck", label: "Truck" },
+                  { value: "car", label: "Car" },
+                  { value: "auto", label: "Auto" },
                 ]}
                 control={control}
                 rules={{ required: "Vehicle Class is required" }}
@@ -103,6 +161,8 @@ const VehicleSearchForm = ({ onSubmit }) => {
               { value: "sedan", label: "Sedan" },
               { value: "suv", label: "SUV" },
               { value: "truck", label: "Truck" },
+              { value: "car", label: "Car" },
+              { value: "auto", label: "Auto" },
             ]}
             control={control}
             rules={{ required: "Vehicle Class is required" }}
