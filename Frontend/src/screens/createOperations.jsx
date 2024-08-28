@@ -37,7 +37,7 @@ const CreateOperations = () => {
 
   const handleFormSubmit = (data) => {
     console.log("Form Data: ", data);
-    console.log(cameraList)
+    console.log(cameraList);
   };
 
   const handleAddCameraClick = () => {
@@ -50,7 +50,14 @@ const CreateOperations = () => {
 
   const handleAddCameras = (selectedCameras) => {
     // Filter out cameras that are already in the list
-    c
+
+    const newCameras = selectedCameras.filter(
+      (camera) =>
+        !cameraList.some(
+          (existingCamera) => existingCamera.cameraId === camera.cameraId
+        )
+    );
+
     if (newCameras.length === 0) {
       toast.error("All selected cameras are already in the list.", {
         style: {
@@ -237,7 +244,7 @@ const CreateOperations = () => {
                   display: "flex",
                   flex: 1,
                   height: "100%",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
                 <Typography sx={{ textAlign: "center", flex: 1 }}>
