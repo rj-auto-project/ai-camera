@@ -62,7 +62,7 @@ const getThumbnail = async (videoPath, timestamp) => {
         })
         .on("error", (err) => {
           console.error("Error:", err.message);
-          reject(err);
+          resolve(null);
         })
         .seekInput(timeCode)
         .frames(1)
@@ -70,7 +70,7 @@ const getThumbnail = async (videoPath, timestamp) => {
         .run();
     });
     console.log("Finished ffmpeg process"); // Log after completion
-    return highlightedImagePath;
+    return highlightedImagePath || null;
   } catch (err) {
     console.error("Error processing image:", err.message);
     throw err;

@@ -2,6 +2,7 @@ import fs from "fs";
 import {
   suspectSearchService,
   anprOperationService,
+  getOpearationsService,
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
@@ -54,7 +55,6 @@ const suspectSearch = async (req, res) => {
   try {
     const {
       cameras,
-      classes,
       startTime,
       endTime,
       top_color,
@@ -70,17 +70,44 @@ const suspectSearch = async (req, res) => {
       });
     }
 
-    // Ensure the required fields are provided
-    if (!cameras || !classes || !startTime || !endTime) {
+    if (!cameras || cameras.length === 0) {
       return res.status(400).json({
         status: "fail",
-        message:
-          "Missing required fields: cameras, classes, startTime, and endTime are required.",
+        message: "No cameras provided",
       });
     }
 
+    // Ensure the required fields are provided
+    if (!startTime || !endTime) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Missing required fields: cameras, classes, startTime, endTime are required.",
+      });
+    }
+
+    if (!top_color || !bottom_color) {
+      return res.status(400).json({
+        status: "fail",
+        message: "At least one color is required",
+      });
+    }
+
+    if (top_color && !bottom_color) bottom_color = top_color;
+    if (!top_color && bottom_color) top_color = bottom_color;
+
+    let classesToSearchIn = await prisma.class.findMany({
+      where: {
+        objectType: {
+          not: "vehicle",
+        },
+      },
+    });
+    classesToSearchIn = classesToSearchIn.map((c) => c.className);
+
     let currTime = new Date();
     let endtime = new Date(endTime);
+    let starttime = new Date(startTime);
 
     // Live search operation
     if (isLive && currTime < endtime) {
@@ -89,27 +116,44 @@ const suspectSearch = async (req, res) => {
       res.setHeader("Connection", "keep-alive");
 
       const liveSearch = async () => {
+        let lastFetchedTimestamp = starttime.getTime(); // Initialize with startTime
+
         while (currTime < endtime) {
+          currTime = new Date(); // Update the current time
+
+          console.log(
+            "Performing live search...",
+            new Date(lastFetchedTimestamp),
+            currTime,
+          );
+
           const liveResults = await suspectSearchService(
             cameras,
-            classes,
-            startTime,
-            currTime,
+            classesToSearchIn,
+            new Date(lastFetchedTimestamp).toISOString(), // Start from the last fetched timestamp
+            currTime.toISOString(), // End at the current time
             top_color,
             bottom_color,
-            employeeId
+            employeeId,
           );
+
           if (liveResults && liveResults.length > 0) {
+            // Send the new results
             res.write(`data: ${JSON.stringify(liveResults)}\n\n`);
+
+            // Update lastFetchedTimestamp to the latest timestamp in the results
+            const latestTimestamp = Math.max(
+              ...liveResults.map((result) =>
+                new Date(result.timestamp).getTime(),
+              ),
+            );
+            lastFetchedTimestamp = latestTimestamp + 1; // Increment slightly to avoid overlap
           }
 
           await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
-
-          // Update current time to continue searching until endTime
-          currTime = new Date();
         }
 
-        res.end(); // End the SSE stream when the loop ends
+        res.end(); // End the SSE stream when the loop ends or the end time is reached
       };
 
       await liveSearch(); // Start the live search and wait until it finishes
@@ -125,12 +169,12 @@ const suspectSearch = async (req, res) => {
     // Non-live operation: Standard search (historical data)
     const results = await suspectSearchService(
       cameras,
-      classes,
+      classesToSearchIn,
       startTime,
       endTime,
       top_color,
       bottom_color,
-      employeeId
+      employeeId,
     );
 
     if (!results || results.length === 0) {
@@ -186,7 +230,7 @@ const anprOperation = async (req, res) => {
       endTime,
       licensePlate,
       employeeId,
-      ownerName
+      ownerName,
     );
     if (!results || results.length === 0) {
       return res.json({
@@ -210,4 +254,23 @@ const anprOperation = async (req, res) => {
   }
 };
 
-export { suspectSearch, anprOperation };
+const getOperations = async (req, res) => {
+  try {
+    const { type } = req.query;
+    const operations = await getOpearationsService(type);
+    res.json({
+      status: "ok",
+      message: "Operations fetched successfully",
+      operations,
+    });
+  } catch (error) {
+    console.error("Error fetching operations:", error);
+    res.status(500).json({
+      status: "fail",
+      message: "Error fetching operations",
+      error: error.message,
+    });
+  }
+};
+
+export { suspectSearch, anprOperation, getOperations };
