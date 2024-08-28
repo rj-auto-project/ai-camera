@@ -111,7 +111,7 @@ const Streams = React.memo(() => {
 
   const handleChipClick = (category) => {
     setActiveCategory(category);
-    setCurrentPage(1); // Reset to the first page when category changes
+    setCurrentPage(1);
   };
 
   const filteredStreams = streams.filter(
