@@ -122,7 +122,7 @@ const suspectSearch = async (req, res) => {
           console.log(
             "Performing live search...",
             new Date(lastFetchedTimestamp),
-            currTime
+            currTime,
           );
 
           const liveResults = await suspectSearchService(
@@ -132,7 +132,7 @@ const suspectSearch = async (req, res) => {
             new Date().toISOString(),
             top_color,
             bottom_color,
-            employeeId
+            employeeId,
           );
 
           if (liveResults && liveResults.length > 0) {
@@ -142,8 +142,8 @@ const suspectSearch = async (req, res) => {
             // Update lastFetchedTimestamp to the latest timestamp in the results
             const latestTimestamp = Math.max(
               ...liveResults.map((result) =>
-                new Date(result.timestamp).getTime()
-              )
+                new Date(result.timestamp).getTime(),
+              ),
             );
             lastFetchedTimestamp = new Date(latestTimestamp + 1); // Increment slightly to avoid overlap
           }
@@ -182,7 +182,7 @@ const suspectSearch = async (req, res) => {
       endTime,
       top_color,
       bottom_color,
-      employeeId
+      employeeId,
     );
 
     if (!results || results.length === 0) {
@@ -337,7 +337,7 @@ const vehicleOperation = async (req, res) => {
         operationData,
         cameras,
         startTime,
-        endTime
+        endTime,
       );
 
       await prisma.operationLog.update({
@@ -395,7 +395,7 @@ const liveVehicleOperation = async (req, res) => {
           operation.operationRequestData,
           operation.cameras,
           lastFetchedTimestamp,
-          new Date().toISOString()
+          new Date().toISOString(),
         );
 
         if (liveResults && liveResults.length > 0) {
@@ -416,8 +416,8 @@ const liveVehicleOperation = async (req, res) => {
 
           const latestTimestamp = Math.max(
             ...liveResults.map((result) =>
-              new Date(result?.time_stamp || result?.timestamp).getTime()
-            )
+              new Date(result?.time_stamp || result?.timestamp).getTime(),
+            ),
           );
           lastFetchedTimestamp = new Date(latestTimestamp + 1);
         }

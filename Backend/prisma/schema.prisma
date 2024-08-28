@@ -78,6 +78,16 @@ model AnprLogs {
   ownerName             String?  @db.VarChar(255)
 }
 
+model Incident {
+  camera        Camera       @relation("IncidentCamera", fields: [cameraId], references: [cameraId])
+  incidentType  IncidentType
+  verifiedState Boolean      @default(false)
+  incidentTime  DateTime     @default(now())
+  id            Int          @id @default(autoincrement())
+  incidentData  Json
+  cameraId      String       @db.VarChar(30)
+}
+
 model Camera {
   cameraId       String   @id @db.VarChar(30)
   cameraIp       String   @db.VarChar(30)
@@ -95,6 +105,7 @@ model Camera {
 
   operations   OperationLog[] @relation("OperationCameras")
   DetectionLog DetectionLog[]
+  Incident     Incident[]     @relation("IncidentCamera")
 }
 
 model Class {
@@ -113,4 +124,14 @@ enum ACCESSLEVEL {
   WORK // access to operations
   VIEW // for viewer developers
   SERVER //for server developers
+}
+
+enum IncidentType {
+  REDLIGHT_VIOLATION
+  OVERSPEEDING
+  ILLEGAL_PARKING
+  WRONG_WAY_DRIVING
+  ACCIDENT
+  VEHICLE_RESTRICTION
+  CROWD_RESTRICTION
 }
