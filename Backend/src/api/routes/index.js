@@ -13,20 +13,44 @@ router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
 router.get("/objectTypes", authMiddleware, getObjectTypes);
 router.get("/classlist", authMiddleware, getClassList);
-router.post("/sse", (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
 
-  setInterval(() => {
-    res.write(`data: ${new Date().toLocaleTimeString()} Hello this is test \n\n`);
-  }, 1000);
+let sseParams = {};
 
-  req.on("close", () => {
-    console.log("Connection closed");
-    res.end();
-  });
-})
+// router.post('/sse', (req, res) => {
+//   const { trigger } = req.body;
+
+//   if (!trigger) {
+//     return res.status(400).json({ status: 'fail', message: 'Trigger is required' });
+//   }
+
+//   // Save parameters for later use in the GET request
+//   sseParams = { trigger };
+
+//   // Acknowledge receipt of parameters
+//   res.status(200).json({ status: 'success', message: 'Trigger received' });
+// });
+
+// router.get('/sse', (req, res) => {
+//   res.setHeader('Content-Type', 'text/event-stream');
+//   res.setHeader('Cache-Control', 'no-cache');
+//   res.setHeader('Connection', 'keep-alive');
+
+//   if (sseParams?.trigger) {
+//     console.log(`SSE triggered with: ${sseParams.trigger}`);
+
+//     const interval = setInterval(() => {
+//       res.write(`data: ${new Date().toLocaleTimeString()} - ${sseParams.trigger}\n\n`);
+//     }, 1000);
+
+//     req.on('close', () => {
+//       console.log('Connection closed');
+//       clearInterval(interval);
+//       res.end();
+//     });
+//   } else {
+//     res.status(400).send('No trigger set up. Please POST first.');
+//   }
+// });
 
 // router.post("/insert-data", async (req, res) => {
 //   try {

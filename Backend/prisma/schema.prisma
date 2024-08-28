@@ -42,6 +42,8 @@ model DetectionLog {
   boxCoords       String   @db.VarChar(255)
   detectionClass  String   @db.VarChar(20)
   classConfidence Float
+  topColor        String?   @db.VarChar(20)
+  bottomColor     String?   @db.VarChar(20)
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }

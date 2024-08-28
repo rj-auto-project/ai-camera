@@ -11,7 +11,7 @@ const suspectSearchService = async (
   endTime,
   top_color,
   bottom_color,
-  employeeId
+  employeeId,
 ) => {
   // Convert startTime and endTime to Date objects
   const start = new Date(startTime);
@@ -67,14 +67,22 @@ const suspectSearchService = async (
       },
       OR: [
         {
-          metadata: {
-            path: ["top_color"],
+          topColor: {
             equals: top_color,
           },
         },
         {
-          metadata: {
-            path: ["bottom_color"],
+          bottomColor: {
+            equals: top_color,
+          },
+        },
+        {
+          topColor: {
+            equals: bottom_color,
+          },
+        },
+        {
+          bottomColor: {
             equals: bottom_color,
           },
         },
@@ -92,7 +100,7 @@ const suspectSearchService = async (
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.timestamp
+      result?.timestamp,
     );
     result.thumbnail = thumbnailPath;
     return result;
@@ -124,7 +132,7 @@ const anprOperationService = async (
   endTime,
   licensePlate,
   employeeId,
-  ownerName
+  ownerName,
 ) => {
   // Get cameras' details involved in the operation
   const camerasEngagedInOperation = await prisma.camera.findMany({
@@ -227,7 +235,7 @@ const anprOperationService = async (
   const thumbnailPromises = results.map(async (result) => {
     const thumbnailPath = await getThumbnail(
       "D:\\RJ ai cam\\sample.mp4",
-      result?.time_stamp
+      result?.time_stamp,
     );
     result.thumbnail = thumbnailPath;
     return result;
@@ -253,5 +261,26 @@ const anprOperationService = async (
   return results;
 };
 
+const getOpearationsService = async (type) => {
+  if (type === "active") {
+    const activeOperations = await prisma.operationLog.findMany({
+      where: {
+        operationStatus: "ACTIVE",
+      },
+    });
+    return activeOperations;
+  } else if (type === "inactive") {
+    const inactiveOperations = await prisma.operationLog.findMany({
+      where: {
+        operationStatus: "INACTIVE",
+      },
+    });
+    return inactiveOperations;
+  } else {
+    const allOperations = await prisma.operationLog.findMany();
+    return allOperations;
+  }
+};
+
 // utility functions
-export { suspectSearchService, anprOperationService };
+export { suspectSearchService, anprOperationService, getOpearationsService };
