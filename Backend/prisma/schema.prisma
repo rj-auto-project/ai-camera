@@ -34,7 +34,7 @@ model CrowdCount {
 
 model DetectionLog {
   id              Int      @id @default(autoincrement())
-  timestamp       DateTime @db.Timestamptz()
+  timestamp       DateTime @default(now())
   cameraId        String
   metadata        Json
   trackId         String   @db.VarChar(255)
@@ -42,8 +42,9 @@ model DetectionLog {
   boxCoords       String   @db.VarChar(255)
   detectionClass  String   @db.VarChar(20)
   classConfidence Float
-  topColor        String?   @db.VarChar(20)
-  bottomColor     String?   @db.VarChar(20)
+  topColor        String   @db.VarChar(20)
+  bottomColor     String   @db.VarChar(20)
+  licenseNumber   String?  @db.VarChar(20)
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
@@ -66,13 +67,15 @@ model AnprLogs {
   id                    Int      @id @default(autoincrement())
   camera_ip             String   @db.VarChar(30)
   camera_id             String   @db.VarChar(30)
-  time_stamp            DateTime @db.Timestamp(6)
+  time_stamp            DateTime @default(now())
   detection_id          Int
-  meta_data             Json
+  meta_data             Json?
   license_number        String   @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
   boxCoords             String   @db.VarChar(255)
+  detectionClass        String   @db.VarChar(20)
+  ownerName             String?  @db.VarChar(255)
 }
 
 model Camera {
@@ -85,8 +88,8 @@ model Camera {
   connectionType String   @db.VarChar(10)
   cameraType     String   @db.VarChar(10)
   status         Status
-  installed      DateTime
-  lastOnline     DateTime
+  installed      DateTime @db.Timestamptz()
+  lastOnline     DateTime @db.Timestamptz()
   routerIp       String?  @db.VarChar(30)
   manufacturer   String?  @db.VarChar(30)
 
