@@ -60,7 +60,7 @@ const Map = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId),
+      prevList.filter((camera) => camera.cameraId !== cameraId)
     );
     sessionStorage.removeItem("selectedCameraList");
     toast.success(`CAM-${cameraId} successfully removed`, {
@@ -93,6 +93,14 @@ const Map = () => {
   });
 
   console.log(data);
+
+  const heatmapData = [
+    [26.90670113368316, 75.80778836071738, 0.2], // Kanak Ghati, Amer Road
+    [26.89916069239448, 75.81197805506888, 0.5], // Kheri Gate, Amer Road
+    [26.89868338332008, 75.80100773627117, 0.8], // Intersection of Sikar Road and Amer Road
+    [26.89665459752491, 75.8050294212182, 0.9], // Near Sanganeri Gate
+    [26.9056678517506, 75.80452679452807, 1], // Near Jal Mahal, Amer Road
+  ];
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -146,7 +154,7 @@ const Map = () => {
           ))}
         </DraggablePanel>
       )}
-      <MapView center={center} DEFAULT_ZOOM={16}>
+      <MapView center={center} heatmapData={heatmapData} DEFAULT_ZOOM={16}>
         {filteredCameras.map((camera) => (
           <Marker
             key={camera.cameraId}

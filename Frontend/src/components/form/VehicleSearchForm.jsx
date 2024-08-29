@@ -10,10 +10,11 @@ import {
   Checkbox,
   Select,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import useVehicleSearch from "../../api/hooks/useVehicleSearch";
-import VehicleSearchTable from "../table/VehicleSearchTable";
 import { formatDateTime } from "../../utils/formatTime";
+import VehicleSearchTable from "../table/VehicleSearchTable";
 
 const VehicleSearchForm = ({ cameraList }) => {
   const {
@@ -42,11 +43,11 @@ const VehicleSearchForm = ({ cameraList }) => {
     isError,
     error,
     closeEventSource,
-  } = useVehicleSearch();
+  } = useVehicleSearch({ formType });
 
   const onSubmit = (formData) => {
     console.log("Form data: ", formData);
-
+    console.log("submiting", isLoading);
     const formattedStartTime = formatDateTime(formData.startTime);
     const formattedEndTime = formatDateTime(formData.endTime);
 
@@ -66,6 +67,8 @@ const VehicleSearchForm = ({ cameraList }) => {
         endTime: formattedEndTime,
         classes: [formData.vehicleClass],
         ownerName: formData.ownerName,
+        topColor: formData.topColor,
+        bottomColor: formData.bottomColor,
       };
     }
 
@@ -225,8 +228,11 @@ const VehicleSearchForm = ({ cameraList }) => {
         variant="contained"
         color="primary"
         style={{ marginTop: "16px", color: "white" }}
+        startIcon={
+          isLoading ? <CircularProgress size={20} color="inherit" /> : null
+        }
       >
-        Submit
+        {isLoading ? "creating..." : "Create"}
       </Button>
     </form>
   );
