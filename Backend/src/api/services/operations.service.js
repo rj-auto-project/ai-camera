@@ -11,47 +11,7 @@ const suspectSearchService = async (
   endTime,
   top_color,
   bottom_color,
-  employeeId,
 ) => {
-  // Convert startTime and endTime to Date objects
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-
-  // Get cameras' details involved in the operation
-  const camerasEngagedInOperation = await prisma.camera.findMany({
-    where: {
-      cameraId: typeof cameras === "string" ? cameras : { in: cameras },
-    },
-    select: {
-      cameraIp: true,
-      cameraId: true,
-      location: true,
-    },
-  });
-
-  // Log this operation
-  const newOperation = await prisma.operationLog.create({
-    data: {
-      operationType: "SUSPECT SEARCH",
-      cameras: {
-        connect: camerasEngagedInOperation.map((camera) => ({
-          cameraId: camera?.cameraId,
-        })),
-      },
-      operationRequestData: {
-        classes: classes,
-        startTime: start,
-        endTime: end,
-        topColor: top_color,
-        bottomColor: bottom_color,
-      },
-      initialTimestamp: new Date(),
-      finalTimestamp: new Date(),
-      userId: employeeId,
-      closeTimestamp: new Date(),
-    },
-  });
-
   // Perform the search
   let results = await prisma.detectionLog.findMany({
     where: {
@@ -88,9 +48,19 @@ const suspectSearchService = async (
         },
       ],
     },
+    include: {
+      camera: true,
+    },
     distinct: ["trackId"],
   });
-
+  // results = results.map(async (result) => {
+  //   const cameraDetails = await prisma.camera.findUnique({
+  //     where: {
+  //       cameraId: result.cameraId,
+  //     },
+  //   });
+  //   result.cameraDetails = cameraDetails;
+  // });
   if (!results || results.length === 0) {
     return [];
   }
@@ -107,21 +77,6 @@ const suspectSearchService = async (
   });
 
   results = await Promise.all(thumbnailPromises);
-
-  // Update operation log with results
-  await prisma.operationLog.update({
-    where: {
-      id: newOperation?.id,
-    },
-    data: {
-      operationResponseData: {
-        results: results,
-      },
-      finalTimestamp: new Date(),
-      closeTimestamp: new Date(),
-      operationStatus: "INACTIVE",
-    },
-  });
 
   return results;
 };
@@ -192,10 +147,12 @@ const vehicleOperationService = async (
           },
           {
             topColor: {
-              equals: operationData?.bottomColor,
-            },
-            bottomColor: {
               equals: operationData?.topColor,
+            },
+          },
+          {
+            bottomColor: {
+              equals: operationData?.bottomColor,
             },
           },
         ],
@@ -248,5 +205,26 @@ const getOperationsService = async (type) => {
   }
 };
 
+const incidentsSearchService = async (startTime) => {
+  const incidents = await prisma.detectionLog.findMany({
+    where: {
+      incidentType: {
+        not: null,
+      },
+      timestamp: {
+        gte: startTime,
+      },
+    },
+    distinct: ["trackId"],
+  });
+
+  return incidents;
+};
+
 // utility functions
-export { suspectSearchService, getOperationsService, vehicleOperationService };
+export {
+  suspectSearchService,
+  getOperationsService,
+  vehicleOperationService,
+  incidentsSearchService,
+};
