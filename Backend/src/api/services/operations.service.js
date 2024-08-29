@@ -121,6 +121,16 @@ const vehicleOperationService = async (
           },
         ],
       },
+      include: {
+        camera: {
+          select: {
+            cameraId: true,
+            cameraName: true,
+            location: true,
+            cameraType: true,
+          },
+        },
+      },
       distinct: ["trackId"],
     });
   } else if (type === "VEHICLE SEARCH") {
