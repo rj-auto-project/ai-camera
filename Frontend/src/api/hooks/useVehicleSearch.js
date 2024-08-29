@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../url";
 import { config } from "../getConfig";
 
-const anpr = "vehicle-op?type=anpr";
-const vehicle = "vehicle-op?type=vehicle_search";
+const anpr = "vehicle?type=anpr";
+const vehicle = "vehicle?type=vehicle_search";
 
 const useVehicleSearch = ({ formType }) => {
   const queryClient = useQueryClient();
