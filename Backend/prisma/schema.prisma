@@ -25,40 +25,42 @@ model User {
 }
 
 model CrowdCount {
-  id         Int      @id @default(autoincrement())
-  count      Int
-  timestamp  DateTime @default(now())
-  camera_ip  String   @db.VarChar(30)
-  confidence Float
+  id           Int      @id @default(autoincrement())
+  count        Int
+  timestamp    DateTime @default(now())
+  camera_ip    String   @db.VarChar(30)
+  confidence   Float
+  vehicleCount Int?
 }
 
 model DetectionLog {
-  id              Int      @id @default(autoincrement())
-  timestamp       DateTime @default(now())
+  id              Int           @id @default(autoincrement())
+  timestamp       DateTime      @default(now())
   cameraId        String
   metadata        Json
-  trackId         String   @db.VarChar(255)
-  camera_ip       String   @db.VarChar(30)
-  boxCoords       String   @db.VarChar(255)
-  detectionClass  String   @db.VarChar(20)
+  trackId         String        @db.VarChar(255)
+  camera_ip       String        @db.VarChar(30)
+  boxCoords       String        @db.VarChar(255)
+  detectionClass  String        @db.VarChar(20)
   classConfidence Float
-  topColor        String   @db.VarChar(20)
-  bottomColor     String   @db.VarChar(20)
-  licenseNumber   String?  @db.VarChar(20)
+  topColor        String        @db.VarChar(20)
+  bottomColor     String        @db.VarChar(20)
+  licenseNumber   String?       @db.VarChar(20)
+  incidentType    IncidentType?
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
 
 model OperationLog {
-  id                    Int      @id @default(autoincrement())
-  operationType         String   @db.VarChar(255)
-  operationRequestData  Json?    @db.Json
-  operationResponseData Json?    @db.Json
+  id                    Int       @id @default(autoincrement())
+  operationType         String    @db.VarChar(255)
+  operationRequestData  Json?     @db.Json
+  operationResponseData Json?     @db.Json
   initialTimestamp      DateTime
   finalTimestamp        DateTime
-  userId                String   @db.VarChar(20)
-  closeTimestamp        DateTime
-  operationStatus       Status   @default(ACTIVE)
+  userId                String    @db.VarChar(20)
+  closeTimestamp        DateTime?
+  operationStatus       Status    @default(ACTIVE)
 
   cameras Camera[] @relation("OperationCameras")
 }
@@ -76,16 +78,8 @@ model AnprLogs {
   boxCoords             String   @db.VarChar(255)
   detectionClass        String   @db.VarChar(20)
   ownerName             String?  @db.VarChar(255)
-}
 
-model Incident {
-  camera        Camera       @relation("IncidentCamera", fields: [cameraId], references: [cameraId])
-  incidentType  IncidentType
-  verifiedState Boolean      @default(false)
-  incidentTime  DateTime     @default(now())
-  id            Int          @id @default(autoincrement())
-  incidentData  Json
-  cameraId      String       @db.VarChar(30)
+  camera Camera @relation(fields: [camera_id], references: [cameraId])
 }
 
 model Camera {
@@ -102,10 +96,11 @@ model Camera {
   lastOnline     DateTime @db.Timestamptz()
   routerIp       String?  @db.VarChar(30)
   manufacturer   String?  @db.VarChar(30)
+  crowdThreshold Float?   @default(0)
 
   operations   OperationLog[] @relation("OperationCameras")
   DetectionLog DetectionLog[]
-  Incident     Incident[]     @relation("IncidentCamera")
+  AnprLogs     AnprLogs[]
 }
 
 model Class {
