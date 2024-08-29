@@ -10,7 +10,7 @@ const suspectSearchService = async (
   startTime,
   endTime,
   top_color,
-  bottom_color,
+  bottom_color
 ) => {
   // Perform the search
   let results = await prisma.detectionLog.findMany({
@@ -70,7 +70,7 @@ const suspectSearchService = async (
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.timestamp,
+      result?.timestamp
     );
     result.thumbnail = thumbnailPath || "";
     return result;
@@ -85,7 +85,7 @@ const vehicleOperationService = async (
   operationData,
   cameras,
   startTime,
-  endTime,
+  endTime
 ) => {
   const { type, classes } = operationData;
   let results = [];
@@ -157,6 +157,16 @@ const vehicleOperationService = async (
           },
         ],
       },
+      include: {
+        camera: {
+          select: {
+            cameraId: true,
+            cameraName: true,
+            location: true,
+            cameraType: true,
+          },
+        },
+      },
       distinct: ["trackId"],
     });
   }
@@ -170,7 +180,7 @@ const vehicleOperationService = async (
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.time_stamp || result?.timestamp,
+      result?.time_stamp || result?.timestamp
     );
     result.thumbnail = thumbnailPath || "";
     return result;
