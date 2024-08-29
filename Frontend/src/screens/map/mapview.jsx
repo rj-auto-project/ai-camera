@@ -3,7 +3,8 @@ import osm from "./osm-provider";
 import "leaflet/dist/leaflet.css";
 import "./Style.css";
 
-const MapView = ({ center, DEFAULT_ZOOM, mapRef, children }) => (
+
+const MapView = ({ center, DEFAULT_ZOOM, heatmapData, mapRef, children }) => (
   <MapContainer
     center={center}
     zoom={DEFAULT_ZOOM}
@@ -17,6 +18,7 @@ const MapView = ({ center, DEFAULT_ZOOM, mapRef, children }) => (
       attribution={osm.maptiler.attributions}
     />
     {children}
+
   </MapContainer>
 );
 
