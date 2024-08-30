@@ -61,7 +61,7 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
         </Box>
         <img
           src="/assets/cctv.jpeg"
-          alt={selectedItem.licenseNumber || "No License Number"}
+          alt={selectedItem.licenseNumber || selectedItem?.license_number || "No License Number"}
           style={{
             width: "100%",
             height: "auto",
@@ -87,11 +87,11 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
         >
           <Typography variant="body2">
             License No: <br />
-            {selectedItem.licenseNumber || "N/A"}
+            {selectedItem.licenseNumber || selectedItem?.license_number || "N/A"}
           </Typography>
           <Typography variant="body2">
             Timestamp: <br />
-            {new Date(selectedItem.timestamp).toLocaleString()}
+            {new Date(selectedItem.timestamp || selectedItem?.time_stamp).toLocaleString()}
           </Typography>
           <Typography variant="body2">
             Camera IP: <br />
