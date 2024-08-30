@@ -130,6 +130,9 @@ const SuspectSearchForm = ({ cameraList }) => {
             { value: "blue", label: "Blue" },
             { value: "green", label: "Green" },
             { value: "black", label: "Black" },
+            { value: "white", label: "White" },
+            { value: "yellow", label: "Yellow" },
+            { value: "orange", label: "Orange" },
           ]}
           control={control}
           rules={{ required: "Color is required" }}
@@ -151,6 +154,9 @@ const SuspectSearchForm = ({ cameraList }) => {
             { value: "blue", label: "Blue" },
             { value: "green", label: "Green" },
             { value: "black", label: "Black" },
+            { value: "white", label: "White" },
+            { value: "yellow", label: "Yellow" },
+            { value: "orange", label: "Orange" },
           ]}
           control={control}
           rules={{ required: "Color is required" }}
