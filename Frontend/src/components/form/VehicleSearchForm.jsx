@@ -145,6 +145,8 @@ const VehicleSearchForm = ({ cameraList }) => {
                   { value: "car", label: "Car" },
                   { value: "auto", label: "Auto" },
                   { value: "Hatchback", label: "Hatchback" },
+                  { value: "motorbike-rider", label: "Motorbike Rider" },
+                  { value: "scooty-rider", label: "Scooty Rider" },
                 ]}
                 control={control}
                 rules={{ required: "Vehicle Class is required" }}
@@ -167,6 +169,9 @@ const VehicleSearchForm = ({ cameraList }) => {
               { value: "truck", label: "Truck" },
               { value: "car", label: "Car" },
               { value: "auto", label: "Auto" },
+              { value: "Hatchback", label: "Hatchback" },
+              { value: "motorbike-rider", label: "Motorbike Rider" },
+              { value: "scooty-rider", label: "Scooty Rider" },
             ]}
             control={control}
             rules={{ required: "Vehicle Class is required" }}
@@ -181,6 +186,9 @@ const VehicleSearchForm = ({ cameraList }) => {
               { value: "blue", label: "Blue" },
               { value: "green", label: "Green" },
               { value: "black", label: "Black" },
+              { value: "white", label: "White" },
+              { value: "yellow", label: "Yellow" },
+              { value: "orange", label: "Orange" },
             ]}
             control={control}
             rules={{ required: "Top Color is required" }}
@@ -195,6 +203,9 @@ const VehicleSearchForm = ({ cameraList }) => {
               { value: "blue", label: "Blue" },
               { value: "green", label: "Green" },
               { value: "black", label: "Black" },
+              { value: "white", label: "White" },
+              { value: "yellow", label: "Yellow" },
+              { value: "orange", label: "Orange" },
             ]}
             control={control}
             rules={{ required: "Bottom Color is required" }}
