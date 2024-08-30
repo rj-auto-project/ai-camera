@@ -32,7 +32,7 @@ const MapView = ({
   activeCategory,
   camStatus,
 }) => {
-  console.log("ac", activeCategory);
+  
   return (
     <MapContainer
       center={center}
