@@ -229,7 +229,11 @@ const vehicleOperation = async (req, res) => {
       });
     }
 
-    if (type === "anpr" && !licensePlate && !ownerName && !classes) {
+    if (
+      type === "anpr" &&
+      !licensePlate &&
+      !(ownerName && classes?.length > 0)
+    ) {
       return res.status(400).json({
         status: "fail",
         message:
