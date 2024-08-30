@@ -177,6 +177,7 @@ const Streams = React.memo(() => {
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
+                  height:'100%'
                 }}
               >
                 <Box position="relative" sx={{ height: "100%" }}>

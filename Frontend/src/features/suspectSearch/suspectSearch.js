@@ -16,7 +16,7 @@ const suspectSearchSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
-    suspectSearchSuccess(state, action) {
+    suspectSearchSucess(state, action) {
       state.isLoading = false;
       state.data = action.payload;
     },
@@ -29,7 +29,7 @@ const suspectSearchSlice = createSlice({
 
 export const {
   suspectSearchStart,
-  suspectSearchSuccess,
+  suspectSearchSucess,
   suspectSearchFailure,
 } = suspectSearchSlice.actions;
 

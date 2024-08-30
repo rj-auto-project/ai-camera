@@ -1,15 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import TextFieldInput from "../Input/TextFieldInput";
 import SelectFieldInput from "../Input/SelectFieldInput";
 import { Button, Box } from "@mui/material";
-
-const SuspectSearchForm = ({ onSubmit }) => {
+import { useSuspectSearch } from "../../api/hooks/useSuspectSearch";
+import { formatDateTime } from "../../utils/formatTime";
+const SuspectSearchForm = ({ cameraList }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const [camIds, setCamIds] = useState([]);
+
+  useEffect(() => {
+    if (cameraList && cameraList.length > 0) {
+      const ids = cameraList.map((camera) => camera.cameraId);
+      setCamIds(ids);
+    }
+  }, [cameraList]);
+
+  const {
+    mutate,
+    eventData,
+    data,
+    isLoading,
+    isError,
+    error,
+    closeEventSource,
+  } = useSuspectSearch();
 
   const allClasses = [
     { value: "apache", label: "Apache" },
@@ -20,7 +40,7 @@ const SuspectSearchForm = ({ onSubmit }) => {
     { value: "bus", label: "Bus" },
     { value: "car", label: "Car" },
     { value: "child", label: "Child" },
-    { value: "hatchback", label: "Hatchback" },
+    { value: "Hatchback", label: "Hatchback" },
     { value: "helmet", label: "Helmet" },
     { value: "jcb", label: "JCB" },
     { value: "license-plate", label: "License Plate" },
@@ -45,20 +65,33 @@ const SuspectSearchForm = ({ onSubmit }) => {
     { value: "woman", label: "Woman" },
   ];
 
-  const {
-    mutate,
-    eventData,
-    data,
-    isLoading,
-    isError,
-    error,
-    closeEventSource,
-  } = useSuspectSearch();
+  const onSubmit = (formData) => {
+    console.log("Form data: ", formData);
+    console.log("submiting", isLoading);
+    const formattedStartTime = formatDateTime(formData.startTime);
+    const formattedEndTime = formatDateTime(formData.endTime);
+
+    const data = {
+      cameras: camIds,
+      classes: [formData.classes],
+      top_color: formData.top_color,
+      bottom_color: formData.bottom_color,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+    };
+    console.log("Formatted data: ", data);
+
+    mutate(data);
+  };
+
+  console.log("susupect seach", data);
+  console.log("isLoading", isLoading);
+  console.log("isError", isError,error);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <SelectFieldInput
-        name="Select Class"
+        name="classes"
         label="Class"
         options={allClasses}
         control={control}
@@ -68,7 +101,7 @@ const SuspectSearchForm = ({ onSubmit }) => {
       />
       <Box sx={{ display: "flex", flexDirection: "row", gap: "10px" }}>
         <SelectFieldInput
-          name="Top Color"
+          name="top_color"
           label="Top Color"
           options={[
             { value: "red", label: "Red" },
@@ -89,7 +122,7 @@ const SuspectSearchForm = ({ onSubmit }) => {
       /> */}
 
         <SelectFieldInput
-          name="Bottom Color"
+          name="bottom_color"
           label="Bottom Color"
           options={[
             { value: "red", label: "Red" },
