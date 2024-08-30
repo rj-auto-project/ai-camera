@@ -187,7 +187,7 @@ const VehicleSearchForm = ({ cameraList }) => {
           />
           <SelectFieldInput
             name="topColor"
-            label="Top Color"
+            label="Color 1"
             options={[
               { value: "red", label: "Red" },
               { value: "blue", label: "Blue" },
@@ -205,7 +205,7 @@ const VehicleSearchForm = ({ cameraList }) => {
           />
           <SelectFieldInput
             name="bottomColor"
-            label="Bottom Color"
+            label="Color 2"
             options={[
               { value: "red", label: "Red" },
               { value: "blue", label: "Blue" },
