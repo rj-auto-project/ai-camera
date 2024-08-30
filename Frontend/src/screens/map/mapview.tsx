@@ -2,7 +2,14 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import osm from "./osm-provider";
 import "leaflet/dist/leaflet.css";
 import "./Style.css";
+import { HeatmapLayerFactory } from "@vgrid/react-leaflet-heatmap-layer";
+import { geojson } from "../../data/mapdata.js";
 
+const HeatmapLayer = HeatmapLayerFactory<[number, number, number]>();
+
+const data = [
+ // Near Jal Mahal, Amer Road
+];
 
 const MapView = ({ center, DEFAULT_ZOOM, heatmapData, mapRef, children }) => (
   <MapContainer
@@ -18,7 +25,13 @@ const MapView = ({ center, DEFAULT_ZOOM, heatmapData, mapRef, children }) => (
       attribution={osm.maptiler.attributions}
     />
     {children}
-
+    <HeatmapLayer
+      points={data}
+      radius={20}
+      longitudeExtractor={(m) => m[1]} // Extracting longitude
+      latitudeExtractor={(m) => m[0]} // Extracting latitude
+      intensityExtractor={(m) => m[2]}
+    />
   </MapContainer>
 );
 
