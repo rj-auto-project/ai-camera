@@ -10,6 +10,10 @@ export const operationForms = {
         { value: "blue", label: "Blue" },
         { value: "green", label: "Green" },
         { value: "black", label: "Black" },
+        { value: "white", label: "White" },
+        { value: "yellow", label: "Yellow" },
+        { value: "orange", label: "Orange" },
+        { value: "brown", label: "Brown" },
       ],
     },
     {
@@ -47,6 +51,10 @@ export const operationForms = {
         { value: "blue", label: "Blue" },
         { value: "green", label: "Green" },
         { value: "black", label: "Black" },
+        { value: "white", label: "White" },
+        { value: "yellow", label: "Yellow" },
+        { value: "orange", label: "Orange" },
+        { value: "brown", label: "Brown" },
       ],
     },
     {

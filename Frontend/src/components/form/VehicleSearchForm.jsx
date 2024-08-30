@@ -196,6 +196,7 @@ const VehicleSearchForm = ({ cameraList }) => {
               { value: "white", label: "White" },
               { value: "yellow", label: "Yellow" },
               { value: "orange", label: "Orange" },
+              { value: "brown", label: "Brown" },
             ]}
             control={control}
             rules={{ required: "Top Color is required" }}
@@ -213,6 +214,7 @@ const VehicleSearchForm = ({ cameraList }) => {
               { value: "white", label: "White" },
               { value: "yellow", label: "Yellow" },
               { value: "orange", label: "Orange" },
+              { value: "brown", label: "Brown" },
             ]}
             control={control}
             rules={{ required: "Bottom Color is required" }}
