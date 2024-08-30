@@ -229,7 +229,7 @@ const vehicleOperation = async (req, res) => {
       });
     }
 
-    if (type === "anpr" && (!licensePlate && (!ownerName && !classes))) {
+    if (type === "anpr" && !licensePlate && !ownerName && !classes) {
       return res.status(400).json({
         status: "fail",
         message:
@@ -259,7 +259,7 @@ const vehicleOperation = async (req, res) => {
     if (type === "anpr") {
       operationData = {
         type: "ANPR",
-        licensePlate: licensePlate && licensePlate.toLowerCase(),
+        licensePlate: licensePlate,
         ownerName: ownerName && ownerName.toLowerCase(),
         classes,
         cameras,
