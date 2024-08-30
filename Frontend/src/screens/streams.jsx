@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Grid,
   Card,
-  CardMedia,
   Container,
   Box,
   Typography,
@@ -11,6 +10,10 @@ import {
   Chip,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import ReactPlayer from "react-player";
+import { useVideo } from '../context/videoContext';
+import video1 from "/assets/videos/output1.mp4";
+import video2 from "/assets/videos/output2.mp4";
 
 const Streams = React.memo(() => {
   const [streams, setStreams] = useState([]);
@@ -19,6 +22,7 @@ const Streams = React.memo(() => {
   const itemsPerPage = 9;
   const navigate = useNavigate();
   const location = useLocation();
+  const { setVideoSrc } = useVideo();
 
   const chipData = [
     { label: "All" },
@@ -30,7 +34,7 @@ const Streams = React.memo(() => {
     const fetchedStreams = [
       {
         id: 1,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+        src: video1,
         status: "Active",
       },
       {
@@ -40,7 +44,7 @@ const Streams = React.memo(() => {
       },
       {
         id: 3,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_3mb.mp4",
+        src: video2,
         status: "Active",
       },
       {
@@ -51,7 +55,7 @@ const Streams = React.memo(() => {
       {
         id: 5,
         src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4",
-        status: "Active",
+        status: "Inactive",
       },
       {
         id: 6,
@@ -61,7 +65,7 @@ const Streams = React.memo(() => {
       {
         id: 7,
         src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_7mb.mp4",
-        status: "Active",
+        status: "Inactive",
       },
       {
         id: 8,
@@ -71,7 +75,7 @@ const Streams = React.memo(() => {
       {
         id: 9,
         src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_9mb.mp4",
-        status: "Active",
+        status: "Inactive",
       },
       {
         id: 10,
@@ -81,7 +85,7 @@ const Streams = React.memo(() => {
       {
         id: 11,
         src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_11mb.mp4",
-        status: "Active",
+        status: "Inactive",
       },
     ];
     setStreams(fetchedStreams);
@@ -103,7 +107,8 @@ const Streams = React.memo(() => {
   );
 
   const handleStreamClick = useCallback(
-    (id) => {
+    (id,scr) => {
+      setVideoSrc(scr)
       navigate(`?page=${currentPage}&cameraId=${id}`);
     },
     [navigate, currentPage]
@@ -167,7 +172,7 @@ const Streams = React.memo(() => {
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
               <Card
-                onClick={() => handleStreamClick(stream.id)}
+                onClick={() => handleStreamClick(stream.id,stream.src)}
                 sx={{
                   cursor: "pointer",
                   display: "flex",
@@ -205,13 +210,15 @@ const Streams = React.memo(() => {
                     </Box>
                   </Box>
                   {/* Video Stream */}
-                  <CardMedia
-                    component="video"
-                    controls
-                    src={stream.src}
-                    title={`Stream ${stream.id}`}
-                    sx={{ flex: 1 }}
-                  />
+                  <video
+                      src={stream.src}
+                      autoPlay
+                      muted
+                      loop
+                      width="100%"
+                      height="100%"
+                      style={{ objectFit: "cover" }}
+                    />
                 </Box>
               </Card>
             </Grid>
