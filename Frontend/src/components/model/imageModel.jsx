@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  Typography,
-  Modal,
-  Box,
-  IconButton,
-} from "@mui/material";
+import { Typography, Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
-
-    
   const handleClose = () => {
     setOpen(false);
     setSelectedItem(null);
@@ -19,7 +12,11 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
   const handleSaveImage = () => {
     const link = document.createElement("a");
     link.href = "/assets/cctv.jpeg";
-    link.download = selectedItem.licenseNumber || "image";
+    link.download =
+      `${selectedItem.licenseNumber}-${new Date().toLocaleString()}` ||
+      `${selectedItem.license_number}-${new Date().toLocaleString()}` ||
+      `thumbnail-${new Date().toLocaleString()}` ||
+      "image";
     link.click();
   };
 
@@ -61,7 +58,11 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
         </Box>
         <img
           src="/assets/cctv.jpeg"
-          alt={selectedItem.licenseNumber || selectedItem?.license_number || "No License Number"}
+          alt={
+            selectedItem.licenseNumber ||
+            selectedItem?.license_number ||
+            "No License Number"
+          }
           style={{
             width: "100%",
             height: "auto",
@@ -87,18 +88,22 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
         >
           <Typography variant="body2">
             License No: <br />
-            {selectedItem.licenseNumber || selectedItem?.license_number || "N/A"}
+            {selectedItem.licenseNumber ||
+              selectedItem?.license_number ||
+              "N/A"}
           </Typography>
           <Typography variant="body2">
             Timestamp: <br />
-            {new Date(selectedItem.timestamp || selectedItem?.time_stamp).toLocaleString()}
+            {new Date(
+              selectedItem.timestamp || selectedItem?.time_stamp
+            ).toLocaleString()}
           </Typography>
           <Typography variant="body2">
             Camera IP: <br />
             {selectedItem.camera_ip}
           </Typography>
           <Typography variant="body2">
-            Vehicle: <br />
+            Class: <br />
             {selectedItem.detectionClass}
           </Typography>
         </Box>
