@@ -13,12 +13,13 @@ import {
   Box,
   Icon,
   Tooltip,
+  Skeleton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../CSVButton";
 
-const VehicleSearchTable = ({ data }) => {
+const SuspectSearchTable = ({ data, isLoading }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
@@ -84,30 +85,30 @@ const VehicleSearchTable = ({ data }) => {
         style={{ flex: 1, overflow: "auto" }}
         sx={{
           "&::-webkit-scrollbar": {
-            width: "6px", // Width of the scrollbar
-            height: "6px", // Height of the horizontal scrollbar
-            backgroundColor: "transparent", // Transparent background for both scrollbars
+            width: "6px",
+            height: "6px",
+            backgroundColor: "transparent",
           },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#333", // Color of the draggable part of the scrollbar
-            borderRadius: "10px", // Roundness of the scrollbar thumb
-            border: "1px solid #f9f9f9", // Adds padding around the scrollbar thumb
+            backgroundColor: "#333",
+            borderRadius: "10px",
+            border: "1px solid #f9f9f9",
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#222", // Color when hovering over the scrollbar thumb
+            backgroundColor: "#222",
           },
           "&::-webkit-scrollbar-track": {
-            backgroundColor: "transparent", // Transparent track for both scrollbars
-            borderRadius: "10px", // Roundness of the scrollbar track
+            backgroundColor: "transparent",
+            borderRadius: "10px",
           },
           "&::-webkit-scrollbar-track-piece": {
-            backgroundColor: "transparent", // The part of the track not covered by the thumb
+            backgroundColor: "transparent",
           },
           "&::-webkit-scrollbar-corner": {
-            backgroundColor: "transparent", // The corner where the two scrollbars meet
+            backgroundColor: "transparent",
           },
           "&::-webkit-resizer": {
-            backgroundColor: "transparent", // The draggable resizer corner in some elements
+            backgroundColor: "transparent",
           },
         }}
       >
@@ -117,10 +118,10 @@ const VehicleSearchTable = ({ data }) => {
               <BoldTableCell>Thumbnail</BoldTableCell>
               <BoldTableCell>Time Stamp</BoldTableCell>
               <BoldTableCell>Camera</BoldTableCell>
-              <BoldTableCell>Vehicle</BoldTableCell>
+              <BoldTableCell>Detected Class</BoldTableCell>
               <BoldTableCell>Confidence</BoldTableCell>
-              {/* <BoldTableCell>Top Color</BoldTableCell>
-              <BoldTableCell>Bottom Color</BoldTableCell> */}
+              <BoldTableCell>Top Color</BoldTableCell>
+              <BoldTableCell>Bottom Color</BoldTableCell>
               {data?.results[0]?.license_number && (
                 <BoldTableCell>License Number</BoldTableCell>
               )}
@@ -176,8 +177,8 @@ const VehicleSearchTable = ({ data }) => {
                         item?.prediction_confidence?.toFixed(2)}
                     </strong>
                   </TableCell>
-                  {/* <TableCell>{item.topColor}</TableCell>
-                  <TableCell>{item.bottomColor}</TableCell> */}
+                  <TableCell>{item?.topColor}</TableCell>
+                  <TableCell>{item?.bottomColor}</TableCell>
                   {item?.license_number && (
                     <TableCell>{item?.license_number || "N/A"}</TableCell>
                   )}
@@ -315,4 +316,4 @@ const BoldTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-export default VehicleSearchTable;
+export default SuspectSearchTable;
