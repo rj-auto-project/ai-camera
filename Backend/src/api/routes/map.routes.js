@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getCamerars,
+  heatmap,
   performRequestedOperation,
 } from "../controllers/map.controller.js";
 import authMiddleware from "../../middleware/authMiddleware.js";
@@ -19,6 +20,7 @@ router.post(
   operationValidator,
   performRequestedOperation,
 );
+router.get("/heatmap", authMiddleware, heatmap)
 
 // Get the status of map route
 router.get("/status", (req, res) => {
