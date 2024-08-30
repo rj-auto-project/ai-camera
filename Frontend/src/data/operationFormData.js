@@ -13,6 +13,7 @@ export const operationForms = {
         { value: "white", label: "White" },
         { value: "yellow", label: "Yellow" },
         { value: "orange", label: "Orange" },
+        { value: "brown", label: "Brown" },
       ],
     },
     {
@@ -53,6 +54,7 @@ export const operationForms = {
         { value: "white", label: "White" },
         { value: "yellow", label: "Yellow" },
         { value: "orange", label: "Orange" },
+        { value: "brown", label: "Brown" },
       ],
     },
     {
