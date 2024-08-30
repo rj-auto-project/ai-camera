@@ -41,7 +41,7 @@ const getHeatmap = async () => {
       timestamp: "desc",
     },
   });
-  const latestHeatmap = Object.values(
+  let latestHeatmap = Object.values(
     allRecords.reduce((acc, record) => {
       if (!acc[record.camera_ip]) {
         acc[record.camera_ip] = record;
