@@ -62,14 +62,6 @@ const CameraSelectionModal = ({
   };
 
 
-  const handleAddCameraClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
 
   
   return (
