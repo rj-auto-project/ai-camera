@@ -12,11 +12,11 @@ import {
   Button,
   Box,
   Icon,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
-import { CSVLink } from "react-csv";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import CSVButton from "../CSVButton";
 
 const VehicleSearchTable = ({ data }) => {
   const [page, setPage] = useState(0);
@@ -69,13 +69,13 @@ const VehicleSearchTable = ({ data }) => {
 
   const csvData = data.results.map((item) => ({
     thumbnail: `/assets/cctv.jpeg`, // Assuming the thumbnail is the same for all
-    timestamp: new Date(item.timestamp).toLocaleString(),
-    camera_ip: item.camera_ip,
-    detectionClass: item.detectionClass,
-    classConfidence: item.classConfidence.toFixed(2),
-    topColor: item.topColor,
-    bottomColor: item.bottomColor,
-    licenseNumber: item.licenseNumber || "N/A",
+    timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
+    camera_ip: item?.camera_ip || item?.camera?.cameraIp,
+    detectionClass: item?.detectionClass,
+    classConfidence: item?.classConfidence?.toFixed(2),
+    topColor: item?.topColor,
+    bottomColor: item?.bottomColor,
+    licenseNumber: item?.licenseNumber || "N/A",
   }));
 
   return (
@@ -116,7 +116,7 @@ const VehicleSearchTable = ({ data }) => {
             <TableRow>
               <BoldTableCell>Thumbnail</BoldTableCell>
               <BoldTableCell>Time Stamp</BoldTableCell>
-              <BoldTableCell>Camera IP</BoldTableCell>
+              <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Vehicle</BoldTableCell>
               <BoldTableCell>Confidence</BoldTableCell>
               {/* <BoldTableCell>Top Color</BoldTableCell>
@@ -140,11 +140,33 @@ const VehicleSearchTable = ({ data }) => {
                     />
                   </TableCell>
                   <TableCell>
-                    {new Date(item.timestamp).toLocaleString()}
+                    {new Date(item?.timestamp || item?.time_stamp).toLocaleString()}
                   </TableCell>
-                  <TableCell>{item.camera_ip}</TableCell>
+                  <TableCell>
+                    <div>
+                      <strong>Camera ID:</strong> {item?.camera?.cameraId}
+                    </div>
+                    <div>
+                      <strong>Camera Name:</strong> {item?.camera?.cameraName}
+                    </div>
+                    <div>
+                      <strong>Location:</strong> {item?.camera?.location}
+                    </div>
+                    <div>
+                      <strong>Type:</strong> {item?.camera?.cameraType}
+                    </div>
+                  </TableCell>
                   <TableCell>{item?.detectionClass}</TableCell>
-                  <TableCell>{item.classConfidence.toFixed(2)}</TableCell>
+                  <TableCell
+                    sx={{
+                      color:
+                        parseFloat(item?.classConfidence) < 0.4
+                          ? "#f00"
+                          : "#0f0",
+                    }}
+                  >
+                    <strong>{item?.classConfidence?.toFixed(2)}</strong>
+                  </TableCell>
                   {/* <TableCell>{item.topColor}</TableCell>
                   <TableCell>{item.bottomColor}</TableCell> */}
                   {/* <TableCell>{item.licenseNumber || "N/A"}</TableCell> */}
@@ -163,40 +185,12 @@ const VehicleSearchTable = ({ data }) => {
           padding: "10px",
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          style={{
-            margin: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white", // Keep the text color white
-          }}
-        >
-          <CSVLink
-            data={csvData}
-            headers={headers}
-            filename={"vehicle_search_data.csv"}
-            style={{
-              textDecoration: "none",
-              color: "inherit", // Inherit color from parent
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              style={{
-                marginRight: "5px",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <CloudDownloadIcon />
-            </Icon>
-            Download
-          </CSVLink>
-        </Button>
+        <CSVButton
+          csvData={csvData}
+          headers={headers}
+          filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
+          key={`vehicle_search_data_${new Date().toLocaleString()}`}
+        />
         <TablePagination
           rowsPerPageOptions={[10, 25, 50]}
           component="div"

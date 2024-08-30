@@ -144,6 +144,7 @@ const VehicleSearchForm = ({ cameraList }) => {
                   { value: "truck", label: "Truck" },
                   { value: "car", label: "Car" },
                   { value: "auto", label: "Auto" },
+                  { value: "Hatchback", label: "Hatchback" },
                 ]}
                 control={control}
                 rules={{ required: "Vehicle Class is required" }}
