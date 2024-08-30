@@ -14,7 +14,21 @@ const SuspectSearchForm = ({ onSubmit }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <SelectFieldInput
-        name="suspectColor"
+        name="Select Classes"
+        label="Color"
+        options={[
+          { value: "red", label: "Red" },
+          { value: "blue", label: "Blue" },
+          { value: "green", label: "Green" },
+          { value: "black", label: "Black" },
+        ]}
+        control={control}
+        rules={{ required: "Color is required" }}
+        error={errors.suspectColor}
+        helperText={errors.suspectColor?.message}
+      />
+      <SelectFieldInput
+        name="Top Color"
         label="Color"
         options={[
           { value: "red", label: "Red" },
