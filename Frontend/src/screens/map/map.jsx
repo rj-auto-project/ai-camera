@@ -16,6 +16,7 @@ const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
   const { data, isLoading, isError, error } = useFetchCameras();
+  const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -86,15 +87,14 @@ const Map = () => {
     if (activeCategory === "All Cameras") return true;
     if (activeCategory === "Inactive Cameras")
       return camera.status === "INACTIVE";
-    if (activeCategory === "Active Cameras") return camera.status === "ACTIVE";
+    if (activeCategory === "Active Cameras")
+      return camera.status === "ACTIVE"
     if (activeCategory === "Crowd") return camera.cameraType === "Crowd";
     if (activeCategory === "Traffic") return camera.cameraType === "Traffic";
     return false;
   });
 
   console.log(data);
-
-
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -148,7 +148,12 @@ const Map = () => {
           ))}
         </DraggablePanel>
       )}
-      <MapView center={center}  DEFAULT_ZOOM={16}>
+      <MapView
+        center={center}
+        activeCategory={activeCategory}
+        camStatus={camStatus}
+        DEFAULT_ZOOM={16}
+      >
         {filteredCameras.map((camera) => (
           <Marker
             key={camera.cameraId}
