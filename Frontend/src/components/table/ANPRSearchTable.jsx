@@ -29,6 +29,8 @@ const ANPRSearchTable = ({ data }) => {
     return <Typography>No data available</Typography>;
   }
 
+  console.log(data);
+
   return (
     <Paper style={{ height: "80vh", display: "flex", flexDirection: "column" }}>
       <TableContainer style={{ flex: 1, overflow: "auto" }}>
@@ -60,10 +62,10 @@ const ANPRSearchTable = ({ data }) => {
                   <TableCell>
                     {new Date(item.time_stamp).toLocaleString()}
                   </TableCell>
-                  <TableCell>{item.license_number}</TableCell>
-                  <TableCell>{item.prediction_confidence}</TableCell>
-                  <TableCell>{item.detectionClass}</TableCell>
-                  <TableCell>{item.ownerName}</TableCell>
+                  <TableCell>{item?.license_number}</TableCell>
+                  <TableCell>{item?.prediction_confidence}</TableCell>
+                  <TableCell>{item?.detectionClass}</TableCell>
+                  <TableCell>{item?.ownerName}</TableCell>
                 </TableRow>
               ))}
           </TableBody>

@@ -121,7 +121,7 @@ const VehicleSearchTable = ({ data }) => {
               <BoldTableCell>Confidence</BoldTableCell>
               {/* <BoldTableCell>Top Color</BoldTableCell>
               <BoldTableCell>Bottom Color</BoldTableCell> */}
-              {/* <BoldTableCell>License Number</BoldTableCell> */}
+              {data?.results[0]?.license_number && <BoldTableCell>License Number</BoldTableCell>}
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -160,16 +160,16 @@ const VehicleSearchTable = ({ data }) => {
                   <TableCell
                     sx={{
                       color:
-                        parseFloat(item?.classConfidence) < 0.4
+                        parseFloat(item?.classConfidence || item?.prediction_confidence) < 0.4
                           ? "#f00"
                           : "#0f0",
                     }}
                   >
-                    <strong>{item?.classConfidence?.toFixed(2)}</strong>
+                    <strong>{item?.classConfidence?.toFixed(2) || item?.prediction_confidence?.toFixed(2)}</strong>
                   </TableCell>
                   {/* <TableCell>{item.topColor}</TableCell>
                   <TableCell>{item.bottomColor}</TableCell> */}
-                  {/* <TableCell>{item.licenseNumber || "N/A"}</TableCell> */}
+                  {item?.license_number && <TableCell>{item?.license_number || "N/A"}</TableCell>}
                 </TableRow>
               ))}
           </TableBody>

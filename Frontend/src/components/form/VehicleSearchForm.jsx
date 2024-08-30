@@ -87,6 +87,31 @@ const VehicleSearchForm = ({ cameraList }) => {
     setLicenseOption(event.target.checked);
   };
 
+  const vehicleClasses = [
+    { value: "sedan", label: "Sedan" },
+    { value: "suv", label: "SUV" },
+    { value: "truck", label: "Truck" },
+    { value: "car", label: "Car" },
+    { value: "auto", label: "Auto" },
+    { value: "Hatchback", label: "Hatchback" },
+    { value: "motorbike-rider", label: "Motorbike Rider" },
+    { value: "scooty-rider", label: "Scooty Rider" },
+    { value: "scorpio", label: "Scorpio" },
+    { value: "bolero", label: "Bolero" },
+    { value: "apache", label: "Apache" },
+    { value: "bullet", label: "Bullet" },
+    { value: "bus", label: "Bus" },
+    { value: "motorbike", label: "Motorbike" },
+    { value: "omni", label: "Omni" },
+    { value: "pickup", label: "Pickup" },
+    { value: "pulsar", label: "Pulsar" },
+    { value: "scooty", label: "Scooty" },
+    { value: "swift", label: "Swift" },
+    { value: "thar", label: "Thar" },
+    { value: "tractor", label: "Tractor" },
+    { value: "van", label: "Van" },
+  ];
+
   return data ? (
     <VehicleSearchTable data={data} />
   ) : (
@@ -138,16 +163,7 @@ const VehicleSearchForm = ({ cameraList }) => {
               <SelectFieldInput
                 name="vehicleClass"
                 label="Vehicle Class"
-                options={[
-                  { value: "sedan", label: "Sedan" },
-                  { value: "suv", label: "SUV" },
-                  { value: "truck", label: "Truck" },
-                  { value: "car", label: "Car" },
-                  { value: "auto", label: "Auto" },
-                  { value: "Hatchback", label: "Hatchback" },
-                  { value: "motorbike-rider", label: "Motorbike Rider" },
-                  { value: "scooty-rider", label: "Scooty Rider" },
-                ]}
+                options={vehicleClasses}
                 control={control}
                 rules={{ required: "Vehicle Class is required" }}
                 error={errors.vehicleClass}
@@ -163,16 +179,7 @@ const VehicleSearchForm = ({ cameraList }) => {
           <SelectFieldInput
             name="vehicleClass"
             label="Vehicle Class"
-            options={[
-              { value: "sedan", label: "Sedan" },
-              { value: "suv", label: "SUV" },
-              { value: "truck", label: "Truck" },
-              { value: "car", label: "Car" },
-              { value: "auto", label: "Auto" },
-              { value: "Hatchback", label: "Hatchback" },
-              { value: "motorbike-rider", label: "Motorbike Rider" },
-              { value: "scooty-rider", label: "Scooty Rider" },
-            ]}
+            options={vehicleClasses}
             control={control}
             rules={{ required: "Vehicle Class is required" }}
             error={errors.vehicleClass}
