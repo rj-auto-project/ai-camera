@@ -9,9 +9,14 @@ import {
   TablePagination,
   Paper,
   Typography,
+  Button,
+  Box,
+  Icon,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
+import CSVButton from "../CSVButton";
 
 const VehicleSearchTable = ({ data }) => {
   const [page, setPage] = useState(0);
@@ -35,26 +40,88 @@ const VehicleSearchTable = ({ data }) => {
 
   if (!data || !data.results) {
     return (
-      <Typography sx={{height:"100vh", display:"flex", textAlign: "center", alignItems:"center",justifyContent:"center", marginTop: 2, fontWeight:"bold" }}>
+      <Typography
+        sx={{
+          height: "100vh",
+          display: "flex",
+          textAlign: "center",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: 2,
+          fontWeight: "bold",
+        }}
+      >
         {data.message ? data.message : "No data available!"}
       </Typography>
     );
   }
 
+  const headers = [
+    { label: "Thumbnail", key: "thumbnail" },
+    { label: "Time Stamp", key: "timestamp" },
+    { label: "Camera IP", key: "camera_ip" },
+    { label: "Vehicle", key: "detectionClass" },
+    { label: "Confidence", key: "classConfidence" },
+    { label: "Top Color", key: "topColor" },
+    { label: "Bottom Color", key: "bottomColor" },
+    { label: "License Number", key: "licenseNumber" },
+  ];
+
+  const csvData = data.results.map((item) => ({
+    thumbnail: `/assets/cctv.jpeg`, // Assuming the thumbnail is the same for all
+    timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
+    camera_ip: item?.camera_ip || item?.camera?.cameraIp,
+    detectionClass: item?.detectionClass,
+    classConfidence: item?.classConfidence?.toFixed(2),
+    topColor: item?.topColor,
+    bottomColor: item?.bottomColor,
+    licenseNumber: item?.licenseNumber || "N/A",
+  }));
+
   return (
-    <Paper style={{ height: "80vh", display: "flex", flexDirection: "column" }}>
-      <TableContainer style={{ flex: 1, overflow: "auto" }}>
+    <Paper style={{ height: "93vh", display: "flex", flexDirection: "column" }}>
+      <TableContainer
+        style={{ flex: 1, overflow: "auto" }}
+        sx={{
+          "&::-webkit-scrollbar": {
+            width: "6px", // Width of the scrollbar
+            height: "6px", // Height of the horizontal scrollbar
+            backgroundColor: "transparent", // Transparent background for both scrollbars
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#333", // Color of the draggable part of the scrollbar
+            borderRadius: "10px", // Roundness of the scrollbar thumb
+            border: "1px solid #f9f9f9", // Adds padding around the scrollbar thumb
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#222", // Color when hovering over the scrollbar thumb
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "transparent", // Transparent track for both scrollbars
+            borderRadius: "10px", // Roundness of the scrollbar track
+          },
+          "&::-webkit-scrollbar-track-piece": {
+            backgroundColor: "transparent", // The part of the track not covered by the thumb
+          },
+          "&::-webkit-scrollbar-corner": {
+            backgroundColor: "transparent", // The corner where the two scrollbars meet
+          },
+          "&::-webkit-resizer": {
+            backgroundColor: "transparent", // The draggable resizer corner in some elements
+          },
+        }}
+      >
         <Table>
           <StickyTableHead>
             <TableRow>
               <BoldTableCell>Thumbnail</BoldTableCell>
               <BoldTableCell>Time Stamp</BoldTableCell>
-              <BoldTableCell>Camera IP</BoldTableCell>
+              <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Vehicle</BoldTableCell>
               <BoldTableCell>Confidence</BoldTableCell>
-              <BoldTableCell>Top Color</BoldTableCell>
-              <BoldTableCell>Bottom Color</BoldTableCell>
-              <BoldTableCell>License Number</BoldTableCell>
+              {/* <BoldTableCell>Top Color</BoldTableCell>
+              <BoldTableCell>Bottom Color</BoldTableCell> */}
+              {/* <BoldTableCell>License Number</BoldTableCell> */}
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -73,28 +140,67 @@ const VehicleSearchTable = ({ data }) => {
                     />
                   </TableCell>
                   <TableCell>
-                    {new Date(item.timestamp).toLocaleString()}
+                    {new Date(item?.timestamp || item?.time_stamp).toLocaleString()}
                   </TableCell>
-                  <TableCell>{item.camera_ip}</TableCell>
-                  <TableCell>{item.detectionClass}</TableCell>
-                  <TableCell>{item.classConfidence.toFixed(2)}</TableCell>
-                  <TableCell>{item.topColor}</TableCell>
-                  <TableCell>{item.bottomColor}</TableCell>
-                  <TableCell>{item.licenseNumber || "N/A"}</TableCell>
+                  <TableCell>
+                    <div>
+                      <strong>Camera ID:</strong> {item?.camera?.cameraId}
+                    </div>
+                    <div>
+                      <strong>Camera Name:</strong> {item?.camera?.cameraName}
+                    </div>
+                    <div>
+                      <strong>Location:</strong> {item?.camera?.location}
+                    </div>
+                    <div>
+                      <strong>Type:</strong> {item?.camera?.cameraType}
+                    </div>
+                  </TableCell>
+                  <TableCell>{item?.detectionClass}</TableCell>
+                  <TableCell
+                    sx={{
+                      color:
+                        parseFloat(item?.classConfidence) < 0.4
+                          ? "#f00"
+                          : "#0f0",
+                    }}
+                  >
+                    <strong>{item?.classConfidence?.toFixed(2)}</strong>
+                  </TableCell>
+                  {/* <TableCell>{item.topColor}</TableCell>
+                  <TableCell>{item.bottomColor}</TableCell> */}
+                  {/* <TableCell>{item.licenseNumber || "N/A"}</TableCell> */}
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
-        component="div"
-        count={data.results.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {/* Export Data Button */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px",
+        }}
+      >
+        <CSVButton
+          csvData={csvData}
+          headers={headers}
+          filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
+          key={`vehicle_search_data_${new Date().toLocaleString()}`}
+        />
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 50]}
+          component="div"
+          count={data.results.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Box>
       {selectedItem && (
         <ImageModel
           selectedItem={selectedItem}

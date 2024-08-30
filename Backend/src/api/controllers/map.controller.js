@@ -1,4 +1,4 @@
-import { getCamerasFormap } from "../services/map.services.js";
+import { getCamerasFormap, getHeatmap } from "../services/map.services.js";
 
 const getCamerars = async (req, res, next) => {
   try {
@@ -18,4 +18,14 @@ const performRequestedOperation = async (req, res, next) => {
   }
 };
 
-export { getCamerars, performRequestedOperation };
+const heatmap = async (req, res) => {
+  try{
+    const heatmap = await getHeatmap();
+    res.status(200).json(heatmap);
+  } catch(error) {
+    console.log("Error sending data");
+    res.status(500).json({ message: "Error sending data", error });
+  }
+}
+
+export { getCamerars, performRequestedOperation, heatmap };
