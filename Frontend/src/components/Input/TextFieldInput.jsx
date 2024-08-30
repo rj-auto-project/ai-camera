@@ -22,7 +22,7 @@ const TextFieldInput = ({ name, label, type = 'text', control, rules, error, hel
           input: {
             color: 'white',
             '&::-webkit-calendar-picker-indicator': {
-              filter: 'invert(1)', // Invert colors to make it white
+              filter: 'invert(1)', 
             },
             '&::-webkit-clear-button, &::-webkit-inner-spin-button': {
               display: 'none',

@@ -16,7 +16,6 @@ const useVehicleSearch = ({ formType }) => {
 
   const type = formType === "anpr" ? anpr : vehicle;
 
-  console.log("ftype", type);
 
   const mutation = useMutation({
     mutationFn: async (inputData) => {
