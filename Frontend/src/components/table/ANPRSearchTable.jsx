@@ -29,7 +29,6 @@ const ANPRSearchTable = ({ data }) => {
     return <Typography>No data available</Typography>;
   }
 
-  console.log(data);
 
   return (
     <Paper style={{ height: "80vh", display: "flex", flexDirection: "column" }}>
