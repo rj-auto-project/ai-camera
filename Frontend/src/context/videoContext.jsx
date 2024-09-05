@@ -1,7 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext } from "react";
 
 const VideoContext = createContext();
-
 
 export const VideoProvider = ({ children }) => {
   const [videoSrc, setVideoSrc] = useState(null);

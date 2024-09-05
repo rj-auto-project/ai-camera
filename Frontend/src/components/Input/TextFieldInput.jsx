@@ -1,8 +1,16 @@
-import React from 'react';
-import { Controller } from 'react-hook-form';
-import { TextField } from '@mui/material';
+import React from "react";
+import { Controller } from "react-hook-form";
+import { TextField } from "@mui/material";
 
-const TextFieldInput = ({ name, label, type = 'text', control, rules, error, helperText }) => (
+const TextFieldInput = ({
+  name,
+  label,
+  type = "text",
+  control,
+  rules,
+  error,
+  helperText,
+}) => (
   <Controller
     name={name}
     control={control}
@@ -13,19 +21,19 @@ const TextFieldInput = ({ name, label, type = 'text', control, rules, error, hel
         margin="normal"
         label={label}
         type={type}
-        value={value || ''}
+        value={value || ""}
         onChange={onChange}
         error={!!error}
         helperText={helperText}
-        InputLabelProps={type === 'datetime-local' ? { shrink: true } : {}}
+        InputLabelProps={type === "datetime-local" ? { shrink: true } : {}}
         sx={{
           input: {
-            color: 'white',
-            '&::-webkit-calendar-picker-indicator': {
-              filter: 'invert(1)', 
+            color: "white",
+            "&::-webkit-calendar-picker-indicator": {
+              filter: "invert(1)",
             },
-            '&::-webkit-clear-button, &::-webkit-inner-spin-button': {
-              display: 'none',
+            "&::-webkit-clear-button, &::-webkit-inner-spin-button": {
+              display: "none",
             },
           },
         }}

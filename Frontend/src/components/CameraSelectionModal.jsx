@@ -31,7 +31,7 @@ const CameraSelectionModal = ({
       (location) => ({
         value: location,
         label: location,
-      })
+      }),
     );
   }, [cameras]);
 
@@ -39,7 +39,7 @@ const CameraSelectionModal = ({
   const filteredCameras = useMemo(() => {
     if (selectedLocations.length === 0 || !cameras) return [];
     return cameras.filter((camera) =>
-      selectedLocations.some((location) => camera.location === location.value)
+      selectedLocations.some((location) => camera.location === location.value),
     );
   }, [selectedLocations, cameras]);
 
@@ -51,7 +51,7 @@ const CameraSelectionModal = ({
     setSelectedCameras((prev) =>
       prev.includes(camera)
         ? prev.filter((c) => c.cameraId !== camera.cameraId)
-        : [...prev, camera, ...cameraList]
+        : [...prev, camera, ...cameraList],
     );
   };
 
@@ -61,9 +61,6 @@ const CameraSelectionModal = ({
     setSelectedLocations([]);
   };
 
-
-
-  
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -153,7 +150,7 @@ const CameraSelectionModal = ({
                   >
                     <Checkbox
                       checked={selectedCameras.some(
-                        (c) => c.cameraId === camera.cameraId
+                        (c) => c.cameraId === camera.cameraId,
                       )}
                       tabIndex={-1}
                       disableRipple

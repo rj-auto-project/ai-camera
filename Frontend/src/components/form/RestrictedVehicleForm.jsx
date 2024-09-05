@@ -1,21 +1,25 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import TextFieldInput from '../Input/TextFieldInput';
-import SelectFieldInput from '../Input/SelectFieldInput';
-import { Button } from '@mui/material';
+import React from "react";
+import { useForm } from "react-hook-form";
+import TextFieldInput from "../Input/TextFieldInput";
+import SelectFieldInput from "../Input/SelectFieldInput";
+import { Button } from "@mui/material";
 
 const RestrictedVehicleForm = ({ onSubmit }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '16px' }}>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <SelectFieldInput
         name="class"
         label="Class"
         options={[
-          { value: 'car', label: 'Car' },
-          { value: 'bike', label: 'Bike' },
-          { value: 'truck', label: 'Truck' },
+          { value: "car", label: "Car" },
+          { value: "bike", label: "Bike" },
+          { value: "truck", label: "Truck" },
         ]}
         control={control}
         rules={{ required: "Class is required" }}
@@ -40,7 +44,12 @@ const RestrictedVehicleForm = ({ onSubmit }) => {
         error={errors.endTime}
         helperText={errors.endTime?.message}
       />
-      <Button type="submit" variant="contained" color="primary" style={{ marginTop: '16px', color: "white" }}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        style={{ marginTop: "16px", color: "white" }}
+      >
         Submit
       </Button>
     </form>

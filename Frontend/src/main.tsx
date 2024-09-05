@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </QueryClientProvider>
       </VideoProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 window.ipcRenderer.on("main-process-message", (_event, message) => {

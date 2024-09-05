@@ -18,7 +18,7 @@ export const useFetchObjectClass = (objectType) => {
       dispatch(fetchObjectClassStart());
       const response = await axios.get(
         `${BASE_URL}/classlist?objectType=${encodeURIComponent(objectType)}`,
-        config()
+        config(),
       );
       return response.data;
     },
@@ -27,7 +27,7 @@ export const useFetchObjectClass = (objectType) => {
     },
     onError: (error) => {
       dispatch(
-        fetchObjectClassFailure(error.response?.data?.message || error.message)
+        fetchObjectClassFailure(error.response?.data?.message || error.message),
       );
     },
     enabled: !!objectType,

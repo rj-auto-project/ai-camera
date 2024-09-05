@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
-import { useVideo } from '../context/videoContext';
+import { useVideo } from "../context/videoContext";
 import video1 from "/assets/videos/output1.mp4";
 import video2 from "/assets/videos/output2.mp4";
 
@@ -103,15 +103,15 @@ const Streams = React.memo(() => {
       setCurrentPage(value);
       navigate(`?page=${value}`);
     },
-    [navigate]
+    [navigate],
   );
 
   const handleStreamClick = useCallback(
-    (id,scr) => {
-      setVideoSrc(scr)
+    (id, scr) => {
+      setVideoSrc(scr);
       navigate(`?page=${currentPage}&cameraId=${id}`);
     },
-    [navigate, currentPage]
+    [navigate, currentPage],
   );
 
   const handleChipClick = (category) => {
@@ -123,12 +123,12 @@ const Streams = React.memo(() => {
     (stream) =>
       activeCategory === "All" ||
       (activeCategory === "Active" && stream.status === "Active") ||
-      (activeCategory === "Inactive" && stream.status === "Inactive")
+      (activeCategory === "Inactive" && stream.status === "Inactive"),
   );
 
   const currentStreams = filteredStreams.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -172,12 +172,12 @@ const Streams = React.memo(() => {
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
               <Card
-                onClick={() => handleStreamClick(stream.id,stream.src)}
+                onClick={() => handleStreamClick(stream.id, stream.src)}
                 sx={{
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
-                  height:'100%'
+                  height: "100%",
                 }}
               >
                 <Box position="relative" sx={{ height: "100%" }}>
@@ -212,14 +212,14 @@ const Streams = React.memo(() => {
                   </Box>
                   {/* Video Stream */}
                   <video
-                      src={stream.src}
-                      autoPlay
-                      muted
-                      loop
-                      width="100%"
-                      height="100%"
-                      style={{ objectFit: "cover" }}
-                    />
+                    src={stream.src}
+                    autoPlay
+                    muted
+                    loop
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
                 </Box>
               </Card>
             </Grid>
