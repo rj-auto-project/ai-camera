@@ -24,7 +24,7 @@ export const useFetchObjectTypes = () => {
     },
     onError: (error) => {
       dispatch(
-        fetchObjectTypeFailure(error.response?.data?.message || error.message)
+        fetchObjectTypeFailure(error.response?.data?.message || error.message),
       );
     },
   });

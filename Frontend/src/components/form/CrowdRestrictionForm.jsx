@@ -1,13 +1,17 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import TextFieldInput from '../Input/TextFieldInput';
-import { Button } from '@mui/material';
+import React from "react";
+import { useForm } from "react-hook-form";
+import TextFieldInput from "../Input/TextFieldInput";
+import { Button } from "@mui/material";
 
 const CrowdRestrictionForm = ({ onSubmit }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '16px' }}>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <TextFieldInput
         name="threshold"
         label="Threshold"
@@ -35,7 +39,12 @@ const CrowdRestrictionForm = ({ onSubmit }) => {
         error={errors.endTime}
         helperText={errors.endTime?.message}
       />
-      <Button type="submit" variant="contained" color="primary" style={{ marginTop: '16px', color: "white" }}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        style={{ marginTop: "16px", color: "white" }}
+      >
         Submit
       </Button>
     </form>

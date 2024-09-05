@@ -95,7 +95,7 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
           <Typography variant="body2">
             Timestamp: <br />
             {new Date(
-              selectedItem.timestamp || selectedItem?.time_stamp
+              selectedItem.timestamp || selectedItem?.time_stamp,
             ).toLocaleString()}
           </Typography>
           <Typography variant="body2">

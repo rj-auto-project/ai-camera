@@ -18,7 +18,7 @@ export const useSuspectSearch = () => {
       const response = await axios.post(
         `${BASE_URL}/operations/suspect-search`,
         requestBody,
-        config()
+        config(),
       );
       return response.data;
     },
@@ -27,7 +27,7 @@ export const useSuspectSearch = () => {
     },
     onError: (error) => {
       dispatch(
-        suspectSearchFailure(error.response?.data?.message || error.message)
+        suspectSearchFailure(error.response?.data?.message || error.message),
       );
     },
   });

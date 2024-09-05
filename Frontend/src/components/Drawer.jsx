@@ -55,7 +55,9 @@ export default function CustomDrawer() {
       }}
     >
       <div>
-        <Toolbar sx={{ minHeight: 48 }}> {/* Reduced height */}
+        <Toolbar sx={{ minHeight: 48 }}>
+          {" "}
+          {/* Reduced height */}
           <IconButton
             color="inherit"
             aria-label="open drawer"

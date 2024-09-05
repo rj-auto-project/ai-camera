@@ -16,14 +16,13 @@ const useVehicleSearch = ({ formType }) => {
 
   const type = formType === "anpr" ? anpr : vehicle;
 
-
   const mutation = useMutation({
     mutationFn: async (inputData) => {
       try {
         const response = await axios.post(
           `${BASE_URL}/operations/${type}`,
           inputData,
-          config()
+          config(),
         );
         return response.data;
       } catch (error) {

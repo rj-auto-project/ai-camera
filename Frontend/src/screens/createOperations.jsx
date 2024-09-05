@@ -54,8 +54,8 @@ const CreateOperations = () => {
     const newCameras = selectedCameras.filter(
       (camera) =>
         !cameraList.some(
-          (existingCamera) => existingCamera.cameraId === camera.cameraId
-        )
+          (existingCamera) => existingCamera.cameraId === camera.cameraId,
+        ),
     );
 
     if (newCameras.length === 0) {
@@ -74,7 +74,7 @@ const CreateOperations = () => {
     setCameraList(updatedCameraList);
     sessionStorage.setItem(
       "selectedCameraList",
-      JSON.stringify(updatedCameraList)
+      JSON.stringify(updatedCameraList),
     );
     toast.success("Cameras successfully added!", {
       style: {
@@ -86,34 +86,16 @@ const CreateOperations = () => {
     });
   };
 
-
-
   const RenderForm = () => {
     switch (selectedOperation) {
       case "Vehicle Search":
-        return (
-          <VehicleSearchForm
-            cameraList={cameraList}
-          />
-        );
+        return <VehicleSearchForm cameraList={cameraList} />;
       case "Suspect Search":
-        return (
-          <SuspectSearchForm
-            cameraList={cameraList}
-          />
-        );
+        return <SuspectSearchForm cameraList={cameraList} />;
       case "Restricted Vehicle":
-        return (
-          <RestrictedVehicleForm
-            cameraList={cameraList}
-          />
-        );
+        return <RestrictedVehicleForm cameraList={cameraList} />;
       case "Crowd Restriction":
-        return (
-          <CrowdRestrictionForm
-            cameraList={cameraList}
-          />
-        );
+        return <CrowdRestrictionForm cameraList={cameraList} />;
       default:
         return null;
     }
@@ -121,13 +103,13 @@ const CreateOperations = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     sessionStorage.setItem(
       "selectedCameraList",
       JSON.stringify(
-        cameraList.filter((camera) => camera.cameraId !== cameraId)
-      )
+        cameraList.filter((camera) => camera.cameraId !== cameraId),
+      ),
     );
     toast.success(`CAM-${cameraId} successfully removed`, {
       style: {

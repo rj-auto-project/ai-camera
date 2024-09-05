@@ -69,7 +69,7 @@ const Map = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     sessionStorage.removeItem("selectedCameraList");
     toast.success(`CAM-${cameraId} successfully removed`, {

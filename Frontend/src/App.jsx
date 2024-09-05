@@ -13,7 +13,7 @@ const Dashboard = lazy(() => import("./screens/dashboard"));
 const Map = lazy(() => import("./screens/map/map"));
 const Reports = lazy(() => import("./screens/reports"));
 const StreamsConditionalRender = lazy(
-  () => import("./components/conditionalrender/streampage")
+  () => import("./components/conditionalrender/streampage"),
 );
 const CreateOperations = lazy(() => import("./screens/createOperations"));
 const Operations = lazy(() => import("./screens/operations"));

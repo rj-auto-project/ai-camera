@@ -65,7 +65,7 @@ const ANPRSearchTable = ({ data }) => {
                     sx={{
                       color:
                         parseFloat(
-                          item?.classConfidence || item?.prediction_confidence
+                          item?.classConfidence || item?.prediction_confidence,
                         ) < 0.4
                           ? "#CD5C5C"
                           : "#90EE90",
