@@ -158,6 +158,7 @@ const SuspectSearchForm = ({ cameraList }) => {
             { value: "white", label: "White" },
             { value: "yellow", label: "Yellow" },
             { value: "orange", label: "Orange" },
+            { value: "brown", label: "Brown" },
           ]}
           control={control}
           rules={{ required: "Color is required" }}
