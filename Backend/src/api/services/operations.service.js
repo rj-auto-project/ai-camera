@@ -10,7 +10,7 @@ const suspectSearchService = async (
   startTime,
   endTime,
   top_color,
-  bottom_color
+  bottom_color,
 ) => {
   // Perform the search
   let results = await prisma.detectionLog.findMany({
@@ -70,7 +70,7 @@ const suspectSearchService = async (
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.timestamp
+      result?.timestamp,
     );
     result.thumbnail = thumbnailPath || "";
     return result;
@@ -85,7 +85,7 @@ const vehicleOperationService = async (
   operationData,
   cameras,
   startTime,
-  endTime
+  endTime,
 ) => {
   const { type, classes } = operationData;
   let results = [];
@@ -190,7 +190,7 @@ const vehicleOperationService = async (
     const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
-      result?.time_stamp || result?.timestamp
+      result?.time_stamp || result?.timestamp,
     );
     result.thumbnail = thumbnailPath || "";
     return result;
@@ -201,11 +201,12 @@ const vehicleOperationService = async (
   return results;
 };
 
-const getOperationsService = async (type) => {
+const getOperationsService = async (type, employeeId = "") => {
   if (type === "active") {
     const activeOperations = await prisma.operationLog.findMany({
       where: {
         operationStatus: "ACTIVE",
+        userId: employeeId,
       },
       include: {
         cameras: true,
@@ -216,11 +217,19 @@ const getOperationsService = async (type) => {
     const inactiveOperations = await prisma.operationLog.findMany({
       where: {
         operationStatus: "INACTIVE",
+        userId: employeeId,
       },
     });
     return inactiveOperations;
   } else {
-    const allOperations = await prisma.operationLog.findMany();
+    const allOperations = await prisma.operationLog.findMany({
+      where: {
+        userId: employeeId,
+      },
+      include: {
+        cameras: true,
+      },
+    });
     return allOperations;
   }
 };
