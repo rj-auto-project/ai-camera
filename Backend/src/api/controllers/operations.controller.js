@@ -151,7 +151,7 @@ const suspectSearch = async (req, res) => {
       endTime,
       top_color,
       bottom_color,
-      employeeId
+      employeeId,
     );
 
     //update operation at end
@@ -318,7 +318,7 @@ const vehicleOperation = async (req, res) => {
         operationData,
         cameras,
         startTime,
-        endTime
+        endTime,
       );
 
       await prisma.operationLog.update({
@@ -377,7 +377,7 @@ const liveSuspectSearch = async (req, res) => {
         console.log(
           "Performing live search",
           lastFetchedTimestamp,
-          new Date().toISOString()
+          new Date().toISOString(),
         );
         const liveResults = await suspectSearchService(
           operation.cameras,
@@ -385,7 +385,7 @@ const liveSuspectSearch = async (req, res) => {
           lastFetchedTimestamp,
           new Date().toISOString(),
           operation.operationRequestData?.top_color,
-          operation.operationRequestData?.bottom_color
+          operation.operationRequestData?.bottom_color,
         );
 
         if (liveResults && liveResults.length > 0) {
@@ -406,8 +406,8 @@ const liveSuspectSearch = async (req, res) => {
 
           const latestTimestamp = Math.max(
             ...liveResults.map((result) =>
-              new Date(result?.timestamp).getTime()
-            )
+              new Date(result?.timestamp).getTime(),
+            ),
           );
           lastFetchedTimestamp = new Date(latestTimestamp + 1);
         }
@@ -457,7 +457,7 @@ const liveVehicleOperation = async (req, res) => {
           operation.operationRequestData,
           operation.cameras,
           lastFetchedTimestamp,
-          new Date().toISOString()
+          new Date().toISOString(),
         );
 
         if (liveResults && liveResults.length > 0) {
@@ -480,8 +480,8 @@ const liveVehicleOperation = async (req, res) => {
 
           const latestTimestamp = Math.max(
             ...liveResults.map((result) =>
-              new Date(result?.time_stamp || result?.timestamp).getTime()
-            )
+              new Date(result?.time_stamp || result?.timestamp).getTime(),
+            ),
           );
           lastFetchedTimestamp = new Date(latestTimestamp + 1);
         }
@@ -511,7 +511,9 @@ const liveVehicleOperation = async (req, res) => {
 const getOperations = async (req, res) => {
   try {
     const { type } = req.query;
-    const operations = await getOperationsService(type);
+    const employeeId = req.userId;
+    console.log("employeeId", employeeId);
+    const operations = await getOperationsService(type, employeeId);
     res.json({
       status: "ok",
       message: "Operations fetched successfully",
@@ -553,9 +555,9 @@ const liveIncidentsTracking = async (req, res) => {
           startTime = new Date(
             Math.max(
               ...incidents.map((incident) =>
-                new Date(incident?.timestamp).getTime()
-              )
-            ) + 1
+                new Date(incident?.timestamp).getTime(),
+              ),
+            ) + 1,
           );
         }
 

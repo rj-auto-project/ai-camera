@@ -19,13 +19,13 @@ const performRequestedOperation = async (req, res, next) => {
 };
 
 const heatmap = async (req, res) => {
-  try{
+  try {
     const heatmap = await getHeatmap();
     res.status(200).json(heatmap);
-  } catch(error) {
+  } catch (error) {
     console.log("Error sending data");
     res.status(500).json({ message: "Error sending data", error });
   }
-}
+};
 
 export { getCamerars, performRequestedOperation, heatmap };

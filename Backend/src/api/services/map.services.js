@@ -47,7 +47,7 @@ const getHeatmap = async () => {
         acc[record.camera_ip] = record;
       }
       return acc;
-    }, {})
+    }, {}),
   );
 
   return latestHeatmap;
