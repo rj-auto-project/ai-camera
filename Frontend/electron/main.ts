@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -45,6 +45,13 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 }
+
+ipcMain.on("go-back", (event) => {
+  const window = BrowserWindow.getFocusedWindow();
+  if (window.webContents.canGoBack()) {
+    window.webContents.goBack();
+  }
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
