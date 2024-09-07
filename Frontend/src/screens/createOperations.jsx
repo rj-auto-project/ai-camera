@@ -35,10 +35,10 @@ const CreateOperations = () => {
     setSelectedOperation(operation);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data: ", data);
-    console.log(cameraList);
-  };
+  // const handleFormSubmit = (data) => {
+  //   console.log("Form Data: ", data);
+  //   console.log(cameraList);
+  // };
 
   const handleAddCameraClick = () => {
     setIsModalOpen(true);
