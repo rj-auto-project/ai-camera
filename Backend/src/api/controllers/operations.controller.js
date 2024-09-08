@@ -510,20 +510,59 @@ const liveVehicleOperation = async (req, res) => {
 
 const getOperations = async (req, res) => {
   try {
-    const { type } = req.query;
+    const { type, opType } = req.query;
     const employeeId = req.userId;
-    console.log("employeeId", employeeId);
-    const operations = await getOperationsService(type, employeeId);
-    res.json({
-      status: "ok",
-      message: "Operations fetched successfully",
-      operations,
+
+    if (!employeeId) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Unauthorized access",
+      });
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const sendEvent = (data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    const operations = async () => {
+      const operations = await getOperationsService(type, opType, employeeId);
+      if (!operations) {
+        res
+          .status(404)
+          .json({ status: "fail", message: "No operations found" });
+        return res.end();
+      }
+
+      res.write(`data: ${JSON.stringify(operations)}\n\n`);
+
+      res.end();
+    };
+
+    const liveSearch = async () => {
+      while (true) {
+        const newData = await operations();
+        if (newData) {
+          sendEvent({ status: "success", data: newData });
+        }
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    };
+
+    await liveSearch();
+
+    req.on("close", () => {
+      console.log("Connection closed by client");
+      res.end();
     });
   } catch (error) {
-    console.error("Error fetching operations:", error);
+    console.error("Error performing operation:", error);
     res.status(500).json({
       status: "fail",
-      message: "Error fetching operations",
+      message: "Suspect search failed",
       error: error.message,
     });
   }

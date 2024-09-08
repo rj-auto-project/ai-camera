@@ -38,7 +38,10 @@ const OperationDataModal = ({ open, onClose, operationData }) => {
                   <Grid container spacing={1}>
                     {operationData.data.classes.map((className, index) => (
                       <Grid item key={index}>
-                        <Chip label={className} sx={{ color: "white", fontWeight: "semibold" }} />
+                        <Chip
+                          label={className}
+                          sx={{ color: "white", fontWeight: "semibold" }}
+                        />
                       </Grid>
                     ))}
                   </Grid>
