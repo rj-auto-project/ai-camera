@@ -46,13 +46,6 @@ function createWindow() {
   }
 }
 
-ipcMain.on("go-back", (event) => {
-  const window = BrowserWindow.getFocusedWindow();
-  if (window.webContents.canGoBack()) {
-    window.webContents.goBack();
-  }
-});
-
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

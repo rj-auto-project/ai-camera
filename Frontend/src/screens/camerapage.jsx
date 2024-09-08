@@ -2,6 +2,7 @@ import React from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Container, Box, Typography, Card, CardMedia } from "@mui/material";
 import { useVideo } from "../context/videoContext";
+import BackButton from "../components/buttons/backbutton";
 
 const CameraPage = ({ camId }) => {
   const location = useLocation();
@@ -15,7 +16,8 @@ const CameraPage = ({ camId }) => {
   return (
     <Container>
       <Box mt={1}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5">
+          <BackButton style={{}} />
           Camera ID: {camId}
         </Typography>
         <Card>
