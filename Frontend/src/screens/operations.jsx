@@ -129,7 +129,9 @@ const Operations = () => {
               animation: "pulse 2s infinite",
             }}
           />
-          <Typography sx={{ fontSize: "0.75rem", color: "white" }}>Live</Typography>
+          <Typography sx={{ fontSize: "0.75rem", color: "white" }}>
+            Live
+          </Typography>
         </Box>
       </Box>
 

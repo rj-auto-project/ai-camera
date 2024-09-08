@@ -28,9 +28,11 @@ model CrowdCount {
   id           Int      @id @default(autoincrement())
   count        Int
   timestamp    DateTime @default(now())
-  camera_ip    String   @db.VarChar(30)
   confidence   Float
   vehicleCount Int?
+  cameraId     String
+
+  camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
 
 model DetectionLog {
@@ -61,6 +63,7 @@ model OperationLog {
   userId                String    @db.VarChar(20)
   closeTimestamp        DateTime?
   operationStatus       Status    @default(ACTIVE)
+  operationTimestamp    DateTime? @default(now())
 
   cameras Camera[] @relation("OperationCameras")
 }
@@ -101,6 +104,7 @@ model Camera {
   operations   OperationLog[] @relation("OperationCameras")
   DetectionLog DetectionLog[]
   AnprLogs     AnprLogs[]
+  CrowdCount   CrowdCount[]
 }
 
 model Class {
