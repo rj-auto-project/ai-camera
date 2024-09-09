@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   fetchOperationsStart,
@@ -12,20 +11,34 @@ import { config } from "../getConfig";
 export const useFetchOperations = () => {
   const dispatch = useDispatch();
 
-  return useQuery({
-    queryKey: ["operations"],
-    queryFn: async () => {
-      dispatch(fetchOperationsStart());
-      const response = await axios.get(`${BASE_URL}/operations`, config());
-      return response.data;
-    },
-    onSuccess: (data) => {
+  useEffect(() => {
+    dispatch(fetchOperationsStart());
+
+    const eventSource = new EventSource(`${BASE_URL}/operations`, config());
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
       dispatch(fetchOperationsSuccess(data));
-    },
-    onError: (error) => {
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error);
       dispatch(
-        fetchOperationsFailure(error.response?.data?.message || error.message),
+        fetchOperationsFailure(
+          error.response?.data?.message ||
+            error.message ||
+            "SSE connection failed",
+        ),
       );
-    },
-  });
+      eventSource.close(); // Close the event source on error
+    };
+
+    // Clean up the EventSource when the component unmounts
+    return () => {
+      eventSource.close();
+      console.log("SSE connection closed");
+    };
+  }, [dispatch]);
+
+  return null; // This hook doesn't return anything
 };

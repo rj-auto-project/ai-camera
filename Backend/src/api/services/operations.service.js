@@ -1,3 +1,4 @@
+import { Status } from "@prisma/client";
 import prisma from "../../config/prismaClient.js";
 import { getThumbnail } from "../../utils/extractThumbnail.js";
 import { formatTimestamp } from "../../utils/helperFunctions.js";
@@ -201,37 +202,38 @@ const vehicleOperationService = async (
   return results;
 };
 
-const getOperationsService = async (type, employeeId = "") => {
-  if (type === "active") {
-    const activeOperations = await prisma.operationLog.findMany({
-      where: {
-        operationStatus: "ACTIVE",
-        userId: employeeId,
-      },
-      include: {
-        cameras: true,
-      },
-    });
-    return activeOperations;
-  } else if (type === "inactive") {
-    const inactiveOperations = await prisma.operationLog.findMany({
-      where: {
-        operationStatus: "INACTIVE",
-        userId: employeeId,
-      },
-    });
-    return inactiveOperations;
-  } else {
-    const allOperations = await prisma.operationLog.findMany({
-      where: {
-        userId: employeeId,
-      },
-      include: {
-        cameras: true,
-      },
-    });
-    return allOperations;
+const getOperationsService = async (
+  type,
+  opType,
+  employeeId,
+  lastSentTimestamp,
+) => {
+  const status = type === "active" ? "ACTIVE" : "INACTIVE";
+
+  const query = {
+    where: {
+      userId: employeeId,
+      operationStatus: status,
+      operationType: opType,
+    },
+    include: {
+      cameras: true,
+    },
+    orderBy: {
+      operationTimestamp: "asc",
+    },
+  };
+
+  // Add a condition to fetch only data after lastSentTimestamp if available
+  if (lastSentTimestamp) {
+    query.where.operationTimestamp = {
+      gt: lastSentTimestamp,
+    };
   }
+
+  const operations = await prisma.operationLog.findMany(query);
+
+  return operations;
 };
 
 const incidentsSearchService = async (startTime) => {

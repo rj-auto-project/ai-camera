@@ -17,12 +17,11 @@ import { green } from "@mui/material/colors";
 const chipData = [{ label: "All" }, { label: "Active" }, { label: "Inactive" }];
 
 const Operations = () => {
-  const { data, isLoading, isError, error } = useFetchOperations();
+  // Default the destructured values to avoid errors when they are initially null or undefined
+  const { data = {}, isLoading, isError, error } = useFetchOperations();
   const [anchorEl, setAnchorEl] = useState(null);
   const [operationType, setOperationType] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-
-  if (data) console.log("Data from operations", data);
 
   const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,7 +47,7 @@ const Operations = () => {
     return <div>Error: {error.message}</div>;
   }
 
-  return data ? (
+  return data.operations ? (
     <div
       style={{
         height: "100vh",
@@ -143,11 +142,11 @@ const Operations = () => {
           backgroundColor: "#1c1c1c",
         }}
       >
-        <OperationsTable data={data?.operations} />
+        <OperationsTable data={data.operations} /> {/* Pass real-time data */}
       </Box>
     </div>
   ) : (
-    <div>Operations</div>
+    <div>No operations available.</div>
   );
 };
 

@@ -524,27 +524,40 @@ const getOperations = async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
+    let lastSentTimestamp = null;
+
     const sendEvent = (data) => {
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     };
 
-    const operations = async () => {
-      const operations = await getOperationsService(type, opType, employeeId);
-      if (!operations) {
-        res
-          .status(404)
-          .json({ status: "fail", message: "No operations found" });
-        return res.end();
+    const getOperationsData = async () => {
+      const operations = await getOperationsService(
+        type,
+        opType,
+        employeeId,
+        lastSentTimestamp,
+      );
+      if (!operations || operations.length === 0) {
+        return null;
       }
 
-      res.write(`data: ${JSON.stringify(operations)}\n\n`);
+      // Update lastSentTimestamp with the latest timestamp in the fetched operations
+      lastSentTimestamp = operations.reduce((max, op) => {
+        return op.operationTimestamp > max ? op.operationTimestamp : max;
+      }, lastSentTimestamp || operations[0].operationTimestamp);
 
-      res.end();
+      return operations;
     };
+
+    // Send all data initially
+    const initialOperations = await getOperationsData();
+    if (initialOperations) {
+      sendEvent({ status: "success", data: initialOperations });
+    }
 
     const liveSearch = async () => {
       while (true) {
-        const newData = await operations();
+        const newData = await getOperationsData();
         if (newData) {
           sendEvent({ status: "success", data: newData });
         }

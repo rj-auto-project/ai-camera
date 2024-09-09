@@ -18,7 +18,7 @@ import VehicleSearchForm from "../components/form/VehicleSearchForm";
 import CameraCard from "../components/CameraCard";
 import toast from "react-hot-toast";
 import CameraSelectionModal from "../components/CameraSelectionModal";
-import BackButton from "../components/buttons/backbutton"
+import BackButton from "../components/buttons/backbutton";
 
 const CreateOperations = () => {
   const [selectedOperation, setSelectedOperation] = useState("Vehicle Search");
@@ -125,7 +125,7 @@ const CreateOperations = () => {
   return (
     <Grid container sx={{ height: "100vh", overflow: "hidden" }}>
       {/* Left Column - Operations List */}
-     
+
       <Grid
         item
         xs={2}
@@ -136,7 +136,6 @@ const CreateOperations = () => {
         }}
       >
         <Paper sx={{ height: "100%" }}>
-        
           <Typography
             sx={{
               padding: 1.5,
@@ -149,7 +148,7 @@ const CreateOperations = () => {
               fontWeight: "bold",
             }}
           >
-            <BackButton/>
+            <BackButton />
             Operations
           </Typography>
           <Divider />
