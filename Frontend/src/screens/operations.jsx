@@ -18,7 +18,7 @@ const chipData = [{ label: "All" }, { label: "Active" }, { label: "Inactive" }];
 
 const Operations = () => {
   // Default the destructured values to avoid errors when they are initially null or undefined
-  const { data = {}, isLoading, isError, error } = useFetchOperations();
+  const { operations, isLoading, isError, error } = useFetchOperations();
   const [anchorEl, setAnchorEl] = useState(null);
   const [operationType, setOperationType] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +47,9 @@ const Operations = () => {
     return <div>Error: {error.message}</div>;
   }
 
-  return data.operations ? (
+  console.log(operations, "op data");
+
+  return operations ? (
     <div
       style={{
         height: "100vh",
@@ -142,7 +144,7 @@ const Operations = () => {
           backgroundColor: "#1c1c1c",
         }}
       >
-        <OperationsTable data={data.operations} /> {/* Pass real-time data */}
+        <OperationsTable data={operations} /> {/* Pass real-time data */}
       </Box>
     </div>
   ) : (
