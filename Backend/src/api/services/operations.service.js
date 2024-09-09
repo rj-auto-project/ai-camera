@@ -208,19 +208,20 @@ const getOperationsService = async (
   employeeId,
   lastSentTimestamp,
 ) => {
-  const status = type === "active" ? "ACTIVE" : "INACTIVE";
+  const status =
+    type === "active" ? "ACTIVE" : (type === "inactive" && "INACTIVE") || null;
 
   const query = {
     where: {
       userId: employeeId,
-      operationStatus: status,
-      operationType: opType,
+      ...(status && { operationStatus: status }),
+      ...(opType && { operationType: opType }),
     },
     include: {
       cameras: true,
     },
     orderBy: {
-      operationTimestamp: "asc",
+      operationTimestamp: "desc",
     },
   };
 
