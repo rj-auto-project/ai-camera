@@ -15,9 +15,9 @@ import RestrictedVehicleForm from "../components/form/RestrictedVehicleForm";
 import CrowdRestrictionForm from "../components/form/CrowdRestrictionForm";
 import SuspectSearchForm from "../components/form/SuspectSearchForm";
 import VehicleSearchForm from "../components/form/VehicleSearchForm";
-import CameraCard from "../components/CameraCard";
+import CameraCard from "../components/card/CameraCard";
 import toast from "react-hot-toast";
-import CameraSelectionModal from "../components/CameraSelectionModal";
+import CameraSelectionModal from "../components/model/CameraSelectionModal";
 import BackButton from "../components/buttons/backbutton";
 
 const CreateOperations = () => {

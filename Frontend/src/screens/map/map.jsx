@@ -4,7 +4,7 @@ import MapView from "./MapView";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
-import CameraCard from "../../components/CameraCard";
+import CameraCard from "../../components/card/CameraCard";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Chip from "@mui/material/Chip";

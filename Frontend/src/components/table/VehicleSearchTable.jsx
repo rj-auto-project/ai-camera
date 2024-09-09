@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
-import CSVButton from "../CSVButton";
+import CSVButton from "../buttons/csvButton";
 
 const VehicleSearchTable = ({ data }) => {
   const [page, setPage] = useState(0);
