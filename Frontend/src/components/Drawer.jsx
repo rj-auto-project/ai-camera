@@ -26,7 +26,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
 
-const drawerWidth = 210;
+const drawerWidth = 190;
 
 export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
