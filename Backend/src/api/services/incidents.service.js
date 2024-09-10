@@ -8,6 +8,9 @@ const detectGarbageService = async () => {
         in: classes,
       },
     },
+    include: {
+      camera: true,
+    },
     distinct: ["trackId"],
   });
 
