@@ -5,6 +5,7 @@ import mapRoutes from "./map.routes.js";
 import operationsRoutes from "./operations.route.js";
 import authMiddleware from "../../middleware/authMiddleware.js";
 import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
+import { garbageDetection } from "../controllers/incidents.controller.js";
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
 router.get("/objectTypes", authMiddleware, getObjectTypes);
 router.get("/classlist", authMiddleware, getClassList);
+router.get("/garbagedata", authMiddleware, garbageDetection);
 
 let sseParams = {};
 
