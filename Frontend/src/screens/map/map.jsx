@@ -84,7 +84,7 @@ const Map = () => {
 
   const onFooterButtonClick = () => {
     sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
-    navigate("/dashboard/map/operations", { state: { cameras: cameraList } });
+    navigate("/dashboard/map/create-operations", { state: { cameras: cameraList } });
   };
 
   const handleChipClick = (label) => {

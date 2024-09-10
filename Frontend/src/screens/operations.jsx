@@ -32,16 +32,16 @@ const Operations = () => {
     setAnchorEl(null);
   };
 
-  if (isLoading) {
-    return (
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={true}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <Backdrop
+  //       sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+  //       open={true}
+  //     >
+  //       <CircularProgress color="inherit" />
+  //     </Backdrop>
+  //   );
+  // }
 
   if (isError) {
     return <div>Error: {error.message}</div>;
