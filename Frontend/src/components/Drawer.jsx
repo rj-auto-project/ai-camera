@@ -58,9 +58,7 @@ export default function CustomDrawer() {
       }}
     >
       <div>
-        <Toolbar sx={{ minHeight: 48 }}>
-          {" "}
-          {/* Reduced height */}
+        <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -75,8 +73,8 @@ export default function CustomDrawer() {
           </Typography>
         </Toolbar>
 
-        <Divider />
         <List>
+          <Divider />
           {drawerItems.map((item, index) => (
             <ListItem
               button
@@ -84,7 +82,7 @@ export default function CustomDrawer() {
               component={Link}
               to={`/dashboard/${item.path}`}
               sx={{
-                py: 1,
+                py:1.5,
                 backgroundColor:
                   currentPath === item.path
                     ? "rgba(255, 255, 255, 0.1)"
@@ -98,8 +96,8 @@ export default function CustomDrawer() {
         </List>
       </div>
       <div>
-        <Divider />
-        <List>
+        <List sx={{ margin: 0 }}>
+          <Divider />
           <ListItem
             button
             component={Link}

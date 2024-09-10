@@ -1,9 +1,10 @@
 import React from "react";
+import GarbageSearchTable from "../components/table/GarbageSearchTable";
 
 const Reports = () => {
   return (
     <div>
-      <h1>Reports</h1>
+      <GarbageSearchTable/>
     </div>
   );
 };

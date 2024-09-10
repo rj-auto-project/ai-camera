@@ -127,7 +127,7 @@ const OperationDataModal = ({ open, onClose, operationData }) => {
       </DialogContent>
 
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={onClose}>
+        <Button variant="outlined" onClick={onClose}>
           Close
         </Button>
       </DialogActions>
