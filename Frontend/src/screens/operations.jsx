@@ -6,31 +6,27 @@ import {
   Chip,
   CircularProgress,
   Stack,
-  Menu,
-  MenuItem,
   Box,
-  InputBase,
-  Typography,
+  // InputBase,
+  // Typography,
 } from "@mui/material";
-import { green } from "@mui/material/colors";
-
-const chipData = [{ label: "All" }, { label: "Active" }, { label: "Inactive" }];
+import {
+  operationStatusValues,
+  operationTypeValues,
+} from "../utils/constants.js";
+import MultipleSelectChip from "../components/Input/MultipleSelectChips.jsx";
 
 const Operations = () => {
-  // Default the destructured values to avoid errors when they are initially null or undefined
-  const { operations, isLoading, isError, error } = useFetchOperations();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [operationType, setOperationType] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
+  const [type, setType] = useState("");
+  const [opTypes, setSelectedOpTypes] = useState([]);
 
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  console.log(opTypes, "opTypes");
 
-  const handleCloseMenu = (option) => {
-    setOperationType(option);
-    setAnchorEl(null);
-  };
+  const { operations, isLoading, isError, error } = useFetchOperations({
+    type,
+    opTypes,
+  });
 
   if (isLoading) {
     return (
@@ -75,38 +71,30 @@ const Operations = () => {
       >
         {/* Left Side: Chips */}
         <Stack direction="row" spacing={2}>
-          {chipData.map((chip, index) => (
+          {operationStatusValues.map((chip, index) => (
             <Chip
               key={index}
               label={chip.label}
-              onClick={() => console.log(`${chip.label} clicked`)}
+              onClick={() => setType(chip.value)}
+              sx={{
+                ...(chip.value === type && {
+                  bgcolor: "#3f51b5",
+                  ":hover": {
+                    bgcolor: "#3f51b5",
+                  },
+                }),
+              }}
             />
           ))}
-          {/* Operation Type Chip */}
-          <Chip
-            label={`Operation Type: ${operationType}`}
-            onClick={handleOpenMenu}
-          />
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={() => handleCloseMenu(operationType)}
-          >
-            <MenuItem onClick={() => handleCloseMenu("Type 1")}>
-              Type 1
-            </MenuItem>
-            <MenuItem onClick={() => handleCloseMenu("Type 2")}>
-              Type 2
-            </MenuItem>
-            <MenuItem onClick={() => handleCloseMenu("Type 3")}>
-              Type 3
-            </MenuItem>
-          </Menu>
         </Stack>
-
+        {/* Operation Type Chip */}
+        <MultipleSelectChip
+          chipsData={operationTypeValues}
+          selectedChips={opTypes}
+          setSelectedChips={setSelectedOpTypes}
+        />
         {/* Right Side: Search and Pulsing Dot */}
-        <Box display="flex" alignItems="center" gap={2}>
-          {/* Search Bar */}
+        {/* <Box display="flex" alignItems="center" gap={2}>
           <InputBase
             placeholder="Search..."
             value={searchTerm}
@@ -117,23 +105,10 @@ const Operations = () => {
               padding: "0 10px",
               height: "35px",
               color: "white",
+              width: "300px",
             }}
           />
-          {/* Pulsing Green Dot */}
-          <Box
-            sx={{
-              width: "10px",
-              height: "10px",
-              backgroundColor: green[500],
-              borderRadius: "50%",
-              boxShadow: `0 0 10px ${green[500]}`,
-              animation: "pulse 2s infinite",
-            }}
-          />
-          <Typography sx={{ fontSize: "0.75rem", color: "white" }}>
-            Live
-          </Typography>
-        </Box>
+        </Box> */}
       </Box>
 
       {/* Scrollable Table Section */}

@@ -6,51 +6,35 @@ import {
   fetchOperationsFailure,
 } from "../../features/operations/operationsSlice";
 import { BASE_URL } from "../url";
+import { config } from "../getConfig";
+import axios from "axios";
 
-const token = localStorage.getItem("token");
-const url = `${BASE_URL}/operations?token=${token}`;
-// const url = `http://localhost:9000/api/v1/operations?token=${token}`;
-
-export const useFetchOperations = () => {
+export const useFetchOperations = ({ type, opTypes = [] }) => {
+  console.log(type, opTypes, "types");
+  let url = `${BASE_URL}/operations`;
   const dispatch = useDispatch();
   const operationsState = useSelector((state) => state.operations || {});
   const { operations = [], isLoading = false, error = null } = operationsState;
 
-  useEffect(() => {
+  const getOperations = async (url) => {
     dispatch(fetchOperationsStart());
-
-    let eventSource;
-
-    const createEventSource = () => {
-      eventSource = new EventSource(url);
-
-      eventSource.onmessage = (event) => {
-        try {
-          console.log("event", event);
-          const data = JSON.parse(event.data);
-          console.log("data", data.data);
-          dispatch(fetchOperationsSuccess(data?.data));
-        } catch (parseError) {
-          console.error("Failed to parse SSE data:", parseError);
-          dispatch(fetchOperationsFailure("Failed to parse SSE data"));
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        console.log("SSE error:", error);
-        dispatch(
-          fetchOperationsFailure(
-            error.response?.data?.message ||
-              error.message ||
-              "SSE connection failed",
-          ),
-        );
-        if (eventSource) eventSource.close();
-      };
+    let data = {
+      type: type,
+      opTypes: opTypes,
     };
+    try {
+      const response = await axios.post(url, data, config());
+      console.log("response", response.data.operations);
+      dispatch(fetchOperationsSuccess(response.data.operations));
+    } catch (error) {
+      console.log("error", error);
+      dispatch(fetchOperationsFailure(error));
+    }
+  };
 
-    createEventSource();
-  }, [dispatch]);
+  useEffect(() => {
+    getOperations(url);
+  }, [type, opTypes]);
 
   return {
     operations,

@@ -202,20 +202,16 @@ const vehicleOperationService = async (
   return results;
 };
 
-const getOperationsService = async (
-  type,
-  opType,
-  employeeId,
-  lastSentTimestamp,
-) => {
+const getOperationsService = async (type, opTypes, employeeId) => {
   const status =
     type === "active" ? "ACTIVE" : (type === "inactive" && "INACTIVE") || null;
+  opTypes = opTypes.map((opType) => opType.replace(/_/g, " ").toUpperCase());
 
   const query = {
     where: {
       userId: employeeId,
       ...(status && { operationStatus: status }),
-      ...(opType && { operationType: opType }),
+      ...(opTypes.length > 0 && { operationType: { in: opTypes } }),
     },
     include: {
       cameras: true,
@@ -225,12 +221,12 @@ const getOperationsService = async (
     },
   };
 
-  // Add a condition to fetch only data after lastSentTimestamp if available
-  if (lastSentTimestamp) {
-    query.where.operationTimestamp = {
-      gt: lastSentTimestamp,
-    };
-  }
+  // // Add a condition to fetch only data after lastSentTimestamp if available
+  // if (lastSentTimestamp) {
+  //   query.where.operationTimestamp = {
+  //     gt: lastSentTimestamp,
+  //   };
+  // }
 
   const operations = await prisma.operationLog.findMany(query);
 

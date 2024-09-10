@@ -13,14 +13,7 @@ const operationsSlice = createSlice({
     },
     fetchOperationsSuccess(state, action) {
       state.isLoading = false;
-      const incomingData = action.payload;
-      const newOperations = incomingData.filter(
-        (newOperation) =>
-          !state.operations.some(
-            (existingOperation) => existingOperation.id === newOperation.id,
-          ),
-      );
-      state.operations = [...state.operations, ...newOperations];
+      state.operations = action.payload;
       state.error = null;
     },
     fetchOperationsFailure(state, action) {
