@@ -18,7 +18,7 @@ router.get("/suspect-search/live", authMiddleware, liveSuspectSearch);
 
 router.post("/vehicle", authMiddleware, vehicleOperation);
 router.get("/vehicle/live", authMiddleware, liveVehicleOperation);
-router.get("/", authMiddleware, getOperations);
+router.post("/", authMiddleware, getOperations);
 router.get("/incidents/live", authMiddleware, liveIncidentsTracking);
 
 // Get the status of operations route

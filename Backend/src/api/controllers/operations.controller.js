@@ -510,8 +510,11 @@ const liveVehicleOperation = async (req, res) => {
 
 const getOperations = async (req, res) => {
   try {
-    const { type, opType } = req.query;
+    const { type, opTypes } = req.body;
+    console.log("type", type);
+    console.log("opType", opTypes);
     const employeeId = req.userId;
+    console.log("employeeId", employeeId);
 
     if (!employeeId) {
       return res.status(401).json({
@@ -520,56 +523,27 @@ const getOperations = async (req, res) => {
       });
     }
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    let lastSentTimestamp = null;
-
-    const sendEvent = (data) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
-    };
-
     const getOperationsData = async () => {
-      const operations = await getOperationsService(
-        type,
-        opType,
-        employeeId,
-        lastSentTimestamp,
-      );
+      const operations = await getOperationsService(type, opTypes, employeeId);
       if (!operations || operations.length === 0) {
         return null;
       }
-
-      // Update lastSentTimestamp with the latest timestamp in the fetched operations
-      lastSentTimestamp = operations.reduce((max, op) => {
-        return op.operationTimestamp > max ? op.operationTimestamp : max;
-      }, lastSentTimestamp || operations[0].operationTimestamp);
-
       return operations;
     };
 
-    // Send all data initially
-    const initialOperations = await getOperationsData();
-    if (initialOperations) {
-      sendEvent({ status: "success", data: initialOperations });
+    const operations = await getOperationsData();
+
+    if (!operations) {
+      return res.json({
+        status: "ok",
+        message: "No operations found",
+      });
     }
 
-    const liveSearch = async () => {
-      while (true) {
-        const newData = await getOperationsData();
-        if (newData) {
-          sendEvent({ status: "success", data: newData });
-        }
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      }
-    };
-
-    await liveSearch();
-
-    req.on("close", () => {
-      console.log("Connection closed by client");
-      res.end();
+    return res.json({
+      status: "ok",
+      message: "Operations fetched successfully",
+      operations,
     });
   } catch (error) {
     console.error("Error performing operation:", error);

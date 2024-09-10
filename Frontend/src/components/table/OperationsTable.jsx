@@ -157,7 +157,7 @@ const OperationsTable = ({ data }) => {
                           >
                             <DoneIcon fontSize="small" color="secondary" />
                             <Typography variant="body2" color="textSecondary">
-                              {formatTimeToIST(operation?.closeTimestamp)}
+                              {formatTimeToIST(operation?.finalTimestamp)}
                             </Typography>
                           </Box>
                         </Tooltip>
