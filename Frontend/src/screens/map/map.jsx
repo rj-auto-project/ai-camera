@@ -4,7 +4,7 @@ import MapView from "./MapView";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
-import CameraCard from "../../components/CameraCard";
+import CameraCard from "../../components/card/CameraCard";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Chip from "@mui/material/Chip";
@@ -84,7 +84,7 @@ const Map = () => {
 
   const onFooterButtonClick = () => {
     sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
-    navigate("/dashboard/map/operations", { state: { cameras: cameraList } });
+    navigate("/dashboard/map/create-operations", { state: { cameras: cameraList } });
   };
 
   const handleChipClick = (label) => {

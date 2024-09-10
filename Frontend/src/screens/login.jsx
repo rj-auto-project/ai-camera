@@ -30,7 +30,7 @@ function Login() {
       {
         onSuccess: () => {
           toast.success("Login successful!");
-          navigate("/dashboard");
+          navigate("/dashboard/map");
         },
         onError: () => {
           console.error("Login failed:", error);

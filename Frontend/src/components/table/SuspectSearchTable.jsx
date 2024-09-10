@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
-import CSVButton from "../CSVButton";
+import CSVButton from "../buttons/csvButton";
 
 const SuspectSearchTable = ({ data, isLoading }) => {
   const [page, setPage] = useState(0);
