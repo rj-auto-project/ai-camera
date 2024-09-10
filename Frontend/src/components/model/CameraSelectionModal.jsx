@@ -12,7 +12,7 @@ import {
   Divider,
 } from "@mui/material";
 import Select from "react-select";
-import { useFetchCameras } from "../api/hooks/useFetchCameras";
+import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 
 const CameraSelectionModal = ({
   open,
