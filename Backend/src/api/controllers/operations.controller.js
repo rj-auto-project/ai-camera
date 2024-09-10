@@ -267,6 +267,8 @@ const vehicleOperation = async (req, res) => {
         ownerName: ownerName && ownerName.toLowerCase(),
         classes,
         cameras,
+        topColor: topColor && topColor.toLowerCase(),
+        bottomColor: bottomColor && bottomColor.toLowerCase(),
       };
     } else if (type === "vehicle_search") {
       operationData = {
