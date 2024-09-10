@@ -3,7 +3,7 @@ import { ThemeProvider, CssBaseline, Typography } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
-import NotFound from "./screens/notFound";
+import NotFound from "./screens/pagenotfound/notfound";
 import SplashScreen from "./screens/splashScreen";
 import { Toaster } from "react-hot-toast";
 
