@@ -1,3 +1,4 @@
+import { Status } from "@prisma/client";
 import prisma from "../../config/prismaClient.js";
 import { getThumbnail } from "../../utils/extractThumbnail.js";
 import { formatTimestamp } from "../../utils/helperFunctions.js";
@@ -11,47 +12,7 @@ const suspectSearchService = async (
   endTime,
   top_color,
   bottom_color,
-  employeeId,
 ) => {
-  // Convert startTime and endTime to Date objects
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-
-  // Get cameras' details involved in the operation
-  const camerasEngagedInOperation = await prisma.camera.findMany({
-    where: {
-      cameraId: typeof cameras === "string" ? cameras : { in: cameras },
-    },
-    select: {
-      cameraIp: true,
-      cameraId: true,
-      location: true,
-    },
-  });
-
-  // Log this operation
-  const newOperation = await prisma.operationLog.create({
-    data: {
-      operationType: "SUSPECT SEARCH",
-      cameras: {
-        connect: camerasEngagedInOperation.map((camera) => ({
-          cameraId: camera?.cameraId,
-        })),
-      },
-      operationRequestData: {
-        classes: classes,
-        startTime: start,
-        endTime: end,
-        topColor: top_color,
-        bottomColor: bottom_color,
-      },
-      initialTimestamp: new Date(),
-      finalTimestamp: new Date(),
-      userId: employeeId,
-      closeTimestamp: new Date(),
-    },
-  });
-
   // Perform the search
   let results = await prisma.detectionLog.findMany({
     where: {
@@ -88,9 +49,19 @@ const suspectSearchService = async (
         },
       ],
     },
+    include: {
+      camera: true,
+    },
     distinct: ["trackId"],
   });
-
+  // results = results.map(async (result) => {
+  //   const cameraDetails = await prisma.camera.findUnique({
+  //     where: {
+  //       cameraId: result.cameraId,
+  //     },
+  //   });
+  //   result.cameraDetails = cameraDetails;
+  // });
   if (!results || results.length === 0) {
     return [];
   }
@@ -102,185 +73,190 @@ const suspectSearchService = async (
       `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
       result?.timestamp,
     );
-    result.thumbnail = thumbnailPath;
+    result.thumbnail = thumbnailPath || "";
     return result;
   });
 
   results = await Promise.all(thumbnailPromises);
 
-  // Update operation log with results
-  await prisma.operationLog.update({
-    where: {
-      id: newOperation?.id,
-    },
-    data: {
-      operationResponseData: {
-        results: results,
-      },
-      finalTimestamp: new Date(),
-      closeTimestamp: new Date(),
-      operationStatus: "INACTIVE",
-    },
-  });
-
   return results;
 };
 
-const anprOperationService = async (
+const vehicleOperationService = async (
+  operationData,
   cameras,
   startTime,
   endTime,
-  licensePlate,
-  employeeId,
-  ownerName,
 ) => {
-  // Get cameras' details involved in the operation
-  const camerasEngagedInOperation = await prisma.camera.findMany({
-    where: {
-      cameraId: typeof cameras === "string" ? cameras : { in: cameras },
-    },
-    select: {
-      cameraIp: true,
-      cameraId: true,
-      location: true,
-    },
-  });
-
-  //log this operation
-  const newAnprOperation = await prisma.operationLog.create({
-    data: {
-      operationType: "ANPR",
-      cameras: {
-        connect: camerasEngagedInOperation.map((camera) => ({
-          cameraId: camera?.cameraId,
-        })),
+  const { type, classes } = operationData;
+  let results = [];
+  if (type === "ANPR") {
+    results = await prisma.anprLogs.findMany({
+      where: {
+        camera_id: {
+          in: cameras,
+        },
+        time_stamp: {
+          gte: new Date(startTime),
+          lte: new Date(endTime),
+        },
+        OR: [
+          {
+            license_number: {
+              equals: operationData?.licensePlate,
+            },
+          },
+          {
+            AND: [
+              {
+                ownerName: {
+                  equals: operationData?.ownerName,
+                },
+              },
+              {
+                detectionClass: {
+                  in: classes,
+                },
+              },
+            ],
+          },
+        ],
       },
-      operationRequestData: {
-        licensePlateNumber:
-          !ownerName && licensePlate ? licensePlate.toLowerCase() : null,
-        startTime: startTime,
-        endTime: endTime,
-        vehicleOwnerName:
-          !licensePlate && ownerName ? ownerName.toLowerCase() : null,
-      },
-      initialTimestamp: new Date(),
-      finalTimestamp: new Date(),
-      userId: employeeId,
-      closeTimestamp: new Date(),
-    },
-  });
-
-  const license_number = licensePlate ? licensePlate.toLowerCase() : null;
-  const owner_name = ownerName ? ownerName.toLowerCase() : null;
-
-  const filters = [];
-  if (ownerName && licensePlate) {
-    filters.push({
-      AND: [
-        {
-          license_number: {
-            equals: license_number,
+      include: {
+        camera: {
+          select: {
+            cameraId: true,
+            cameraName: true,
+            location: true,
+            cameraType: true,
           },
         },
-        {
-          meta_data: {
-            path: ["owner_name"],
-            equals: owner_name,
+      },
+      distinct: ["trackId"],
+    });
+  } else if (type === "VEHICLE SEARCH") {
+    results = await prisma.detectionLog.findMany({
+      where: {
+        cameraId: {
+          in: cameras,
+        },
+        timestamp: {
+          gte: new Date(startTime),
+          lte: new Date(endTime),
+        },
+        detectionClass: {
+          in: classes,
+        },
+        OR: [
+          {
+            topColor: {
+              equals: operationData?.topColor,
+            },
+            bottomColor: {
+              equals: operationData?.bottomColor,
+            },
+          },
+          {
+            topColor: {
+              equals: operationData?.topColor,
+            },
+          },
+          {
+            bottomColor: {
+              equals: operationData?.bottomColor,
+            },
+          },
+        ],
+      },
+      include: {
+        camera: {
+          select: {
+            cameraId: true,
+            cameraName: true,
+            location: true,
+            cameraType: true,
           },
         },
-      ],
-    });
-  } else if (licensePlate) {
-    filters.push({
-      license_number: {
-        equals: license_number,
       },
-    });
-  } else if (ownerName) {
-    filters.push({
-      meta_data: {
-        path: ["owner_name"],
-        equals: owner_name,
-      },
+      distinct: ["trackId"],
     });
   }
 
-  const query = {
-    where: {
-      AND: [
-        {
-          OR: filters,
-        },
-        {
-          camera_id: {
-            in: cameras,
-          },
-        },
-        {
-          time_stamp: {
-            gte: startTime,
-            lte: endTime,
-          },
-        },
-      ],
-    },
-    distinct: ["trackId"],
-  };
-
-  let results = await prisma.anprLogs.findMany(query);
   if (!results || results.length === 0) {
     return [];
   }
 
+  // Generate thumbnails
   const thumbnailPromises = results.map(async (result) => {
+    const { datefolder, videotime } = formatTimestamp(result?.timestamp);
     const thumbnailPath = await getThumbnail(
-      "D:\\RJ ai cam\\sample.mp4",
-      result?.time_stamp,
+      `D:\\RJ ai cam\\videofeed\\${datefolder}\\${result?.cameraId}\\${videotime}.mp4`,
+      result?.time_stamp || result?.timestamp,
     );
-    result.thumbnail = thumbnailPath;
+    result.thumbnail = thumbnailPath || "";
     return result;
   });
 
   results = await Promise.all(thumbnailPromises);
 
-  // update operation log
-  await prisma.operationLog.update({
-    where: {
-      id: newAnprOperation?.id,
-    },
-    data: {
-      operationResponseData: {
-        results: results,
-      },
-      finalTimestamp: new Date(),
-      closeTimestamp: new Date(),
-      operationStatus: "INACTIVE",
-    },
-  });
-
   return results;
 };
 
-const getOpearationsService = async (type) => {
-  if (type === "active") {
-    const activeOperations = await prisma.operationLog.findMany({
-      where: {
-        operationStatus: "ACTIVE",
-      },
-    });
-    return activeOperations;
-  } else if (type === "inactive") {
-    const inactiveOperations = await prisma.operationLog.findMany({
-      where: {
-        operationStatus: "INACTIVE",
-      },
-    });
-    return inactiveOperations;
-  } else {
-    const allOperations = await prisma.operationLog.findMany();
-    return allOperations;
+const getOperationsService = async (
+  type,
+  opType,
+  employeeId,
+  lastSentTimestamp,
+) => {
+  const status =
+    type === "active" ? "ACTIVE" : (type === "inactive" && "INACTIVE") || null;
+
+  const query = {
+    where: {
+      userId: employeeId,
+      ...(status && { operationStatus: status }),
+      ...(opType && { operationType: opType }),
+    },
+    include: {
+      cameras: true,
+    },
+    orderBy: {
+      operationTimestamp: "desc",
+    },
+  };
+
+  // Add a condition to fetch only data after lastSentTimestamp if available
+  if (lastSentTimestamp) {
+    query.where.operationTimestamp = {
+      gt: lastSentTimestamp,
+    };
   }
+
+  const operations = await prisma.operationLog.findMany(query);
+
+  return operations;
+};
+
+const incidentsSearchService = async (startTime) => {
+  const incidents = await prisma.detectionLog.findMany({
+    where: {
+      incidentType: {
+        not: null,
+      },
+      timestamp: {
+        gte: startTime,
+      },
+    },
+    distinct: ["trackId"],
+  });
+
+  return incidents;
 };
 
 // utility functions
-export { suspectSearchService, anprOperationService, getOpearationsService };
+export {
+  suspectSearchService,
+  getOperationsService,
+  vehicleOperationService,
+  incidentsSearchService,
+};

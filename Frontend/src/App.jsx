@@ -33,23 +33,19 @@ const App = () => {
               <Route path="/signup" element={<Signup />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard" element={<Dashboard />}>
-                  <Route
-                    index
-                    element={<Typography>Welcome to the Dashboard</Typography>}
-                  />
                   <Route path="map">
-                    <Route index element={<Map />} />
-                    <Route path="operations" element={<CreateOperations />} />
+                    <Route index  element={<Map />} />
+                    <Route path="create-operations" element={<CreateOperations />} />
                   </Route>
                   <Route path="operations" element={<Operations />} />
                   <Route path="streams">
                     <Route index element={<StreamsConditionalRender />} />
                   </Route>
+                  <Route path="reports" element={<Reports />} />
                   <Route
                     path="settings"
                     element={<Typography>Settings</Typography>}
                   />
-                  <Route path="reports" element={<Reports />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

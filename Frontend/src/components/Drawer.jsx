@@ -22,7 +22,7 @@ import {
   TaskAltOutlined,
   Report,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
 
@@ -34,7 +34,10 @@ export default function CustomDrawer() {
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
   };
+  const location = useLocation();
+  const currentPath = location.pathname.split("/")[2];
 
+  console.log("current path", currentPath);
   const dispatch = useDispatch();
   const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
 
@@ -55,7 +58,9 @@ export default function CustomDrawer() {
       }}
     >
       <div>
-        <Toolbar sx={{ minHeight: 48 }}> {/* Reduced height */}
+        <Toolbar sx={{ minHeight: 48 }}>
+          {" "}
+          {/* Reduced height */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -78,7 +83,13 @@ export default function CustomDrawer() {
               key={item.text}
               component={Link}
               to={`/dashboard/${item.path}`}
-              sx={{ py: 1 }}
+              sx={{
+                py: 1,
+                backgroundColor:
+                  currentPath === item.path
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent",
+              }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
@@ -89,7 +100,17 @@ export default function CustomDrawer() {
       <div>
         <Divider />
         <List>
-          <ListItem button component={Link} to={`/dashboard/settings`}>
+          <ListItem
+            button
+            component={Link}
+            to={`/dashboard/settings`}
+            sx={{
+              backgroundColor:
+                currentPath === "settings"
+                  ? "rgba(255, 255, 255, 0.1)"
+                  : "transparent",
+            }}
+          >
             <ListItemIcon>
               <Settings />
             </ListItemIcon>

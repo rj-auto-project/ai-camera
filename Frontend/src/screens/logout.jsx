@@ -18,8 +18,7 @@ const Logout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
- const open = useSelector((state) => state.auth.openLogoutDialog);
-
+  const open = useSelector((state) => state.auth.openLogoutDialog);
 
   const handleClose = () => {
     dispatch(closeLogoutDialog());
@@ -46,7 +45,7 @@ const Logout = () => {
         open={open}
         aria-labelledby="logout-dialog-title"
         aria-describedby="logout-dialog-description"
-        maxWidth="xs" 
+        maxWidth="xs"
         fullWidth
       >
         <DialogTitle id="logout-dialog-title" sx={{ textAlign: "center" }}>

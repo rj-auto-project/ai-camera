@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const objectClassSlice = createSlice({
-  name: 'objectClass',
+  name: "objectClass",
   initialState: {
     isLoading: false,
     data: [],

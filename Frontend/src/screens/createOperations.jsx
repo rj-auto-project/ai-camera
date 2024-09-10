@@ -15,9 +15,10 @@ import RestrictedVehicleForm from "../components/form/RestrictedVehicleForm";
 import CrowdRestrictionForm from "../components/form/CrowdRestrictionForm";
 import SuspectSearchForm from "../components/form/SuspectSearchForm";
 import VehicleSearchForm from "../components/form/VehicleSearchForm";
-import CameraCard from "../components/CameraCard";
+import CameraCard from "../components/card/CameraCard";
 import toast from "react-hot-toast";
-import CameraSelectionModal from "../components/CameraSelectionModal";
+import CameraSelectionModal from "../components/model/CameraSelectionModal";
+import BackButton from "../components/buttons/backbutton";
 
 const CreateOperations = () => {
   const [selectedOperation, setSelectedOperation] = useState("Vehicle Search");
@@ -35,10 +36,10 @@ const CreateOperations = () => {
     setSelectedOperation(operation);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data: ", data);
-    console.log(cameraList)
-  };
+  // const handleFormSubmit = (data) => {
+  //   console.log("Form Data: ", data);
+  //   console.log(cameraList);
+  // };
 
   const handleAddCameraClick = () => {
     setIsModalOpen(true);
@@ -50,7 +51,14 @@ const CreateOperations = () => {
 
   const handleAddCameras = (selectedCameras) => {
     // Filter out cameras that are already in the list
-    c
+
+    const newCameras = selectedCameras.filter(
+      (camera) =>
+        !cameraList.some(
+          (existingCamera) => existingCamera.cameraId === camera.cameraId,
+        ),
+    );
+
     if (newCameras.length === 0) {
       toast.error("All selected cameras are already in the list.", {
         style: {
@@ -67,7 +75,7 @@ const CreateOperations = () => {
     setCameraList(updatedCameraList);
     sessionStorage.setItem(
       "selectedCameraList",
-      JSON.stringify(updatedCameraList)
+      JSON.stringify(updatedCameraList),
     );
     toast.success("Cameras successfully added!", {
       style: {
@@ -82,13 +90,13 @@ const CreateOperations = () => {
   const RenderForm = () => {
     switch (selectedOperation) {
       case "Vehicle Search":
-        return <VehicleSearchForm onSubmit={handleFormSubmit} />;
+        return <VehicleSearchForm cameraList={cameraList} />;
       case "Suspect Search":
-        return <SuspectSearchForm onSubmit={handleFormSubmit} />;
+        return <SuspectSearchForm cameraList={cameraList} />;
       case "Restricted Vehicle":
-        return <RestrictedVehicleForm onSubmit={handleFormSubmit} />;
+        return <RestrictedVehicleForm cameraList={cameraList} />;
       case "Crowd Restriction":
-        return <CrowdRestrictionForm onSubmit={handleFormSubmit} />;
+        return <CrowdRestrictionForm cameraList={cameraList} />;
       default:
         return null;
     }
@@ -96,13 +104,13 @@ const CreateOperations = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     sessionStorage.setItem(
       "selectedCameraList",
       JSON.stringify(
-        cameraList.filter((camera) => camera.cameraId !== cameraId)
-      )
+        cameraList.filter((camera) => camera.cameraId !== cameraId),
+      ),
     );
     toast.success(`CAM-${cameraId} successfully removed`, {
       style: {
@@ -117,6 +125,7 @@ const CreateOperations = () => {
   return (
     <Grid container sx={{ height: "100vh", overflow: "hidden" }}>
       {/* Left Column - Operations List */}
+
       <Grid
         item
         xs={2}
@@ -130,12 +139,16 @@ const CreateOperations = () => {
           <Typography
             sx={{
               padding: 1.5,
+              display: "flex",
+              flexDirection: "row",
               backgroundColor: "rgb(0,0,0,0.4)",
               color: "#fff",
               textAlign: "center",
+              alignItems: "center",
               fontWeight: "bold",
             }}
           >
+            <BackButton />
             Operations
           </Typography>
           <Divider />
@@ -184,7 +197,7 @@ const CreateOperations = () => {
           </Typography>
           <Divider />
           {selectedOperation && (
-            <Box sx={{ px: 2 }}>
+            <Box>
               <RenderForm />
             </Box>
           )}
@@ -237,7 +250,7 @@ const CreateOperations = () => {
                   display: "flex",
                   flex: 1,
                   height: "100%",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
                 <Typography sx={{ textAlign: "center", flex: 1 }}>

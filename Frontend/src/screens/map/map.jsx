@@ -4,18 +4,20 @@ import MapView from "./MapView";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
-import CameraCard from "../../components/CameraCard";
+import CameraCard from "../../components/card/CameraCard";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
   const { data, isLoading, isError, error } = useFetchCameras();
+  const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +28,14 @@ const Map = () => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
   }
 
   if (isError) {
@@ -75,7 +84,7 @@ const Map = () => {
 
   const onFooterButtonClick = () => {
     sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
-    navigate("/dashboard/map/operations", { state: { cameras: cameraList } });
+    navigate("/dashboard/map/create-operations", { state: { cameras: cameraList } });
   };
 
   const handleChipClick = (label) => {
@@ -146,7 +155,12 @@ const Map = () => {
           ))}
         </DraggablePanel>
       )}
-      <MapView center={center} DEFAULT_ZOOM={16}>
+      <MapView
+        center={center}
+        activeCategory={activeCategory}
+        camStatus={camStatus}
+        DEFAULT_ZOOM={16}
+      >
         {filteredCameras.map((camera) => (
           <Marker
             key={camera.cameraId}

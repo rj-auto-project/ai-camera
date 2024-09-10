@@ -27,7 +27,6 @@ const initialState = {
   openLogoutDialog: false,
 };
 
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {

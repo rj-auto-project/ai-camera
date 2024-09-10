@@ -10,7 +10,7 @@ function StreamsConditionalRender() {
   const camId = queryParams.get("cameraId");
 
   if (camId) {
-    return <CameraPage />;
+    return <CameraPage camId={camId} />;
   }
 
   return <Streams />;

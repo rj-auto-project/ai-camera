@@ -1,12 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const suspectSearchSlice = createSlice({
-  name: 'suspectSearch',
+  name: "suspectSearch",
   initialState: {
     isLoading: false,
     data: {
-      status: '',
-      message: '',
+      status: "",
+      message: "",
       results: [],
     },
     error: null,
@@ -16,7 +16,7 @@ const suspectSearchSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
-    suspectSearchSuccess(state, action) {
+    suspectSearchSucess(state, action) {
       state.isLoading = false;
       state.data = action.payload;
     },
@@ -27,10 +27,7 @@ const suspectSearchSlice = createSlice({
   },
 });
 
-export const {
-  suspectSearchStart,
-  suspectSearchSuccess,
-  suspectSearchFailure,
-} = suspectSearchSlice.actions;
+export const { suspectSearchStart, suspectSearchSucess, suspectSearchFailure } =
+  suspectSearchSlice.actions;
 
 export default suspectSearchSlice.reducer;

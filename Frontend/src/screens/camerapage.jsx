@@ -1,28 +1,34 @@
 import React from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Container, Box, Typography, Card, CardMedia } from "@mui/material";
+import { useVideo } from "../context/videoContext";
+import BackButton from "../components/buttons/backbutton";
 
-const CameraPage = () => {
-  const { cameraId } = useParams();
+const CameraPage = ({ camId }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const page = queryParams.get("page");
+  const { videoSrc } = useVideo();
 
   // Mock data or fetch the actual stream URL based on `cameraId`
-  const streamSrc = `https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4`;
+  const streamSrc = videoSrc;
 
   return (
     <Container>
-      <Box mt={4}>
-        <Typography variant="h4" gutterBottom>
-          Camera {cameraId} - Page {page}
+      <Box mt={1}>
+        <Typography variant="h5">
+          <BackButton style={{}} />
+          Camera ID: {camId}
         </Typography>
         <Card>
-          <CardMedia
-            component="video"
-            controls
+          <video
             src={streamSrc}
-            title={`Camera ${cameraId}`}
+            autoPlay
+            muted
+            loop
+            width="100%"
+            height="90%"
+            style={{ objectFit: "cover" }}
           />
         </Card>
       </Box>
