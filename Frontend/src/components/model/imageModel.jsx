@@ -3,7 +3,7 @@ import { Typography, Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 
-const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
+const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen,index }) => {
   const handleClose = () => {
     setOpen(false);
     setSelectedItem(null);
@@ -11,7 +11,7 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
 
   const handleSaveImage = () => {
     const link = document.createElement("a");
-    link.href = "/assets/cctv.jpeg";
+    link.href = `/assets/garbage/garbage${index + 1}.png`;
     link.download =
       `${selectedItem.licenseNumber}-${new Date().toLocaleString()}` ||
       `${selectedItem.license_number}-${new Date().toLocaleString()}` ||
@@ -57,7 +57,7 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
           </IconButton>
         </Box>
         <img
-          src="/assets/cctv.jpeg"
+          src={`/assets/garbage/garbage${index + 1}.png`}
           alt={
             selectedItem.licenseNumber ||
             selectedItem?.license_number ||
@@ -86,12 +86,6 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="body2">
-            License No: <br />
-            {selectedItem.licenseNumber ||
-              selectedItem?.license_number ||
-              "N/A"}
-          </Typography>
           <Typography variant="body2">
             Timestamp: <br />
             {new Date(
