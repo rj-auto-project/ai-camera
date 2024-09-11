@@ -82,7 +82,7 @@ export default function CustomDrawer() {
               component={Link}
               to={`/dashboard/${item.path}`}
               sx={{
-                py:1.5,
+                py: 1.5,
                 backgroundColor:
                   currentPath === item.path
                     ? "rgba(255, 255, 255, 0.1)"

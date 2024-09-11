@@ -4,7 +4,7 @@ import GarbageSearchTable from "../components/table/GarbageSearchTable";
 const Reports = () => {
   return (
     <div>
-      <GarbageSearchTable/>
+      <GarbageSearchTable />
     </div>
   );
 };
