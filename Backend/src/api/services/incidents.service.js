@@ -17,4 +17,48 @@ const detectGarbageService = async () => {
   return results || [];
 };
 
-export { detectGarbageService };
+const getIncidentsService = async (startTime = "", endTime = "") => {
+  const whereClause = {};
+
+  if (startTime && endTime) {
+    whereClause.timestamp = {
+      gte: startTime,
+      lte: endTime,
+    };
+  }
+
+  const incidents = await prisma.incidentLogs.findMany({
+    where: whereClause,
+  });
+
+  return incidents || [];
+};
+
+const getSpecificIncidentService = async (
+  incidentType,
+  startTime = "",
+  endTime = "",
+) => {
+  const whereClause = {
+    incidentType: incidentType,
+  };
+
+  if (startTime && endTime) {
+    whereClause.timestamp = {
+      gte: startTime,
+      lte: endTime,
+    };
+  }
+
+  const incidents = await prisma.incidentLogs.findMany({
+    where: whereClause,
+  });
+
+  return incidents || [];
+};
+
+export {
+  detectGarbageService,
+  getIncidentsService,
+  getSpecificIncidentService,
+};

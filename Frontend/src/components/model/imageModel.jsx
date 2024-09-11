@@ -3,7 +3,13 @@ import { Typography, Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 
-const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen,index }) => {
+const ImageModel = ({
+  selectedItem,
+  setSelectedItem,
+  isOpen,
+  setOpen,
+  index,
+}) => {
   const handleClose = () => {
     setOpen(false);
     setSelectedItem(null);
