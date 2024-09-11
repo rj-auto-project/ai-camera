@@ -85,6 +85,19 @@ model AnprLogs {
   camera Camera @relation(fields: [camera_id], references: [cameraId])
 }
 
+model IncidentLogs {
+  id           Int          @id @default(autoincrement())
+  timestamp    DateTime     @default(now())
+  cameraId     String
+  metadata     Json
+  trackId      String       @db.VarChar(255)
+  camera_ip    String       @db.VarChar(30)
+  boxCoords    String       @db.VarChar(255)
+  incidentType IncidentType
+
+  camera Camera @relation(fields: [cameraId], references: [cameraId])
+}
+
 model Camera {
   cameraId       String   @id @db.VarChar(30)
   cameraIp       String   @db.VarChar(30)
@@ -105,6 +118,7 @@ model Camera {
   DetectionLog DetectionLog[]
   AnprLogs     AnprLogs[]
   CrowdCount   CrowdCount[]
+  IncidentLogs IncidentLogs[]
 }
 
 model Class {
@@ -133,4 +147,7 @@ enum IncidentType {
   ACCIDENT
   VEHICLE_RESTRICTION
   CROWD_RESTRICTION
+  GARBAGE
+  POTHOLE
+  CATTLE
 }

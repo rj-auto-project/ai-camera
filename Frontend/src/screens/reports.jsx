@@ -118,6 +118,7 @@ export default function Reports() {
 
   return (
     <div>
+
       <ButtonGroup variant="contained">
         <Button onClick={() => handleDateRangeChange('today')}>Today</Button>
         <Button onClick={() => handleDateRangeChange('weekly')}>Weekly</Button>

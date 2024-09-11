@@ -17,6 +17,7 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/csvButton";
+import { formatTimeToIST } from "../../utils/formatTime";
 
 const VehicleSearchTable = ({ data }) => {
   const [page, setPage] = useState(0);
@@ -69,7 +70,7 @@ const VehicleSearchTable = ({ data }) => {
 
   const csvData = data.results.map((item) => ({
     thumbnail: `/assets/cctv.jpeg`, // Assuming the thumbnail is the same for all
-    timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
+    timestamp: formatTimeToIST(item?.timestamp || item?.time_stamp),
     camera_ip: item?.camera_ip || item?.camera?.cameraIp,
     detectionClass: item?.detectionClass,
     classConfidence: item?.classConfidence?.toFixed(2),
@@ -142,9 +143,7 @@ const VehicleSearchTable = ({ data }) => {
                     />
                   </TableCell>
                   <TableCell>
-                    {new Date(
-                      item?.timestamp || item?.time_stamp,
-                    ).toLocaleString()}
+                    {formatTimeToIST(item?.timestamp || item?.time_stamp)}
                   </TableCell>
                   <TableCell>
                     <div>

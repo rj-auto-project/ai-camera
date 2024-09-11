@@ -22,7 +22,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DoneIcon from "@mui/icons-material/Done";
 import { green, red } from "@mui/material/colors";
 
-const OperationsTable = ({ data }) => {
+const OperationsTable = ({ data, isError }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedCameras, setSelectedCameras] = useState([]);
@@ -58,7 +58,35 @@ const OperationsTable = ({ data }) => {
   };
 
   if (!data || !data.length) {
-    return <Typography>No data available</Typography>;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+        width="100%"
+      >
+        <Typography variant="h6" color="textSecondary">
+          No operations available
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+        width="100%"
+      >
+        <Typography variant="h6" color="error">
+          Error fetching operations
+        </Typography>
+      </Box>
+    );
   }
 
   return (
@@ -185,21 +213,25 @@ const OperationsTable = ({ data }) => {
                         </Typography>
                       </Button>
                       <br />
-                      <Button
-                        variant="contained"
-                        color="primary"
+                      <Typography
                         onClick={() =>
                           handleOpenDataModal({
-                            data: operation?.operationRequestData,
+                            data: operation?.operationResponseData,
                             title: `Response Data for ${operation?.id}`,
                             operation: "response",
                           })
                         }
+                        sx={{
+                          cursor: "pointer",
+                          ":hover": {
+                            color: "blue",
+                          },
+                        }}
                       >
                         <Typography style={{ color: "white" }}>
-                          Response Data
+                          See details...
                         </Typography>
-                      </Button>
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Chip
