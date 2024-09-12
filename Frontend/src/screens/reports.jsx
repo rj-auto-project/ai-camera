@@ -66,7 +66,7 @@ export default function Reports() {
   } = useMemo(() => {
     if (!incidentData?.data || !Array.isArray(incidentData?.data)) {
       return {
-        filteredData: filteredData,
+        filteredData: [],
         totalIncidents: 0,
         incidentTrendData: [],
         pieChartData: [],
