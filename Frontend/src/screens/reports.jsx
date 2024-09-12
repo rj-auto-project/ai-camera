@@ -1,180 +1,412 @@
-import React, { useState, useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Button, ButtonGroup, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import dayjs from 'dayjs';
-import { Chart as ChartJS, LineElement, PointElement,CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import React, { useState, useMemo, useCallback } from "react";
+import { useFetchIncidents } from "../api/hooks/useFetchIncidents";
+import dayjs from "dayjs";
+import {
+  Box,
+  Typography,
+  Button,
+  ButtonGroup,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Skeleton,
+  Alert,
+  useTheme,
+  Card,
+  CardContent,
+  Grid,
+} from "@mui/material";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import PieChartIcon from "@mui/icons-material/PieChart";
+import ReportIcon from "@mui/icons-material/Report";
+import IncidentsChart from "../components/charts/IncidentsChart";
+import PieChart from "../components/charts/PieChart";
+import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
+import TopIncidentsList from "../components/TopIncidentsList";
 
-ChartJS.register(LineElement, CategoryScale,PointElement, LinearScale, Title, Tooltip, Legend);
-
-// Simulated API response for incident types (specific)
-const incidentTypesApi = [
-  { id: 'crowdCount', label: 'Crowd Count' },
-  { id: 'trafficViolations', label: 'Traffic Violations' },
-  { id: 'vehicleRestriction', label: 'Vehicle Restriction' },
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
 ];
 
-// Simulated API response for all-incident types (aggregate of all incidents)
-const allIncidentDataApi = {
-  today: [
-    { x: '2024-09-11T01:00:00', crowdCount: 100, trafficViolations: 5, vehicleRestriction: 20 },
-    { x: '2024-09-11T02:00:00', crowdCount: 150, trafficViolations: 3, vehicleRestriction: 15 },
-    { x: '2024-09-11T03:00:00', crowdCount: 120, trafficViolations: 4, vehicleRestriction: 18 },
-    // Add more data for today
+const incidentTypes = {
+  vehicleAndRoad: [
+    "REDLIGHT_VIOLATION",
+    "OVERSPEEDING",
+    "ILLEGAL_PARKING",
+    "WRONG_WAY_DRIVING",
+    "ACCIDENT",
+    "VEHICLE_RESTRICTION",
   ],
-  weekly: [
-    { x: '2024-09-05', crowdCount: 500, trafficViolations: 25, vehicleRestriction: 80 },
-    { x: '2024-09-06', crowdCount: 400, trafficViolations: 20, vehicleRestriction: 60 },
-    { x: '2024-09-07', crowdCount: 300, trafficViolations: 15, vehicleRestriction: 50 },
-    // Add more data for weekly
-  ],
-  monthly: [
-    { x: '2024-08-15', crowdCount: 2000, trafficViolations: 100, vehicleRestriction: 300 },
-    { x: '2024-08-16', crowdCount: 1800, trafficViolations: 90, vehicleRestriction: 270 },
-    // Add more data for monthly
-  ],
-};
-
-// Simulated API response for specific incident data
-const incidentDataApi = {
-  crowdCount: [
-    { x: '2024-09-11T01:00:00', value: 100 },
-    { x: '2024-09-11T02:00:00', value: 150 },
-    { x: '2024-09-11T03:00:00', value: 120 },
-  ],
-  trafficViolations: [
-    { x: '2024-09-11T01:00:00', value: 5 },
-    { x: '2024-09-11T02:00:00', value: 3 },
-    { x: '2024-09-11T03:00:00', value: 4 },
-  ],
-  vehicleRestriction: [
-    { x: '2024-09-11T01:00:00', value: 20 },
-    { x: '2024-09-11T02:00:00', value: 15 },
-    { x: '2024-09-11T03:00:00', value: 18 },
-  ],
+  municipal: ["CROWD_RESTRICTION", "GARBAGE", "POTHOLE", "CATTLE"],
 };
 
 export default function Reports() {
-  const [dateRange, setDateRange] = useState('today');
-  const [selectedIncidentType, setSelectedIncidentType] = useState('allIncidents');
-  const [incidentData, setIncidentData] = useState(allIncidentDataApi[dateRange]);
+  const theme = useTheme();
+  const [dateRange, setDateRange] = useState("today");
+  const [selectedIncidentType, setSelectedIncidentType] =
+    useState("allIncidents");
 
-  const handleIncidentTypeChange = (event) => {
-    const type = event.target.value;
-    setSelectedIncidentType(type);
+  const { data: incidentData, isLoading } = useFetchIncidents(dateRange);
 
-    if (type === 'allIncidents') {
-      setIncidentData(allIncidentDataApi[dateRange]);
-    } else {
-      setIncidentData(incidentDataApi[type]);
+  const {
+    filteredData,
+    totalIncidents,
+    incidentTrendData,
+    pieChartData,
+    incidentTypeLineChartData,
+    mostCommonIncidentType,
+    topIncidentTypes,
+  } = useMemo(() => {
+    if (!incidentData?.data || !Array.isArray(incidentData?.data)) {
+      return {
+        filteredData: filteredData,
+        totalIncidents: 0,
+        incidentTrendData: [],
+        pieChartData: [],
+        incidentTypeLineChartData: { labels: [], datasets: [] },
+        mostCommonIncidentType: { type: "", count: 0 },
+        topIncidentTypes: [],
+      };
     }
-  };
 
-  const handleDateRangeChange = (range) => {
-    setDateRange(range);
-    if (selectedIncidentType === 'allIncidents') {
-      setIncidentData(allIncidentDataApi[range]);
-    } else {
-      setIncidentData(incidentDataApi[selectedIncidentType]);
-    }
-  };
-
-  // Customize the x-axis format based on the date range
-  const getFormattedXAxisLabel = (xValue) => {
-    if (dateRange === 'today') {
-      return dayjs(xValue).format('h A'); // 12-hour format with AM/PM
-    } else if (dateRange === 'weekly') {
-      return `Day ${dayjs(xValue).day()}`; // Day 1, Day 2, etc.
-    } else if (dateRange === 'monthly') {
-      return `Day ${dayjs(xValue).date()}`; // Day 1 to Day 30/31
-    }
-    return xValue; // Default fallback
-  };
-
-  // Filter dataset by date range
-  const filteredDataset = useMemo(() => {
     const now = dayjs();
-    if (dateRange === 'today') {
-      return incidentData.filter((item) => dayjs(item.x).isSame(now, 'day'));
-    } else if (dateRange === 'weekly') {
-      return incidentData.filter((item) => dayjs(item.x).isAfter(now.subtract(7, 'day')));
-    } else if (dateRange === 'monthly') {
-      return incidentData.filter((item) => dayjs(item.x).isAfter(now.subtract(1, 'month')));
-    }
-    return incidentData;
-  }, [dateRange, incidentData]);
+    let startDate;
 
-  const chartData = {
-    labels: filteredDataset.map((data) => getFormattedXAxisLabel(data.x)),
-    datasets: selectedIncidentType === 'allIncidents'
-      ? [
-          { label: 'Crowd Count', data: filteredDataset.map((data) => data.crowdCount), borderColor: 'rgba(75, 192, 192, 1)', backgroundColor: 'rgba(75, 192, 192, 0.2)', fill: false },
-          { label: 'Traffic Violations', data: filteredDataset.map((data) => data.trafficViolations), borderColor: 'rgba(255, 99, 132, 1)', backgroundColor: 'rgba(255, 99, 132, 0.2)', fill: false },
-          { label: 'Vehicle Restriction', data: filteredDataset.map((data) => data.vehicleRestriction), borderColor: 'rgba(153, 102, 255, 1)', backgroundColor: 'rgba(153, 102, 255, 0.2)', fill: false },
-        ]
-      : [
-          { label: incidentTypesApi.find((t) => t.id === selectedIncidentType)?.label, data: filteredDataset.map((data) => data.value), borderColor: 'rgba(75, 192, 192, 1)', backgroundColor: 'rgba(75, 192, 192, 0.2)', fill: false },
-        ],
+    switch (dateRange) {
+      case "today":
+        startDate = now.startOf("day");
+        break;
+      case "weekly":
+        startDate = now.subtract(7, "day");
+        break;
+      case "monthly":
+        startDate = now.subtract(1, "month");
+        break;
+      default:
+        startDate = now.startOf("day");
+    }
+
+    const filtered = incidentData?.data?.filter((incident) => {
+      const incidentDate = dayjs(incident.timestamp);
+      return (
+        incidentDate.isAfter(startDate) &&
+        (selectedIncidentType === "allIncidents" ||
+          (selectedIncidentType === "vehicleAndRoad" &&
+            incidentTypes.vehicleAndRoad.includes(incident.incidentType)) ||
+          (selectedIncidentType === "municipal" &&
+            incidentTypes.municipal.includes(incident.incidentType)))
+      );
+    });
+
+    // Calculate incidentTrendData
+    const trendData = {};
+    filtered.forEach((incident) => {
+      const date = dayjs(incident.timestamp).format("YYYY-MM-DD");
+      trendData[date] = (trendData[date] || 0) + 1;
+    });
+    const incidentTrendData = Object.entries(trendData)
+      .map(([date, count]) => ({
+        date,
+        incidents: count,
+      }))
+      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+
+    // Calculate pieChartData and barChartData
+    const typeCounts = {};
+    filtered.forEach((incident) => {
+      typeCounts[incident.incidentType] =
+        (typeCounts[incident.incidentType] || 0) + 1;
+    });
+    const pieChartData = Object.entries(typeCounts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+
+    // Calculate data for IncidentTypeLineChart
+    const incidentTypeData = {};
+    filtered.forEach((incident) => {
+      const date = dayjs(incident.timestamp).format("YYYY-MM-DD");
+      if (!incidentTypeData[incident.incidentType]) {
+        incidentTypeData[incident.incidentType] = {};
+      }
+      incidentTypeData[incident.incidentType][date] =
+        (incidentTypeData[incident.incidentType][date] || 0) + 1;
+    });
+
+    const allDates = [
+      ...new Set(
+        filtered.map((incident) =>
+          dayjs(incident.timestamp).format("YYYY-MM-DD"),
+        ),
+      ),
+    ].sort();
+
+    const incidentTypeLineChartData = {
+      labels: allDates,
+      datasets: Object.entries(incidentTypeData).map(
+        ([incidentType, data], index) => ({
+          label: incidentType,
+          data: allDates.map((date) => data[date] || 0),
+          borderColor: COLORS[index % COLORS.length],
+          backgroundColor: COLORS[index % COLORS.length] + "40",
+          fill: false,
+        }),
+      ),
+    };
+
+    // Calculate most common incident type
+    const mostCommonIncidentType = Object.entries(typeCounts).reduce((a, b) =>
+      a[1] > b[1] ? a : b,
+    );
+
+    // Calculate top incident types
+    const sortedIncidentTypes = Object.entries(typeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([type, count]) => {
+        const lastIncident = filtered
+          .filter((incident) => incident.incidentType === type)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        return {
+          type,
+          count,
+          lastOccurrence: lastIncident.timestamp,
+          severity: lastIncident.severity,
+          location: lastIncident.location,
+        };
+      });
+
+    return {
+      filteredData: filtered,
+      totalIncidents: filtered?.length,
+      incidentTrendData,
+      pieChartData,
+      incidentTypeLineChartData,
+      mostCommonIncidentType: {
+        type: mostCommonIncidentType[0],
+        count: mostCommonIncidentType[1],
+      },
+      topIncidentTypes: sortedIncidentTypes,
+    };
+  }, [incidentData, dateRange, selectedIncidentType]);
+
+  const handleDateRangeChange = useCallback((range) => {
+    setDateRange(range);
+  }, []);
+
+  const handleIncidentTypeChange = useCallback((event) => {
+    setSelectedIncidentType(event.target.value);
+  }, []);
+
+  const incidentsChartData = {
+    datasets: [
+      {
+        label: "Incidents",
+        data: incidentTrendData.map((item) => ({
+          x: new Date(item.date),
+          y: item.incidents,
+        })),
+      },
+    ],
   };
 
   return (
-    <div>
+    <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+      >
+        Incident Reports Dashboard
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid xs={12}>
+          <Card elevation={3}>
+            <CardContent
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <ButtonGroup variant="contained" size="large">
+                {["today", "weekly", "monthly"].map((range) => (
+                  <Button
+                    key={range}
+                    onClick={() => handleDateRangeChange(range)}
+                    color={dateRange === range ? "primary" : "inherit"}
+                    sx={{ fontWeight: "bold", textTransform: "capitalize" }}
+                  >
+                    {range}
+                  </Button>
+                ))}
+              </ButtonGroup>
+              <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+                <InputLabel>Incident Type</InputLabel>
+                <Select
+                  value={selectedIncidentType}
+                  onChange={handleIncidentTypeChange}
+                  label="Incident Type"
+                >
+                  <MenuItem value="allIncidents">All Incidents</MenuItem>
+                  <MenuItem value="vehicleAndRoad">Vehicle and Road</MenuItem>
+                  <MenuItem value="municipal">Municipal</MenuItem>
+                </Select>
+              </FormControl>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <ButtonGroup variant="contained">
-        <Button onClick={() => handleDateRangeChange('today')}>Today</Button>
-        <Button onClick={() => handleDateRangeChange('weekly')}>Weekly</Button>
-        <Button onClick={() => handleDateRangeChange('monthly')}>Monthly</Button>
-      </ButtonGroup>
+        <Grid xs={12} md={6} lg={3}>
+          <Card elevation={3} sx={{ height: "100%" }}>
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <ReportIcon
+                sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }}
+              />
+              <Typography
+                variant="h6"
+                gutterBottom
+                component="div"
+                color="textSecondary"
+              >
+                Total Incidents
+              </Typography>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width={100} height={60} />
+              ) : (
+                <>
+                  <Typography
+                    component="p"
+                    variant="h3"
+                    color="primary"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    {totalIncidents}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    color="textSecondary"
+                    align="center"
+                    sx={{ mt: 2 }}
+                  >
+                    Most Common Type:
+                  </Typography>
+                  <Typography variant="h6" color="secondary" align="center">
+                    {mostCommonIncidentType.type}
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    color="textSecondary"
+                    align="center"
+                  >
+                    ({mostCommonIncidentType.count} incidents)
+                  </Typography>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <FormControl variant="filled" sx={{ m: 1, minWidth: 150 }}>
-        <InputLabel id="incident-type-label">Incident Type</InputLabel>
-        <Select
-          labelId="incident-type-label"
-          value={selectedIncidentType}
-          onChange={handleIncidentTypeChange}
-        >
-          <MenuItem value="allIncidents">All Incidents</MenuItem>
-          {incidentTypesApi.map((type) => (
-            <MenuItem key={type.id} value={type.id}>
-              {type.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        <Grid xs={12} md={6} lg={9}>
+          <Card elevation={3} sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident Trend
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTrendData.length > 0 ? (
+                <IncidentsChart
+                  data={incidentsChartData}
+                  xAxisFormatter={(value) => dayjs(value).format("MMM DD")}
+                  xAxisTitle="Date"
+                  yAxisTitle="Number of Incidents"
+                />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No trend data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <Line
-        data={chartData}
-        options={{
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              callbacks: {
-                label: (context) => `${context.dataset.label}: ${context.raw}`,
-              },
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: 'Time',
-              },
-              ticks: {
-                autoSkip: dateRange === 'today' ? true : false,
-                maxRotation: 90,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Value',
-              },
-            },
-          },
-        }}
-      />
-    </div>
+        <Grid xs={12} md={6}>
+          <Card elevation={3} sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <PieChartIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident Distribution
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="circular" width={350} height={350} />
+              ) : pieChartData.length > 0 ? (
+                <PieChart
+                  data={{
+                    labels: pieChartData.map((item) => item.name),
+                    datasets: [
+                      {
+                        data: pieChartData.map((item) => item.value),
+                        backgroundColor: COLORS,
+                      },
+                    ],
+                  }}
+                />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No distribution data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid xs={12} md={6}>
+          <TopIncidentsList data={topIncidentTypes} isLoading={isLoading} />
+        </Grid>
+
+        <Grid xs={12}>
+          <Card elevation={3} sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident Types Over Time
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                <IncidentTypeLineChart data={incidentTypeLineChartData} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
