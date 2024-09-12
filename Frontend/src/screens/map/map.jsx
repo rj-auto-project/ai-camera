@@ -11,7 +11,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -29,14 +29,18 @@ const Map = () => {
 
   if (isLoading) {
     return (
-      <Backdrop
-        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-        open={true}
-      >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width:"100%",
+      }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </div>
     );
   }
+
 
   if (isError) {
     return <div>Error: {error.message}</div>;
