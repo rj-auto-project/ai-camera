@@ -6,6 +6,7 @@ import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/pagenotfound/notfound";
 import SplashScreen from "./screens/splashScreen";
 import { Toaster } from "react-hot-toast";
+import NewWindow from "./window/operationData";
 
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
@@ -32,6 +33,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route element={<PrivateRoute />}>
+                <Route path="/model" element={<NewWindow />} />
                 <Route path="/dashboard" element={<Dashboard />}>
                   <Route path="map">
                     <Route index element={<Map />} />

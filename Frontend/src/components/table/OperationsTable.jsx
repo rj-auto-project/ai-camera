@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -58,36 +58,14 @@ const OperationsTable = ({ data, isError }) => {
   };
 
   if (!data || !data.length) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-        width="100%"
-      >
-        <Typography variant="h6" color="textSecondary">
-          No operations available
-        </Typography>
-      </Box>
-    );
+    return <Typography>No data available</Typography>;
   }
 
-  if (isError) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-        width="100%"
-      >
-        <Typography variant="h6" color="error">
-          Error fetching operations
-        </Typography>
-      </Box>
-    );
-  }
+  const handleOpenWindow = () => {
+    const dataToSend = { message: "Hello from React!" };
+    const modalTitle = "Operation response";
+    window.ipcRenderer.send("open-modal-window", dataToSend, modalTitle);
+  };
 
   return (
     <Paper
@@ -157,7 +135,7 @@ const OperationsTable = ({ data, isError }) => {
                         color="primary"
                         onClick={() => handleOpenModal(operation?.cameras)}
                       >
-                        <Typography style={{ color: "white" }}>
+                        <Typography variant="body2" style={{ color: "white" }}>
                           View Details
                         </Typography>
                       </Button>
@@ -208,30 +186,20 @@ const OperationsTable = ({ data, isError }) => {
                           })
                         }
                       >
-                        <Typography style={{ color: "white" }}>
+                        <Typography variant="body2" style={{ color: "white" }}>
                           Request Data
                         </Typography>
                       </Button>
                       <br />
-                      <Typography
-                        onClick={() =>
-                          handleOpenDataModal({
-                            data: operation?.operationResponseData,
-                            title: `Response Data for ${operation?.id}`,
-                            operation: "response",
-                          })
-                        }
-                        sx={{
-                          cursor: "pointer",
-                          ":hover": {
-                            color: "blue",
-                          },
-                        }}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleOpenWindow}
                       >
-                        <Typography style={{ color: "white" }}>
-                          See details...
+                        <Typography variant="body2" style={{ color: "white" }}>
+                          Response Data
                         </Typography>
-                      </Typography>
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <Chip

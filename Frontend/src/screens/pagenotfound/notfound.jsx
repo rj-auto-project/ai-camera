@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./PageNotFound.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -9,6 +9,11 @@ const PageNotFound = () => {
   const textRef = useRef(null);
   const buttonRef = useRef(null);
   const navigate = useNavigate();
+
+
+  const location = useLocation();
+
+  console.log("current path",location.pathname)
 
   useEffect(() => {
     gsap.fromTo(
