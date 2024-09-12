@@ -1,4 +1,5 @@
 import prisma from "../config/prismaClient.js";
+import moment from "moment";
 
 const getObjectTypes = async (req, res) => {
   const distinctObjectTypes = await prisma.class.findMany({
@@ -69,4 +70,32 @@ const formatTimestamp = (timestamp) => {
   return { datefolder: formattedDate, videotime: formattedTime };
 };
 
-export { getObjectTypes, getClassList, formatTimestamp };
+const getDateRange = (period) => {
+  const now = new Date();
+  let startDate, endDate;
+
+  switch (period) {
+    case "today":
+      startDate = moment().startOf("day").toDate();
+      endDate = moment().endOf("day").toDate();
+      break;
+    case "weekly":
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+      break;
+    case "monthly":
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+      break;
+    case "yearly":
+      startDate = moment().startOf("year").toDate();
+      endDate = moment().endOf("year").toDate();
+      break;
+    default:
+      throw new Error("Invalid period");
+  }
+
+  return { startDate, endDate };
+};
+
+export { getObjectTypes, getClassList, formatTimestamp, getDateRange };

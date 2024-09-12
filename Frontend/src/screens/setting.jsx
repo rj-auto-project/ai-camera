@@ -64,8 +64,9 @@ const Setting = () => {
         onMouseUp={handleMouseUp}
       />
       <p>
-        Line Coordinates: Start({lineCoordinates.startX}, {lineCoordinates.startY}) - 
-        End({lineCoordinates.endX}, {lineCoordinates.endY})
+        Line Coordinates: Start({lineCoordinates.startX},{" "}
+        {lineCoordinates.startY}) - End({lineCoordinates.endX},{" "}
+        {lineCoordinates.endY})
       </p>
     </div>
   );

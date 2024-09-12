@@ -22,7 +22,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DoneIcon from "@mui/icons-material/Done";
 import { green, red } from "@mui/material/colors";
 
-const OperationsTable = ({ data }) => {
+const OperationsTable = ({ data, isError }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedCameras, setSelectedCameras] = useState([]);

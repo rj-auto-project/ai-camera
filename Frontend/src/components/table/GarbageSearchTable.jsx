@@ -147,7 +147,7 @@ const GarbageSearchTable = () => {
                   </TableCell>
                   <TableCell>
                     {new Date(
-                      item?.timestamp || item?.time_stamp
+                      item?.timestamp || item?.time_stamp,
                     ).toLocaleString()}
                   </TableCell>
                   <TableCell>
@@ -169,7 +169,7 @@ const GarbageSearchTable = () => {
                     sx={{
                       color:
                         parseFloat(
-                          item?.classConfidence || item?.prediction_confidence
+                          item?.classConfidence || item?.prediction_confidence,
                         ) < 0.4
                           ? "#CD5C5C"
                           : "#90EE90",

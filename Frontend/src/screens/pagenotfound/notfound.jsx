@@ -19,19 +19,19 @@ const PageNotFound = () => {
     gsap.fromTo(
       robotRef.current,
       { y: -50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "bounce.out" }
+      { y: 0, opacity: 1, duration: 1, ease: "bounce.out" },
     );
 
     gsap.fromTo(
       textRef.current,
       { opacity: 0 },
-      { opacity: 1, duration: 2, delay: 0.5 }
+      { opacity: 1, duration: 2, delay: 0.5 },
     );
 
     gsap.fromTo(
       buttonRef.current,
       { scale: 0 },
-      { scale: 1, duration: 0.5, delay: 1 }
+      { scale: 1, duration: 0.5, delay: 1 },
     );
   }, []);
 

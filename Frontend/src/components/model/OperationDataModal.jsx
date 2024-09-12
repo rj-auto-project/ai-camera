@@ -9,6 +9,7 @@ import {
   Grid,
   Chip,
   Divider,
+  Paper,
 } from "@mui/material";
 import { formatTimeToIST } from "../../utils/formatTime.js";
 
@@ -74,6 +75,42 @@ const OperationDataModal = ({ open, onClose, operationData }) => {
                   </Grid>
                 )}
               </Grid>
+            )}
+
+            {operationData?.data?.licensePlate && (
+              <Paper
+                elevation={3}
+                style={{ padding: "16px", marginBottom: "16px" }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  component="div"
+                  style={{ fontWeight: 500 }}
+                >
+                  License Plate:{" "}
+                  <Typography variant="body2" color="textSecondary">
+                    {operationData?.data?.licensePlate}
+                  </Typography>
+                </Typography>
+              </Paper>
+            )}
+
+            {operationData?.data?.ownerName && (
+              <Paper
+                elevation={3}
+                style={{ padding: "16px", marginBottom: "16px" }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  component="div"
+                  style={{ fontWeight: 500 }}
+                >
+                  Owner Name:{" "}
+                  <Typography variant="body2" color="textSecondary">
+                    {operationData?.data?.ownerName}
+                  </Typography>
+                </Typography>
+              </Paper>
             )}
           </>
         )}

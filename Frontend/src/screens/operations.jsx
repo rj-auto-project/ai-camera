@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Stack,
   Box,
+  Typography,
   // InputBase,
   // Typography,
 } from "@mui/material";
@@ -28,16 +29,16 @@ const Operations = () => {
     opTypes,
   });
 
-  // if (isLoading) {
-  //   return (
-  //     <Backdrop
-  //       sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-  //       open={true}
-  //     >
-  //       <CircularProgress color="inherit" />
-  //     </Backdrop>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
+  }
 
   if (isError) {
     return <div>Error: {error.message}</div>;
@@ -45,7 +46,7 @@ const Operations = () => {
 
   console.log(operations, "op data");
 
-  return operations ? (
+  return (
     <div
       style={{
         height: "100vh",
@@ -119,11 +120,35 @@ const Operations = () => {
           backgroundColor: "#1c1c1c",
         }}
       >
-        <OperationsTable data={operations} /> {/* Pass real-time data */}
+        {operations.length > 0 && <OperationsTable data={operations} />}
+        {isError && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+            width="100%"
+          >
+            <Typography variant="h6" color="error">
+              Error fetching operations
+            </Typography>
+          </Box>
+        )}
+        {!operations.length && !isError && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+            width="100%"
+          >
+            <Typography variant="h6" color="textSecondary">
+              No operations available
+            </Typography>
+          </Box>
+        )}
       </Box>
     </div>
-  ) : (
-    <div>No operations available.</div>
   );
 };
 
