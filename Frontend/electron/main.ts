@@ -1,9 +1,7 @@
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
-import { createRequire } from "node:module";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ├─┬─┬ dist
@@ -24,12 +22,17 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
   : RENDERER_DIST;
 
 let win: BrowserWindow | null;
+let newWindow: BrowserWindow | null;
 
+//main window
 function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    title: "AI Surveillance System",
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
@@ -60,3 +63,44 @@ app.on("activate", () => {
 });
 
 app.whenReady().then(createWindow);
+
+// Open modal window
+function openModalWindow(data: any, title: string) {
+  if (win === null) {
+    console.error("Main window is not available");
+    return;
+  }
+
+  newWindow = new BrowserWindow({
+    width: 700,
+    height: 500,
+    parent: win,
+    modal: true,
+    title: title ? title : "Model window",
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.mjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  if (VITE_DEV_SERVER_URL) {
+    newWindow.loadURL(`${VITE_DEV_SERVER_URL}model`);
+  } else {
+    newWindow.loadFile(path.join(RENDERER_DIST, "index.html"), { hash: "model" });
+  }
+
+  newWindow.webContents.on("did-finish-load", () => {
+    newWindow?.webContents.send("new-window-data", data);
+  });
+
+  newWindow.once("closed", () => {
+    newWindow = null;
+  });
+}
+
+// Listen for the IPC event to open a modal window
+ipcMain.on("open-modal-window", (event, data, title) => {
+  openModalWindow(data, title);
+});

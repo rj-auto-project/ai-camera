@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -60,6 +60,12 @@ const OperationsTable = ({ data }) => {
   if (!data || !data.length) {
     return <Typography>No data available</Typography>;
   }
+
+  const handleOpenWindow = () => {
+    const dataToSend = { message: "Hello from React!" };
+    const modalTitle = "Operation response";
+    window.ipcRenderer.send("open-modal-window", dataToSend, modalTitle);
+  };
 
   return (
     <Paper
@@ -129,7 +135,7 @@ const OperationsTable = ({ data }) => {
                         color="primary"
                         onClick={() => handleOpenModal(operation?.cameras)}
                       >
-                        <Typography style={{ color: "white" }}>
+                        <Typography variant="body2" style={{ color: "white" }}>
                           View Details
                         </Typography>
                       </Button>
@@ -180,7 +186,7 @@ const OperationsTable = ({ data }) => {
                           })
                         }
                       >
-                        <Typography style={{ color: "white" }}>
+                        <Typography variant="body2" style={{ color: "white" }}>
                           Request Data
                         </Typography>
                       </Button>
@@ -188,15 +194,9 @@ const OperationsTable = ({ data }) => {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() =>
-                          handleOpenDataModal({
-                            data: operation?.operationRequestData,
-                            title: `Response Data for ${operation?.id}`,
-                            operation: "response",
-                          })
-                        }
+                        onClick={handleOpenWindow}
                       >
-                        <Typography style={{ color: "white" }}>
+                        <Typography variant="body2" style={{ color: "white" }}>
                           Response Data
                         </Typography>
                       </Button>
