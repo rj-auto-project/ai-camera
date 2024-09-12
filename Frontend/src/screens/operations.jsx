@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useFetchOperations } from "../api/hooks/useFetchOperations.js";
 import OperationsTable from "../components/table/OperationsTable.jsx";
 import {
-  Backdrop,
   Chip,
   CircularProgress,
   Stack,
@@ -31,14 +30,18 @@ const Operations = () => {
 
   if (isLoading) {
     return (
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={true}
-      >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width:"100%",
+      }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </div>
     );
   }
+
 
   if (isError) {
     return <div>Error: {error.message}</div>;
