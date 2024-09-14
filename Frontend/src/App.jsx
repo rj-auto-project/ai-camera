@@ -13,6 +13,7 @@ const Signup = lazy(() => import("./screens/signup"));
 const Dashboard = lazy(() => import("./screens/dashboard"));
 const Map = lazy(() => import("./screens/map/map"));
 const Reports = lazy(() => import("./screens/reports"));
+const Setting = lazy(() => import("./screens/setting"));
 const StreamsConditionalRender = lazy(
   () => import("./components/conditionalrender/streampage"),
 );
@@ -49,7 +50,7 @@ const App = () => {
                   <Route path="reports" element={<Reports />} />
                   <Route
                     path="settings"
-                    element={<Typography>Settings</Typography>}
+                    element={<Setting/>}
                   />
                 </Route>
               </Route>
