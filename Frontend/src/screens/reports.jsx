@@ -143,8 +143,8 @@ export default function Reports() {
     const allDates = [
       ...new Set(
         filtered.map((incident) =>
-          dayjs(incident.timestamp).format("YYYY-MM-DD"),
-        ),
+          dayjs(incident.timestamp).format("YYYY-MM-DD")
+        )
       ),
     ].sort();
 
@@ -157,13 +157,13 @@ export default function Reports() {
           borderColor: COLORS[index % COLORS.length],
           backgroundColor: COLORS[index % COLORS.length] + "40",
           fill: false,
-        }),
+        })
       ),
     };
 
     // Calculate most common incident type
     const mostCommonIncidentType = Object.entries(typeCounts).reduce((a, b) =>
-      a[1] > b[1] ? a : b,
+      a[1] > b[1] ? a : b
     );
 
     // Calculate top incident types
@@ -218,25 +218,39 @@ export default function Reports() {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
+    <Box
+      sx={{
+        margin: { xs: 2, md: 4 },
+        backgroundColor: theme.palette.background.default,
+      }}
+    >
       <Typography
         variant="h4"
         gutterBottom
-        sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+        sx={{
+          fontWeight: "bold",
+          color: theme.palette.primary.main,
+          textAlign: { xs: "center", md: "left" },
+        }}
       >
         Incident Reports Dashboard
       </Typography>
-      <Grid container spacing={3}>
-        <Grid xs={12}>
-          <Card elevation={3}>
+      <Grid container spacing={2} gap={2}>
+        <Grid item xs={12} md={12}>
+          <Card elevation={2}>
             <CardContent
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: { xs: "center", md: "space-between" },
                 alignItems: "center",
+                flexDirection: { xs: "column", md: "row" },
               }}
             >
-              <ButtonGroup variant="contained" size="large">
+              <ButtonGroup
+                variant="contained"
+                size="large"
+                sx={{ mb: { xs: 2, md: 0 } }}
+              >
                 {["today", "weekly", "monthly"].map((range) => (
                   <Button
                     key={range}
@@ -264,128 +278,152 @@ export default function Reports() {
           </Card>
         </Grid>
 
-        <Grid xs={12} md={6} lg={3}>
-          <Card elevation={3} sx={{ height: "100%" }}>
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
-              <ReportIcon
-                sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }}
-              />
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                color="textSecondary"
-              >
-                Total Incidents
-              </Typography>
-              {isLoading ? (
-                <Skeleton variant="rectangular" width={100} height={60} />
-              ) : (
-                <>
-                  <Typography
-                    component="p"
-                    variant="h3"
-                    color="primary"
-                    sx={{ fontWeight: "bold" }}
+        <Grid container spacing={2}>
+          {/* Incident Trend Card */}
+          <Grid item xs={12} md={12}>
+            <Card elevation={2} sx={{ height: "100%" }}>
+              <CardContent sx={{ height: "100%" }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="h6" component="div" color="textPrimary">
+                    Incident Trend
+                  </Typography>
+                </Box>
+                {isLoading ? (
+                  <Skeleton variant="rectangular" width="100%" height={350} />
+                ) : incidentTrendData.length > 0 ? (
+                  <IncidentsChart
+                    data={incidentsChartData}
+                    xAxisFormatter={(value) => dayjs(value).format("MMM DD")}
+                    xAxisTitle="Date"
+                    yAxisTitle="Number of Incidents"
+                  />
+                ) : (
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    No trend data available for the selected period.
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          {/* Left Column containing Incident Distribution and Total Incidents */}
+          <Grid item xs={12} md={6}>
+            <Grid container direction="column" spacing={2}>
+              {/* Incident Distribution */}
+              <Grid item>
+                <Card elevation={2} sx={{ height: "100%" }}>
+                  <CardContent sx={{ height: "100%" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <PieChartIcon color="primary" sx={{ mr: 1 }} />
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        color="textPrimary"
+                      >
+                        Incident Distribution
+                      </Typography>
+                    </Box>
+                    {isLoading ? (
+                      <Skeleton variant="circular" width={350} height={350} />
+                    ) : pieChartData.length > 0 ? (
+                      <PieChart
+                        data={{
+                          labels: pieChartData.map((item) => item.name),
+                          datasets: [
+                            {
+                              data: pieChartData.map((item) => item.value),
+                              backgroundColor: COLORS,
+                            },
+                          ],
+                        }}
+                      />
+                    ) : (
+                      <Alert severity="info" sx={{ mt: 2 }}>
+                        No distribution data available for the selected period.
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Total Incidents */}
+              <Grid item>
+                <Card elevation={2} sx={{ height: "100%" }}>
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                    }}
                   >
-                    {totalIncidents}
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    color="textSecondary"
-                    align="center"
-                    sx={{ mt: 2 }}
-                  >
-                    Most Common Type:
-                  </Typography>
-                  <Typography variant="h6" color="secondary" align="center">
-                    {mostCommonIncidentType.type}
-                  </Typography>
-                  <Typography
-                    variant="subtitle2"
-                    color="textSecondary"
-                    align="center"
-                  >
-                    ({mostCommonIncidentType.count} incidents)
-                  </Typography>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                    <ReportIcon
+                      sx={{
+                        fontSize: 48,
+                        color: theme.palette.primary.main,
+                        mb: 2,
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      component="div"
+                      color="textSecondary"
+                    >
+                      Total Incidents
+                    </Typography>
+                    {isLoading ? (
+                      <Skeleton variant="rectangular" width={100} height={60} />
+                    ) : (
+                      <>
+                        <Typography
+                          component="p"
+                          variant="h3"
+                          color="primary"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          {totalIncidents}
+                        </Typography>
+                        <Typography
+                          variant="subtitle1"
+                          color="textSecondary"
+                          align="center"
+                          sx={{ mt: 2 }}
+                        >
+                          Most Common Type:
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          color="secondary"
+                          align="center"
+                        >
+                          {mostCommonIncidentType.type}
+                        </Typography>
+                        <Typography
+                          variant="subtitle2"
+                          color="textSecondary"
+                          align="center"
+                        >
+                          ({mostCommonIncidentType.count} incidents)
+                        </Typography>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* TopIncidentsList on the right */}
+          <Grid item xs={12} md={6}>
+            <TopIncidentsList data={topIncidentTypes} isLoading={isLoading} />
+          </Grid>
         </Grid>
 
-        <Grid xs={12} md={6} lg={9}>
-          <Card elevation={3} sx={{ height: "100%" }}>
-            <CardContent sx={{ height: "100%" }}>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" component="div" color="textPrimary">
-                  Incident Trend
-                </Typography>
-              </Box>
-              {isLoading ? (
-                <Skeleton variant="rectangular" width="100%" height={350} />
-              ) : incidentTrendData.length > 0 ? (
-                <IncidentsChart
-                  data={incidentsChartData}
-                  xAxisFormatter={(value) => dayjs(value).format("MMM DD")}
-                  xAxisTitle="Date"
-                  yAxisTitle="Number of Incidents"
-                />
-              ) : (
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  No trend data available for the selected period.
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} md={6}>
-          <Card elevation={3} sx={{ height: "100%" }}>
-            <CardContent sx={{ height: "100%" }}>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <PieChartIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" component="div" color="textPrimary">
-                  Incident Distribution
-                </Typography>
-              </Box>
-              {isLoading ? (
-                <Skeleton variant="circular" width={350} height={350} />
-              ) : pieChartData.length > 0 ? (
-                <PieChart
-                  data={{
-                    labels: pieChartData.map((item) => item.name),
-                    datasets: [
-                      {
-                        data: pieChartData.map((item) => item.value),
-                        backgroundColor: COLORS,
-                      },
-                    ],
-                  }}
-                />
-              ) : (
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  No distribution data available for the selected period.
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} md={6}>
-          <TopIncidentsList data={topIncidentTypes} isLoading={isLoading} />
-        </Grid>
-
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <Card elevation={3} sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

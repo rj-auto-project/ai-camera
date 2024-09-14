@@ -28,7 +28,7 @@ const TopIncidentsList = ({ data, isLoading }) => {
         </Box>
         {isLoading ? (
           <Skeleton variant="rectangular" width="100%" height={350} />
-        ) : data.length > 0 ? (
+        ) : data?.length > 0 ? (
           <List>
             {data.map((item, index) => (
               <React.Fragment key={item.type}>
