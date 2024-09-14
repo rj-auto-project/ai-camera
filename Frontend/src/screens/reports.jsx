@@ -247,7 +247,7 @@ export default function Reports() {
               }}
             >
               <ButtonGroup
-                variant="contained"
+                variant="outlined"
                 size="large"
                 sx={{ mb: { xs: 2, md: 0 } }}
               >
@@ -318,7 +318,7 @@ export default function Reports() {
           <Grid container direction="column" xs={12} md={6} spacing={2}>
             {/* Total Incidents */}
             <Grid item xs={12} md={3}>
-              <Card elevation={2} sx={{ height: "100%" }}>
+              <Card sx={{ height: "100%" }}>
                 <CardContent
                   sx={{
                     display: "flex",
@@ -381,7 +381,7 @@ export default function Reports() {
 
             {/* Incident Distribution */}
             <Grid item xs={12} md={3}>
-              <Card elevation={2} sx={{ height: "100%" }}>
+              <Card  sx={{ height: "100%" }}>
                 <CardContent sx={{ height: "100%" }}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <PieChartIcon color="primary" sx={{ mr: 1 }} />
@@ -424,7 +424,7 @@ export default function Reports() {
         </Grid>
 
         <Grid item xs={12}>
-          <Card elevation={3} sx={{ height: "100%" }}>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />

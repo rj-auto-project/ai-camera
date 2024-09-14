@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 
 const TopIncidentsList = ({ data, isLoading }) => {
   return (
-    <Card elevation={3} sx={{ height: "100%" }}>
+    <Card elevation={1} sx={{ height: "100%" }}>
       <CardContent sx={{ height: "100%", overflow: "auto" }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <ListAltIcon color="primary" sx={{ mr: 1 }} />
