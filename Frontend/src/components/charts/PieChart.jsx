@@ -8,7 +8,7 @@ const PieChart = ({ data }) => {
   const [animationProgress, setAnimationProgress] = useState(0);
 
   useEffect(() => {
-    const animationDuration = 1000; // 2.5 seconds
+    const animationDuration = 1000; // 1 second
     const frameDuration = 1000 / 60; // 60 fps
     const totalFrames = Math.round(animationDuration / frameDuration);
 
@@ -61,22 +61,26 @@ const PieChart = ({ data }) => {
     animation: {
       animateRotate: true,
       animateScale: true,
-      duration: 1000, // 2.5 seconds
+      duration: 1000, // 1 second
       easing: "easeOutQuart",
     },
   };
 
   const animatedData = {
     ...data,
-    datasets: data.datasets.map((dataset) => ({
+    datasets: data?.datasets?.map((dataset) => ({
       ...dataset,
-      data: dataset.data.map((value) => value * animationProgress),
+      data: dataset?.data?.map((value) => value * animationProgress),
     })),
   };
 
   return (
     <div style={{ height: "300px", width: "100%" }}>
-      <Pie data={animatedData} options={options} />
+      {data && data.datasets ? (
+        <Pie data={animatedData} options={options} />
+      ) : (
+        <p>No data available</p>
+      )}
     </div>
   );
 };
