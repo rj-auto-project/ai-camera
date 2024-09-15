@@ -15,7 +15,6 @@ const router = express.Router();
 
 router.post("/suspect-search", authMiddleware, suspectSearch);
 router.get("/suspect-search/live", authMiddleware, liveSuspectSearch);
-
 router.post("/vehicle", authMiddleware, vehicleOperation);
 router.get("/vehicle/live", authMiddleware, liveVehicleOperation);
 router.post("/", authMiddleware, getOperations);

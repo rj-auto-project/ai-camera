@@ -67,7 +67,7 @@ const Setting = () => {
         lineCoordinates.startX,
         lineCoordinates.startY,
         lineCoordinates.endX,
-        lineCoordinates.endY
+        lineCoordinates.endY,
       );
     } else if (drawMode === "polygon") {
       if (polygonVertices.length > 0) {
@@ -144,22 +144,22 @@ const Setting = () => {
     const context = canvas.getContext("2d");
 
     img.onload = () => {
-        const aspectRatio = img.width / img.height;
-        const canvasWidth = 500;
-        const canvasHeight = canvasWidth / aspectRatio;
+      const aspectRatio = img.width / img.height;
+      const canvasWidth = 500;
+      const canvasHeight = canvasWidth / aspectRatio;
 
-        setImageDimensions({ width: canvasWidth, height: canvasHeight });
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+      setImageDimensions({ width: canvasWidth, height: canvasHeight });
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
 
-        // Draw the image onto the canvas immediately after loading
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setImage(img);
+      // Draw the image onto the canvas immediately after loading
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+      setImage(img);
     };
 
     img.src = URL.createObjectURL(file);
-};
+  };
 
   const handleUndo = () => {
     clearCanvas();

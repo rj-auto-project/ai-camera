@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import "./Style.css";
 import { HeatmapLayerFactory } from "@vgrid/react-leaflet-heatmap-layer";
 
-
 const HeatmapLayer = HeatmapLayerFactory<[number, number, number]>();
 
 // Explicitly type crowddata and trafficdata as arrays of tuples

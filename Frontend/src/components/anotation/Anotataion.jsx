@@ -67,7 +67,13 @@ const AnnotationTool = () => {
 
       setAnnotations((prev) => [
         ...prev,
-        { type: "line", startX: startPoint.x, startY: startPoint.y, endX, endY },
+        {
+          type: "line",
+          startX: startPoint.x,
+          startY: startPoint.y,
+          endX,
+          endY,
+        },
       ]);
     }
 
@@ -87,7 +93,9 @@ const AnnotationTool = () => {
       })
       .join("\n");
 
-    const blob = new Blob([annotationData], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([annotationData], {
+      type: "text/plain;charset=utf-8",
+    });
     saveAs(blob, "annotations.txt");
   };
 

@@ -88,7 +88,9 @@ function openModalWindow(data: any, title: string) {
   if (VITE_DEV_SERVER_URL) {
     newWindow.loadURL(`${VITE_DEV_SERVER_URL}model`);
   } else {
-    newWindow.loadFile(path.join(RENDERER_DIST, "index.html"), { hash: "model" });
+    newWindow.loadFile(path.join(RENDERER_DIST, "index.html"), {
+      hash: "model",
+    });
   }
 
   newWindow.webContents.on("did-finish-load", () => {

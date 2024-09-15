@@ -48,10 +48,7 @@ const App = () => {
                     <Route index element={<StreamsConditionalRender />} />
                   </Route>
                   <Route path="reports" element={<Reports />} />
-                  <Route
-                    path="settings"
-                    element={<Setting/>}
-                  />
+                  <Route path="settings" element={<Setting />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

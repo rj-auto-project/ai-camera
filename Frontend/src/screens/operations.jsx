@@ -30,18 +30,19 @@ const Operations = () => {
 
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width:"100%",
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
         <CircularProgress color="inherit" />
       </div>
     );
   }
-
 
   if (isError) {
     return <div>Error: {error.message}</div>;
