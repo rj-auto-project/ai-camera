@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-router.post("/register", registerValidator, registerUser);
+router.post("/register", registerUser);
 router.post("/login", loginValidator, loginUser);
 
 // Get the status of Auth route
