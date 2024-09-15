@@ -10,10 +10,9 @@ const PageNotFound = () => {
   const buttonRef = useRef(null);
   const navigate = useNavigate();
 
-
   const location = useLocation();
 
-  console.log("current path",location.pathname)
+  console.log("current path", location.pathname);
 
   useEffect(() => {
     gsap.fromTo(

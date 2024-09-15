@@ -1,23 +1,60 @@
 import React, { useEffect, useState } from "react";
+import ANPRSearchTable from "../components/table/ANPRSearchTable";
+import VehicleSearchTable from "../components/table/VehicleSearchTable";
+import SuspectSearchTable from "../components/table/SuspectSearchTable";
+import useFetchLiveVehicleSearch from "../api/hooks/live/useFetchLiveVehicleSearch";
+import { Box } from "@mui/material";
 
 function NewWindow() {
-  const [message, setMessage] = useState("");
+  const [data, setData] = useState(null);
+  const [fetchParams, setFetchParams] = useState(null);
 
   useEffect(() => {
-    // Listen for the data from the main process
     window.ipcRenderer.on("new-window-data", (event, data) => {
-      setMessage(data.message);
+      setData(data?.operation);
     });
-    // Cleanup listener on unmount
     return () => {
       window.ipcRenderer.removeAllListeners("new-window-data");
     };
   }, []);
+  // Trigger fetch when `data` is updated
+  useEffect(() => {
+    if (data) {
+      setFetchParams({
+        operationId: data.id,
+        opType: data.operationType,
+      });
+    }
+  }, [data]); // Depend on `data`
+
+  // Fetch live vehicle search data
+  const { eventData, isLoading, isError, error } = useFetchLiveVehicleSearch(
+    fetchParams ? fetchParams : {}, // Use fetchParams for the fetch
+  );
+  console.log(eventData, "eventData");
+
   return (
-    <div>
-      <h1>New Window</h1>
-      <p>Data received: {message}</p>
-    </div>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : isError ? (
+        <div>Error: {error}</div>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+          {data.operationType === "ANPR" && (
+            <ANPRSearchTable data={eventData} />
+          )}
+
+          {data.operationType === "VEHICLE SEARCH" && (
+            <VehicleSearchTable data={eventData} isLive />
+          )}
+
+          {data.operationType === "SUSPECT SEARCH" && (
+            <SuspectSearchTable data={eventData} isLoading={isLoading} />
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }
 

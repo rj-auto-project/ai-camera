@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,17 +9,16 @@ import {
   TablePagination,
   Paper,
   Typography,
-  Button,
   Box,
-  Icon,
-  Tooltip,
+  Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/csvButton";
 import { formatTimeToIST } from "../../utils/formatTime";
 
-const VehicleSearchTable = ({ data }) => {
+const VehicleSearchTable = ({ data, isLive = false }) => {
+  console.log(data, "vehicle search table data");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
@@ -79,8 +78,65 @@ const VehicleSearchTable = ({ data }) => {
     licenseNumber: item?.licenseNumber || "N/A",
   }));
 
+  const sortOptions = [
+    { label: "Newest", key: "newest" },
+    { label: "Oldest", key: "oldest" },
+  ];
+
+  const filterOptions = [
+    { label: "All", key: "all" },
+    { label: "Confidence", key: "confidence" },
+    { label: "", key: "non-vehicle" },
+  ];
+
+  // const SortButton = () => {
+  //   return (
+
+  //   )
+  // }
+
   return (
     <Paper style={{ height: "93vh", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          padding: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="h6">Vehicle Search</Typography>
+        </Box>
+        <Box>{/* <SortButton /> */}</Box>
+        {isLive && (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Live</Typography>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                {/* add a green dot in the center of the svg */}
+                <circle cx="12" cy="12" r="5" fill="green"></circle>
+              </svg>
+            </Box>
+          </Box>
+        )}
+      </Box>
       <TableContainer
         style={{ flex: 1, overflow: "auto" }}
         sx={{

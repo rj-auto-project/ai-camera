@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -61,8 +61,8 @@ const OperationsTable = ({ data, isError }) => {
     return <Typography>No data available</Typography>;
   }
 
-  const handleOpenWindow = () => {
-    const dataToSend = { message: "Hello from React!" };
+  const handleOpenWindow = (operation) => {
+    const dataToSend = { operation };
     const modalTitle = "Operation response";
     window.ipcRenderer.send("open-modal-window", dataToSend, modalTitle);
   };
@@ -194,7 +194,7 @@ const OperationsTable = ({ data, isError }) => {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={handleOpenWindow}
+                        onClick={() => handleOpenWindow(operation)}
                       >
                         <Typography variant="body2" style={{ color: "white" }}>
                           Response Data
