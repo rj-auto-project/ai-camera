@@ -5,7 +5,7 @@ import {
   Group as GroupIcon,
   DirectionsCar as DirectionsCarIcon,
 } from "@mui/icons-material";
-import { FaCar, FaUser } from "react-icons/fa";
+import { FaCamera, FaCar, FaUser } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import CarCrashOutlinedIcon from "@mui/icons-material/CarCrashOutlined";
 
@@ -23,3 +23,11 @@ export const operations = [
   { name: "Restricted Vehicle", icon: <CarCrashOutlinedIcon size={18} /> },
   { name: "Crowd Restriction", icon: <FaPeopleGroup size={18} /> },
 ];
+
+
+export const settingsOptions = [
+  { name: "User", icon: <FaUser size={18} /> },
+  { name: "Camera", icon: <FaCamera size={18} /> },
+ 
+];
+
