@@ -70,32 +70,23 @@ const formatTimestamp = (timestamp) => {
   return { datefolder: formattedDate, videotime: formattedTime };
 };
 
-const getDateRange = (period) => {
+const getDateRange = (timeInterval) => {
   const now = new Date();
-  let startDate, endDate;
-
-  switch (period) {
+  let startDate;
+  switch (timeInterval) {
     case "today":
-      startDate = moment().startOf("day").toDate();
-      endDate = moment().endOf("day").toDate();
+      startDate = new Date(now.setHours(0, 0, 0, 0));
       break;
-    case "weekly":
-      startDate = moment().startOf("week").toDate();
-      endDate = moment().endOf("week").toDate();
+    case "thisWeek":
+      startDate = new Date(now.setDate(now.getDate() - now.getDay()));
       break;
-    case "monthly":
-      startDate = moment().startOf("month").toDate();
-      endDate = moment().endOf("month").toDate();
-      break;
-    case "yearly":
-      startDate = moment().startOf("year").toDate();
-      endDate = moment().endOf("year").toDate();
+    case "thisMonth":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       break;
     default:
-      throw new Error("Invalid period");
+      startDate = null;
   }
-
-  return { startDate, endDate };
+  return { startDate, endDate: new Date() };
 };
 
 export { getObjectTypes, getClassList, formatTimestamp, getDateRange };

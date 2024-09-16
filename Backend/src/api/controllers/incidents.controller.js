@@ -20,14 +20,25 @@ const garbageDetection = async (req, res) => {
 
 const getIncidents = async (req, res) => {
   try {
-    const { timeframe } = req.params;
-    let startDate, endDate;
-    if (timeframe) {
-      startDate = getDateRange(timeframe).startDate;
-      endDate = getDateRange(timeframe).endDate;
+    const { timeInterval, startDate, endDate } = req.query;
+
+    if (!timeInterval && (!startDate && !endDate)) {
+      return res.status(400).send({ message: "Invalid request" });
     }
 
-    const incidents = await getIncidentsService(startDate, endDate);
+    let dateRange = {};
+
+    if (timeInterval) {
+      dateRange = getDateRange(timeInterval);
+    } else if (startDate && endDate) {
+      dateRange = {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      };
+    }
+
+    const incidents = await getIncidentsService(dateRange);
+
     if (!incidents || incidents.length === 0) {
       return res.status(200).send({ message: "No incidents found" });
     }
@@ -54,7 +65,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate,
+      endDate
     );
 
     if (!incidents || incidents.length === 0) {
