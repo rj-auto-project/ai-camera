@@ -47,7 +47,7 @@ const incidentTypes = {
   municipal: ["CROWD_RESTRICTION", "GARBAGE", "POTHOLE", "CATTLE"],
 };
 
-export default function Reports() {
+export default function Analytics() {
   const theme = useTheme();
   const [dateRange, setDateRange] = useState("today");
   const [selectedIncidentType, setSelectedIncidentType] =

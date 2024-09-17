@@ -10,13 +10,14 @@ import {
   Paper,
   Typography,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/csvButton";
 import { useGabageSearch } from "../../api/hooks/useGarbageSearch";
 
-const GarbageSearchTable = () => {
+const IncidentSearchTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
@@ -47,12 +48,29 @@ const GarbageSearchTable = () => {
     setOpen(true);
   };
 
-  if (!data || !data.data) {
+  if (isLoading || !data) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "96vh",
+          width: "96vw",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </div>
+    );
+  }
+
+  if (isError) {
     return (
       <Typography
         sx={{
           height: "96vh",
           display: "flex",
+          width: "100vw",
           textAlign: "center",
           alignItems: "center",
           justifyContent: "center",
@@ -60,7 +78,7 @@ const GarbageSearchTable = () => {
           fontWeight: "bold",
         }}
       >
-        {"No data available!"}
+        {"Error! fetching incident data..."}
       </Typography>
     );
   }
@@ -147,7 +165,7 @@ const GarbageSearchTable = () => {
                   </TableCell>
                   <TableCell>
                     {new Date(
-                      item?.timestamp || item?.time_stamp,
+                      item?.timestamp || item?.time_stamp
                     ).toLocaleString()}
                   </TableCell>
                   <TableCell>
@@ -169,7 +187,7 @@ const GarbageSearchTable = () => {
                     sx={{
                       color:
                         parseFloat(
-                          item?.classConfidence || item?.prediction_confidence,
+                          item?.classConfidence || item?.prediction_confidence
                         ) < 0.4
                           ? "#CD5C5C"
                           : "#90EE90",
@@ -238,4 +256,4 @@ const BoldTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-export default GarbageSearchTable;
+export default IncidentSearchTable;
