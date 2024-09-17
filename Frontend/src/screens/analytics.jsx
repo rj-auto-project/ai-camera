@@ -24,6 +24,7 @@ import IncidentsChart from "../components/charts/IncidentsChart";
 import PieChart from "../components/charts/PieChart";
 import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
+import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart";
 
 const COLORS = [
   "#0088FE",
@@ -217,6 +218,8 @@ export default function Analytics() {
     ],
   };
 
+  console.log("date range", selectedIncidentType);
+
   return (
     <Box
       sx={{
@@ -280,8 +283,8 @@ export default function Analytics() {
 
         {/* Incident Trend Card */}
         <Grid item xs={12} md={12}>
-          <Card  sx={{ height: "100%"}}>
-            <CardContent sx={{ height: "100%"}}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" component="div" color="textPrimary">
@@ -381,7 +384,7 @@ export default function Analytics() {
 
             {/* Incident Distribution */}
             <Grid item xs={12} md={3}>
-              <Card  sx={{ height: "100%" }}>
+              <Card sx={{ height: "100%" }}>
                 <CardContent sx={{ height: "100%" }}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <PieChartIcon color="primary" sx={{ mr: 1 }} />
@@ -423,7 +426,7 @@ export default function Analytics() {
           </Grid>
         </Grid>
 
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -441,6 +444,24 @@ export default function Analytics() {
                   No incident type data available for the selected period.
                 </Alert>
               )}
+            </CardContent>
+          </Card>
+        </Grid> */}
+
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Solved And Usolved Analaytics
+                </Typography>
+              </Box>
+              <CameraIncidentBarChart
+                time={dateRange}
+                incidentType={selectedIncidentType}
+                selectedCamera={1}
+              />
             </CardContent>
           </Card>
         </Grid>
