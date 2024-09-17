@@ -18,7 +18,6 @@ import {
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { settingsOptions } from "../data/data";
-import { FaStackOverflow } from "react-icons/fa";
 import CanvasDraw from "../components/canvasdraw/canvasDraw";
 
 const Setting = () => {
@@ -139,9 +138,9 @@ const Setting = () => {
           <Divider />
           <Box
             sx={{
-              flex: 1, // To make the form container grow and allow scrolling
-              overflowY: "auto", // Enable scrolling for this container
-              padding: 2, // Optional padding inside the container
+              flex: 1,
+              overflowY: "auto",
+              padding: 2,
               scrollbarWidth: "none",
               "&::-webkit-scrollbar": { display: "none" },
             }}
@@ -326,7 +325,9 @@ const Setting = () => {
                   <Box sx={{ ...modalStyle }}>
                     <h2>Set Coordinates for {openModal}</h2>
                     <CanvasDraw />
-                    <Box sx={{display:'flex', justifyContent:"space-between"}}>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
                       <Button onClick={closeAnnotationModal}>Cancle</Button>
                       <Button onClick={closeAnnotationModal}>Submit</Button>
                     </Box>
@@ -353,7 +354,39 @@ const Setting = () => {
             Additional Information
           </Typography>
           <Divider />
-          {/* Add content here as needed */}
+          <Grid
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              gap: 5,
+              marginTop: 5,
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={() => openAnnotationModal("illegalParking")}
+              style={{ width: "40%" }}
+            >
+              {`ADD ${selectedOptions}`}
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={() => openAnnotationModal("redLightCrossing")}
+              style={{ width: "40%" }}
+            >
+             {`UPDATE ${selectedOptions}`}
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={() => openAnnotationModal("wrongWay")}
+              style={{ width: "40%" }}
+            >
+             {`DELETE ${selectedOptions}`}
+            </Button>
+          </Grid>
         </Paper>
       </Grid>
     </Grid>
@@ -367,7 +400,7 @@ const modalStyle = {
   width: 860,
   borderRadius: 1,
   transform: "translate(-50%, -50%)",
-  bgcolor: "red",
+  backgroundColor: "#1d1c1c",
   boxShadow: 24,
   p: 4,
 };
