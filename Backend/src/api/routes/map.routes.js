@@ -13,14 +13,13 @@ import { operationValidator } from "../validators/map.validator.js";
 
 const router = express.Router();
 
-router.get("/cameras", authMiddleware, getCamerars);
+router.get("/cameras", getCamerars);
 router.post(
   "/operation",
-  authMiddleware,
   operationValidator,
   performRequestedOperation,
 );
-router.get("/heatmap", authMiddleware, heatmap);
+router.get("/heatmap", heatmap);
 
 // Get the status of map route
 router.get("/status", (req, res) => {
