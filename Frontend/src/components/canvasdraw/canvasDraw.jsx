@@ -13,7 +13,7 @@ const CanvasDraw = () => {
   const [drawMode, setDrawMode] = useState("line");
   const [image, setImage] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({
-    width: 500,
+    width: 800,
     height: 500,
   });
 
@@ -145,7 +145,7 @@ const CanvasDraw = () => {
 
     img.onload = () => {
       const aspectRatio = img.width / img.height;
-      const canvasWidth = 500;
+      const canvasWidth = 800;
       const canvasHeight = canvasWidth / aspectRatio;
 
       setImageDimensions({ width: canvasWidth, height: canvasHeight });

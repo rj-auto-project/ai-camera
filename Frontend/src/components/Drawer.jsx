@@ -20,11 +20,12 @@ import {
   Logout,
   Stream,
   TaskAltOutlined,
-  Report,
+  AnalyticsOutlined,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 const drawerWidth = 190;
 
@@ -45,7 +46,8 @@ export default function CustomDrawer() {
     { text: "Map", path: "map", icon: <GrMapLocation size={23} /> },
     { text: "Streams", path: "streams", icon: <Stream /> },
     { text: "Operations", path: "operations", icon: <TaskAltOutlined /> },
-    { text: "Reports", path: "reports", icon: <Report /> },
+    { text: "Analytics", path: "analytics", icon: <AnalyticsOutlined /> },
+    { text: "Incidents", path: "incidents", icon: <FaExclamationTriangle /> },
   ];
 
   const drawer = (

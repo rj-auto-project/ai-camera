@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const garbageSearchSlice = createSlice({
-  name: "garbageSearch",
+const incidentSearchSlice = createSlice({
+  name: "incidentSearch",
   initialState: {
     isLoading: false,
     data: {
@@ -12,22 +12,25 @@ const garbageSearchSlice = createSlice({
     error: null,
   },
   reducers: {
-    garbageSearchStart(state) {
+    incidentSearchStart(state) {
       state.isLoading = true;
       state.error = null;
     },
-    garbageSearchSucess(state, action) {
+    incidentSearchSucess(state, action) {
       state.isLoading = false;
       state.data = action.payload;
     },
-    garbageSearchFailure(state, action) {
+    incidentSearchFailure(state, action) {
       state.isLoading = false;
       state.error = action.payload;
     },
   },
 });
 
-export const { garbageSearchStart, garbageSearchSucess, garbageSearchFailure } =
-  garbageSearchSlice.actions;
+export const {
+  incidentSearchStart,
+  incidentSearchSucess,
+  incidentSearchFailure,
+} = incidentSearchSlice.actions;
 
-export default garbageSearchSlice.reducer;
+export default incidentSearchSlice.reducer;

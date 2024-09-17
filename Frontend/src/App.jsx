@@ -1,24 +1,25 @@
 import React, { useState, Suspense, lazy } from "react";
-import { ThemeProvider, CssBaseline, Typography } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/pagenotfound/notfound";
 import SplashScreen from "./screens/splashScreen";
 import { Toaster } from "react-hot-toast";
-import NewWindow from "./window/operationData";
+import Dashboard from "./screens/dashboard";
 
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
-const Dashboard = lazy(() => import("./screens/dashboard"));
 const Map = lazy(() => import("./screens/map/map"));
-const Reports = lazy(() => import("./screens/reports"));
+const Analytics = lazy(() => import("./screens/analytics"));
 const Setting = lazy(() => import("./screens/setting"));
-const StreamsConditionalRender = lazy(
-  () => import("./components/conditionalrender/streampage"),
-);
 const CreateOperations = lazy(() => import("./screens/createOperations"));
 const Operations = lazy(() => import("./screens/operations"));
+const ModelWindow = lazy(() => import("./window/operationData"));
+const Incidents = lazy(() => import("./screens/incidents"));
+const StreamsConditionalRender = lazy(
+  () => import("./components/conditionalrender/streampage")
+);
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -34,7 +35,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route element={<PrivateRoute />}>
-                <Route path="/model" element={<NewWindow />} />
+                <Route path="/model" element={<ModelWindow />} />
                 <Route path="/dashboard" element={<Dashboard />}>
                   <Route path="map">
                     <Route index element={<Map />} />
@@ -47,7 +48,8 @@ const App = () => {
                   <Route path="streams">
                     <Route index element={<StreamsConditionalRender />} />
                   </Route>
-                  <Route path="reports" element={<Reports />} />
+                  <Route path="analytics" element={<Analytics />} />
+                  <Route path="incidents" element={<Incidents />} />
                   <Route path="settings" element={<Setting />} />
                 </Route>
               </Route>
