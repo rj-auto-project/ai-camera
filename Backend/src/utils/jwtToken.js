@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export async function generateToken(user) {
   const { employee_Id, name, access_level } = user;
 
-  const accessToken = jwt.sign({ employee_Id, name, access_level }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ employee_Id, name, access_level }, process.env.JWT_SECRET, {
     expiresIn: "15m",
   });
 
@@ -11,5 +11,5 @@ export async function generateToken(user) {
     expiresIn: "7d",
   });
 
-  return { accessToken, refreshToken };
+  return { token, refreshToken };
 }
