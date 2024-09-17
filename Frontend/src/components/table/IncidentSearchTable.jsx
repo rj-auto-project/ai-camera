@@ -15,7 +15,7 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/csvButton";
-import { useGabageSearch } from "../../api/hooks/useGarbageSearch";
+import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 
 const IncidentSearchTable = () => {
   const [page, setPage] = useState(0);

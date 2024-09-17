@@ -6,7 +6,7 @@ const token = localStorage.getItem("token");
 
 const useFetchLiveVehicleSearch = ({ operationId, opType }) => {
   console.log(operationId, opType, "operationId, opType");
-  const [eventData, setEventData] = useState({ results: [] }); // State for storing live data
+  const [eventData, setEventData] = useState({ results: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ const useFetchLiveVehicleSearch = ({ operationId, opType }) => {
           const retryDelay = Math.pow(2, retryCountRef.current) * 1000; // Exponential backoff
           retryCountRef.current += 1;
           console.warn(
-            `Retrying connection in ${retryDelay / 1000} seconds...`,
+            `Retrying connection in ${retryDelay / 1000} seconds...`
           );
           setTimeout(() => {
             getLiveData();
