@@ -56,7 +56,7 @@ const IncidentSearchTable = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "96vh",
-          width: "96vw",
+          width: "100%",
         }}
       >
         <CircularProgress color="inherit" />
@@ -104,11 +104,11 @@ const IncidentSearchTable = () => {
         height: "100vh",
         display: "flex",
         flexDirection: "column",
-        width: "96vw",
+        width: "100%",
       }}
     >
       <TableContainer
-        style={{ flex: 1, overflow: "auto" }}
+        style={{ flex: 1, overflow: "auto"}}
         sx={{
           "&::-webkit-scrollbar": {
             width: "6px",
