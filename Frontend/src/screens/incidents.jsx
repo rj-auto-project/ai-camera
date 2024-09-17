@@ -1,10 +1,10 @@
 import React from "react";
-import GarbageSearchTable from "../components/table/IncidentSearchTable";
+import IncidentSearchTable from "../components/table/IncidentSearchTable";
 
 const Incidents = () => {
   return (
     <div>
-      <GarbageSearchTable />
+      <IncidentSearchTable />
     </div>
   );
 };
