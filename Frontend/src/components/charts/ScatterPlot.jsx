@@ -64,6 +64,9 @@ const ScatterPlot = ({
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          color: "white", // Set legend text color to white
+        },
       },
       tooltip: {
         callbacks: {
@@ -77,6 +80,9 @@ const ScatterPlot = ({
             return [`Area: ${x}`, `Incidents: ${y}`, ...incidentDetails];
           },
         },
+        bodyColor: "white", // Tooltip body text color
+        titleColor: "white", // Tooltip title color
+        backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark background for tooltip
       },
     },
     scales: {
@@ -85,6 +91,10 @@ const ScatterPlot = ({
         title: {
           display: true,
           text: "Area",
+          color: "white", // Set x-axis title text color to white
+        },
+        ticks: {
+          color: "white", // Set x-axis ticks color to white
         },
       },
       y: {
@@ -92,8 +102,10 @@ const ScatterPlot = ({
         title: {
           display: true,
           text: "Number of Incidents",
+          color: "white", // Set y-axis title text color to white
         },
         ticks: {
+          color: "white", // Set y-axis ticks color to white
           autoSkip: true,
           maxTicksLimit: 10, // Limit the number of ticks displayed
         },
@@ -103,7 +115,7 @@ const ScatterPlot = ({
 
   return (
     <div>
-      <h2>{title}</h2>
+      <h2 style={{ color: "white" }}>{title}</h2> {/* Set title color to white */}
       <Scatter data={data} options={options} />
     </div>
   );
