@@ -29,6 +29,9 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
 
   const incidents = await prisma.incidentLogs.findMany({
     where: whereClause,
+    include: {
+      camera: true,
+    },
   });
 
   return incidents || [];
@@ -37,7 +40,7 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
-  endTime = "",
+  endTime = ""
 ) => {
   const whereClause = {
     incidentType: incidentType,
