@@ -73,18 +73,18 @@ const TopIncidentsList = ({ data, isLoading }) => {
                           variant="body2"
                           color="text.primary"
                         >
-                          Severity:
+                          Camera ID:
                         </Typography>{" "}
-                        {item.severity}
+                        {item.cameraId}
                         <br />
                         <Typography
                           component="span"
                           variant="body2"
                           color="text.primary"
                         >
-                          Location:
+                          Area:
                         </Typography>{" "}
-                        {item.location}
+                        {item.area}
                       </>
                     }
                   />

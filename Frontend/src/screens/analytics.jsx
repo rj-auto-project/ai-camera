@@ -180,7 +180,9 @@ export default function Analytics() {
           count,
           lastOccurrence: lastIncident.timestamp,
           severity: lastIncident.severity,
-          location: lastIncident.location,
+          location: lastIncident.camera.location,
+          cameraId: lastIncident.camera.cameraId,
+          area: lastIncident.camera.areaName,
         };
       });
 
