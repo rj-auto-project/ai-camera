@@ -7,14 +7,12 @@ import {
 
 const router = express.Router();
 
-// router.get("/:timeframe?", authMiddleware, getIncidents);
-// router.get(
-//   "/specific/:incidentType/:timeframe?",
-//   authMiddleware,
-//   getSpecificIncident,
-// );
-
-router.get("/", authMiddleware, getIncidents);
+router.get("/:timeframe?", authMiddleware, getIncidents);
+router.get(
+  "/specific/:incidentType/:timeframe?",
+  authMiddleware,
+  getSpecificIncident,
+);
 
 // Get the status of map route
 router.get("/status", (req, res) => {
