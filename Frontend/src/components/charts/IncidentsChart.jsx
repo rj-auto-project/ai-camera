@@ -72,7 +72,6 @@ const IncidentsChart = ({ data, xAxisFormatter, xAxisTitle, yAxisTitle }) => {
         time: {
           unit: xAxisTitle === "Time" ? "hour" : "day",
           displayFormats: {
-            hour: "HH:mm",
             day: "MMM dd",
           },
         },
