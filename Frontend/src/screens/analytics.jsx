@@ -24,6 +24,7 @@ import IncidentsChart from "../components/charts/IncidentsChart";
 import PieChart from "../components/charts/PieChart";
 import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
+import ScatterPlot from "../components/charts/ScatterPlot";
 
 const COLORS = [
   "#0088FE",
@@ -280,8 +281,8 @@ export default function Analytics() {
 
         {/* Incident Trend Card */}
         <Grid item xs={12} md={12}>
-          <Card  sx={{ height: "100%"}}>
-            <CardContent sx={{ height: "100%"}}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" component="div" color="textPrimary">
@@ -381,7 +382,7 @@ export default function Analytics() {
 
             {/* Incident Distribution */}
             <Grid item xs={12} md={3}>
-              <Card  sx={{ height: "100%" }}>
+              <Card sx={{ height: "100%" }}>
                 <CardContent sx={{ height: "100%" }}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <PieChartIcon color="primary" sx={{ mr: 1 }} />
@@ -436,6 +437,27 @@ export default function Analytics() {
                 <Skeleton variant="rectangular" width="100%" height={350} />
               ) : incidentTypeLineChartData.datasets.length > 0 ? (
                 <IncidentTypeLineChart data={incidentTypeLineChartData} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident vs Area
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                <ScatterPlot incidentsData={incidentData?.data} />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No incident type data available for the selected period.
