@@ -26,6 +26,9 @@ import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
 import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart";
 import ScatterPlot from "../components/charts/ScatterPlot";
+import BubbleChart from "../components/charts/BubbleChart";
+import TimeAreaChart from "../components/charts/TimeAreaChart";
+
 
 const COLORS = [
   "#0088FE",
@@ -492,7 +495,29 @@ export default function Analytics() {
               {isLoading ? (
                 <Skeleton variant="rectangular" width="100%" height={350} />
               ) : incidentTypeLineChartData.datasets.length > 0 ? (
-                <ScatterPlot incidentsData={incidentData?.data} />
+                // <ScatterPlot incidentsData={incidentData?.data} />
+                <BubbleChart incidentsData={incidentData?.data} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Time Area Chart
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                <TimeAreaChart />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No incident type data available for the selected period.
