@@ -7,9 +7,10 @@ import {
 
 const router = express.Router();
 
-router.get("/:timeframe?", getIncidents);
+router.get("/:timeframe?", authMiddleware, getIncidents);
 router.get(
   "/specific/:incidentType/:timeframe?",
+  authMiddleware,
   getSpecificIncident,
 );
 

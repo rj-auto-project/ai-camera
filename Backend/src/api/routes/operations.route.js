@@ -13,12 +13,12 @@ import {
 
 const router = express.Router();
 
-router.post("/suspect-search", suspectSearch);
-router.get("/suspect-search/live", liveSuspectSearch);
-router.post("/vehicle", vehicleOperation);
-router.get("/vehicle/live", liveVehicleOperation);
-router.post("/", getOperations);
-router.get("/incidents/live", liveIncidentsTracking);
+router.post("/suspect-search", authMiddleware, suspectSearch);
+router.get("/suspect-search/live", authMiddleware, liveSuspectSearch);
+router.post("/vehicle", authMiddleware, vehicleOperation);
+router.get("/vehicle/live", authMiddleware, liveVehicleOperation);
+router.post("/", authMiddleware, getOperations);
+router.get("/incidents/live", authMiddleware, liveIncidentsTracking);
 
 // Get the status of operations route
 router.get("/status", (req, res) => {
