@@ -1,204 +1,219 @@
 import React, { useEffect, useState } from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { format, subDays } from "date-fns";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-// Mock camera data with incidentType attribute
-// Extended mock camera data with daily resolved and unresolved issues
+// Mock camera data with detected and solved issues
+// Mock camera data with detected and solved issues
 const mockCameraData = [
   {
     cameraIp: "192.168.1.1",
-    cameraLocation: "Location A",
+    cameraLocation: "Lal Kothi",
     camId: 1,
-    solvedIssues: [
+    detectedIssues: [
       {
+        issueId: 1,
         issueName: "Vehicle Accident",
         incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-10",
+        issueDate: "2024-09-02",
+        solvedDate: "2024-09-03",
       },
       {
-        issueName: "Vehicle Accident",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-10",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-17",
-      },
-      {
-        issueName: "Vehicle Accident",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-17",
-      },
-      {
-        issueName: "Vehicle Accident",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-17",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-09",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-14",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-11",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-12",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-12",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-12",
-      },
-      // Additional solved issues for each day
-      {
-        issueName: "Traffic Congestion",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-18",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-18",
-      },
-      {
-        issueName: "Vehicle Accident",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-19",
-      },
-      {
-        issueName: "Pothole Repair",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-19",
-      },
-      {
-        issueName: "Traffic Light Malfunction",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-20",
-      },
-      {
-        issueName: "Municipal Waste",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-20",
-      },
-      {
-        issueName: "Traffic Violation",
-        incidentType: "vehicleAndRoad",
-        issueSolvedDate: "2024-09-21",
-      },
-      {
-        issueName: "Pothole Repair",
-        incidentType: "municipal",
-        issueSolvedDate: "2024-09-21",
-      },
-    ],
-    unsolvedIssues: [
-      {
+        issueId: 2,
         issueName: "Streetlight Problem",
         incidentType: "municipal",
+        issueDate: "2024-09-02",
+        solvedDate: null,
+      },
+      {
+        issueId: 3,
+        issueName: "Municipal Waste",
+        incidentType: "municipal",
+        issueDate: "2024-09-04",
+        solvedDate: "2024-09-05",
+      },
+      {
+        issueId: 4,
+        issueName: "Vehicle Accident",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-06",
+        solvedDate: "2024-09-10",
+      },
+      {
+        issueId: 5,
+        issueName: "Pothole",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-06",
+        solvedDate:null,
+      },
+      {
+        issueId: 6,
+        issueName: "Illegal Parking",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-08",
+        solvedDate: null,
+      },
+      {
+        issueId: 6,
+        issueName: "Illegal Parking",
+        incidentType: "vehicleAndRoad",
         issueDate: "2024-09-09",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-17",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-14",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-11",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-12",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-10",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-17",
-      },
-      // Additional unresolved issues for each day
-      {
-        issueName: "Broken Sidewalk",
-        incidentType: "municipal",
-        issueDate: "2024-09-18",
-      },
-      {
-        issueName: "Water Leakage",
-        incidentType: "municipal",
-        issueDate: "2024-09-18",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-19",
-      },
-      {
-        issueName: "Streetlight Problem",
-        incidentType: "municipal",
-        issueDate: "2024-09-19",
-      },
-      {
-        issueName: "Garbage Overflow",
-        incidentType: "municipal",
-        issueDate: "2024-09-19",
-      },
-      {
-        issueName: "Pothole",
-        incidentType: "municipal",
-        issueDate: "2024-09-20",
-      },
-      {
-        issueName: "Pothole",
-        incidentType: "municipal",
-        issueDate: "2024-09-20",
-      },
-      {
-        issueName: "Pothole",
-        incidentType: "municipal",
-        issueDate: "2024-09-20",
+        solvedDate: null,
       },
       
       {
-        issueName: "Traffic Violation",
+        issueId: 6,
+        issueName: "Illegal Parking",
         incidentType: "vehicleAndRoad",
-        issueDate: "2024-09-20",
+        issueDate: "2024-09-09",
+        solvedDate:"2024-09-09",
       },
       {
-        issueName: "Streetlight Problem",
+        issueId: 7,
+        issueName: "Tree Fallen on Road",
         incidentType: "municipal",
-        issueDate: "2024-09-21",
+        issueDate: "2024-09-06",
+        solvedDate: "2024-09-11",
       },
       {
-        issueName: "Broken Sidewalk",
+        issueId: 8,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-16",
+        solvedDate: "2024-09-12",
+      },
+      {
+        issueId: 9,
+        issueName: "Waterlogging",
         incidentType: "municipal",
-        issueDate: "2024-09-21",
+        issueDate: "2024-09-11",
+        solvedDate: "2024-09-14",
+      },
+      {
+        issueId: 9,
+        issueName: "Waterlogging",
+        incidentType: "municipal",
+        issueDate: "2024-09-11",
+        solvedDate: "2024-09-14",
+      },
+      {
+        issueId: 9,
+        issueName: "Waterlogging",
+        incidentType: "municipal",
+        issueDate: "2024-09-11",
+        solvedDate: null,
+      },
+      {
+        issueId: 10,
+        issueName: "Traffic Jam",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-12",
+        solvedDate: null,
+      },
+      {
+        issueId: 11,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-14",
+        solvedDate: null,
+      },
+    ],
+  },
+  {
+    cameraIp: "192.168.1.2",
+    cameraLocation: "Civil Lines",
+    camId: 2,
+    detectedIssues: [
+      {
+        issueId: 12,
+        issueName: "Signal Failure",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-05",
+        solvedDate: "2024-09-06",
+      },
+      {
+        issueId: 13,
+        issueName: "Flooding",
+        incidentType: "municipal",
+        issueDate: "2024-09-05",
+        solvedDate: "2024-09-09",
+      },
+      {
+        issueId: 14,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-07",
+        solvedDate: null,
+      },
+      {
+        issueId: 14,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-07",
+        solvedDate: null,
+      },
+      {
+        issueId: 14,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-07",
+        solvedDate:"2024-09-09",
+      },
+      {
+        issueId: 15,
+        issueName: "Broken Road Sign",
+        incidentType: "municipal",
+        issueDate: "2024-09-08",
+        solvedDate: "2024-09-10",
+      },
+      {
+        issueId: 16,
+        issueName: "Vehicle Breakdown",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-09",
+        solvedDate: "2024-09-12",
+      },
+      {
+        issueId: 17,
+        issueName: "Power Outage",
+        incidentType: "municipal",
+        issueDate: "2024-09-10",
+        solvedDate: null,
+      },
+      {
+        issueId: 18,
+        issueName: "Traffic Jam",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-10",
+        solvedDate: "2024-09-14",
+      },
+      {
+        issueId: 19,
+        issueName: "Fire Hazard",
+        incidentType: "emergency",
+        issueDate: "2024-09-10",
+        solvedDate: "2024-09-16",
+      },
+      {
+        issueId: 20,
+        issueName: "Flooding",
+        incidentType: "municipal",
+        issueDate: "2024-09-14",
+        solvedDate: null,
+      },
+      {
+        issueId: 21,
+        issueName: "Accident at Intersection",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-15",
+        solvedDate: null,
+      },
+      {
+        issueId: 22,
+        issueName: "Illegal Parking",
+        incidentType: "vehicleAndRoad",
+        issueDate: "2024-09-16",
+        solvedDate: "2024-09-18",
       },
     ],
   },
@@ -212,60 +227,57 @@ const processCameraData = (cameraData, time, incidentType) => {
     dateLimit = subDays(now, 6);
   } else if (time === "monthly") {
     dateLimit = subDays(now, 30);
-  } else null;
+  }
 
   const filteredData = {
+    detected: {},
     solved: {},
-    unsolved: {},
   };
 
-  cameraData.solvedIssues.forEach((issue) => {
-    const issueDate = new Date(issue.issueSolvedDate);
-
-    if (
-      issueDate >= dateLimit &&
-      (incidentType === "allIncidents" || issue.incidentType === incidentType)
-    ) {
-      const formattedDate = format(issueDate, "yyyy-MM-dd");
-      if (!filteredData.solved[formattedDate])
-        filteredData.solved[formattedDate] = 0;
-      filteredData.solved[formattedDate] += 1;
-    }
-  });
-
-  cameraData.unsolvedIssues.forEach((issue) => {
+  cameraData.detectedIssues.forEach((issue) => {
     const issueDate = new Date(issue.issueDate);
+    const solvedDate = issue.solvedDate ? new Date(issue.solvedDate) : null;
 
     if (
       issueDate >= dateLimit &&
       (incidentType === "allIncidents" || issue.incidentType === incidentType)
     ) {
-      const formattedDate = format(issueDate, "yyyy-MM-dd");
-      if (!filteredData.unsolved[formattedDate])
-        filteredData.unsolved[formattedDate] = 0;
-      filteredData.unsolved[formattedDate] += 1;
+      const formattedIssueDate = format(issueDate, "yyyy-MM-dd");
+      if (!filteredData.detected[formattedIssueDate])
+        filteredData.detected[formattedIssueDate] = 0;
+      filteredData.detected[formattedIssueDate] += 1;
+
+  
+      if (solvedDate) {
+        if (!filteredData.solved[formattedIssueDate])
+          filteredData.solved[formattedIssueDate] = 0;
+        filteredData.solved[formattedIssueDate] += 1;
+      }
     }
   });
 
   return filteredData;
 };
 
-export default function CameraIncidentBarChart({
-  time,
-  incidentType,
-  selectedCamera,
-}) {
-  const [cameraData, setCameraData] = useState(null);
-  const [chartData, setChartData] = useState({ solved: [], unsolved: [] });
+export default function CameraIncidentBarChart({ time, incidentType }) {
+  const [selectedLocation, setSelectedLocation] = useState(
+    mockCameraData[0]?.cameraLocation || ""
+  );
+  const [cameraData, setCameraData] = useState(mockCameraData[0] || null);
+  const [chartData, setChartData] = useState({ detected: [], solved: [] });
   const [xLabels, setXLabels] = useState([]);
 
-  // Fetch mock data based on selected camera (replace with API call later)
+  // Fetch mock data based on selected location
   useEffect(() => {
-    const camera = mockCameraData.find((cam) => cam.camId === selectedCamera);
-    if (camera) {
-      setCameraData(camera);
+    if (selectedLocation) {
+      const camera = mockCameraData.find(
+        (cam) => cam.cameraLocation === selectedLocation
+      );
+      if (camera) {
+        setCameraData(camera);
+      }
     }
-  }, [selectedCamera]);
+  }, [selectedLocation]);
 
   useEffect(() => {
     if (cameraData) {
@@ -273,17 +285,17 @@ export default function CameraIncidentBarChart({
 
       const labels = Array.from(
         new Set([
+          ...Object.keys(processedData.detected),
           ...Object.keys(processedData.solved),
-          ...Object.keys(processedData.unsolved),
         ])
       ).sort();
-      const solvedData = labels.map((date) => processedData.solved[date] || 0);
-      const unsolvedData = labels.map(
-        (date) => processedData.unsolved[date] || 0
+      const detectedData = labels.map(
+        (date) => processedData.detected[date] || 0
       );
-
+      const solvedData = labels.map((date) => processedData.solved[date] || 0);
+      console.log("solved data: ", processedData);
       setXLabels(labels);
-      setChartData({ solved: solvedData, unsolved: unsolvedData });
+      setChartData({ detected: detectedData, solved: solvedData });
     }
   }, [cameraData, time, incidentType]);
 
@@ -292,35 +304,49 @@ export default function CameraIncidentBarChart({
     return Math.max(10, 600 / numBars);
   };
 
+  // Get unique locations from the mock data
+  const locations = Array.from(
+    new Set(mockCameraData.map((camera) => camera.cameraLocation))
+  );
+
   return (
-    <div style={{ overflowX: "auto" }}>
-      {cameraData ? (
-        <>
-          <h3>{`Camera at ${cameraData.cameraLocation}`}</h3>
-          <BarChart
-            width={1000}
-            height={400}
-            series={[
-              {
-                data: chartData.solved,
-                label: "Solved Issues",
-                id: "solvedId",
-                barWidth: 1,
-              },
-              {
-                data: chartData.unsolved,
-                label: "Unsolved Issues",
-                id: "unsolvedId",
-                barWidth: getBarWidth(),
-              },
-            ]}
-            xAxis={[{ data: xLabels, scaleType: "band" }]}
-            yAxis={[{ title: "Number of Issues" }]}
-          />
-        </>
-      ) : (
-        <p>Select a camera to view the data</p>
-      )}
+    <div style={{ overflowX: "auto", position: "relative" }}>
+      <FormControl
+        size="small"
+        variant="outlined"
+        style={{ position: "absolute", right: 10, top: 10, minWidth: 200 }}
+      >
+        <InputLabel id="location-select-label">Select Location</InputLabel>
+        <Select
+          labelId="location-select-label"
+          id="locationSelect"
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+        >
+          {locations.map((location, index) => (
+            <MenuItem key={index} value={location}>
+              {location}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <BarChart
+        xAxis={[{ scaleType: "band", data: xLabels, label: "Date" }]}
+        series={[
+          {
+            data: chartData.detected,
+            label: "Detected Issues",
+            barThickness: getBarWidth(),
+          },
+          {
+            data: chartData.solved,
+            label: "Solved Issues",
+            barThickness: getBarWidth(),
+          },
+        ]}
+        width={600}
+        height={400}
+      />
     </div>
   );
 }
