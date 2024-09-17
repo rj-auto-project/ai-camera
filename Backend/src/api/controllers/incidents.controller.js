@@ -54,7 +54,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate,
+      endDate
     );
 
     if (!incidents || incidents.length === 0) {

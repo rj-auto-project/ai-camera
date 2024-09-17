@@ -94,6 +94,8 @@ model IncidentLogs {
   camera_ip    String       @db.VarChar(30)
   boxCoords    String       @db.VarChar(255)
   incidentType IncidentType
+  resolved     Boolean      @default(false)
+  resolvedAt   DateTime?
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
@@ -113,6 +115,9 @@ model Camera {
   routerIp       String?  @db.VarChar(30)
   manufacturer   String?  @db.VarChar(30)
   crowdThreshold Float?   @default(0)
+  areaName       String?  @db.VarChar(255)
+
+  // todo: add area
 
   operations   OperationLog[] @relation("OperationCameras")
   DetectionLog DetectionLog[]
@@ -150,4 +155,5 @@ enum IncidentType {
   GARBAGE
   POTHOLE
   CATTLE
+  WATERLOGGING
 }
