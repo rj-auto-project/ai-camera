@@ -18,9 +18,9 @@ router.use("/operations", operationsRoutes);
 router.use("/incidents", incidentsRoutes);
 router.use("/admin", adminRoutes);
 
-router.get("/objectTypes", authMiddleware, getObjectTypes);
-router.get("/classlist", authMiddleware, getClassList);
-router.get("/garbagedata", authMiddleware, garbageDetection);
+router.get("/objectTypes", getObjectTypes);
+router.get("/classlist", getClassList);
+router.get("/garbagedata", garbageDetection);
 
 router.get("/status", (req, res) => {
   res.json({ status: "ok" });

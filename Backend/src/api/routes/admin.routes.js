@@ -4,7 +4,7 @@ import authMiddleware from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/add-user", authMiddleware, addUser)
+router.post("/add-user", addUser)
 
 // Get the status of route
 router.get("/status", (req, res) => {
