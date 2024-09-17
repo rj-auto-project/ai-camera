@@ -16,8 +16,18 @@ const mockCameraData = [
         issueSolvedDate: "2024-09-10",
       },
       {
+        issueName: "Vehicle Accident",
+        incidentType: "vehicleAndRoad",
+        issueSolvedDate: "2024-09-10",
+      },
+      {
         issueName: "Municipal Waste",
         incidentType: "municipal",
+        issueSolvedDate: "2024-09-17",
+      },
+      {
+        issueName: "Vehicle Accident",
+        incidentType: "vehicleAndRoad",
         issueSolvedDate: "2024-09-17",
       },
       {
@@ -39,6 +49,16 @@ const mockCameraData = [
         issueName: "Municipal Waste",
         incidentType: "municipal",
         issueSolvedDate: "2024-09-11",
+      },
+      {
+        issueName: "Municipal Waste",
+        incidentType: "municipal",
+        issueSolvedDate: "2024-09-12",
+      },
+      {
+        issueName: "Municipal Waste",
+        incidentType: "municipal",
+        issueSolvedDate: "2024-09-12",
       },
       {
         issueName: "Municipal Waste",
@@ -140,6 +160,11 @@ const mockCameraData = [
         issueDate: "2024-09-19",
       },
       {
+        issueName: "Streetlight Problem",
+        incidentType: "municipal",
+        issueDate: "2024-09-19",
+      },
+      {
         issueName: "Garbage Overflow",
         incidentType: "municipal",
         issueDate: "2024-09-19",
@@ -149,6 +174,17 @@ const mockCameraData = [
         incidentType: "municipal",
         issueDate: "2024-09-20",
       },
+      {
+        issueName: "Pothole",
+        incidentType: "municipal",
+        issueDate: "2024-09-20",
+      },
+      {
+        issueName: "Pothole",
+        incidentType: "municipal",
+        issueDate: "2024-09-20",
+      },
+      
       {
         issueName: "Traffic Violation",
         incidentType: "vehicleAndRoad",
