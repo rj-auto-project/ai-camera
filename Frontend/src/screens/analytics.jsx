@@ -25,6 +25,8 @@ import PieChart from "../components/charts/PieChart";
 import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
 import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart";
+import ScatterPlot from "../components/charts/ScatterPlot";
+
 
 const COLORS = [
   "#0088FE",
@@ -180,7 +182,9 @@ export default function Analytics() {
           count,
           lastOccurrence: lastIncident.timestamp,
           severity: lastIncident.severity,
-          location: lastIncident.location,
+          location: lastIncident.camera.location,
+          cameraId: lastIncident.camera.cameraId,
+          area: lastIncident.camera.areaName,
         };
       });
 
@@ -462,6 +466,27 @@ export default function Analytics() {
                 incidentType={selectedIncidentType}
                 selectedCamera={1}
               />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident vs Area
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                <ScatterPlot incidentsData={incidentData?.data} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </Grid>
