@@ -11,6 +11,9 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Select,
+  MenuItem,
+  Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
@@ -24,15 +27,100 @@ const IncidentSearchTable = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [index, setIndex] = useState(null);
 
+  // Track status for each item by its id
+  const [statusMap, setStatusMap] = useState({});
+
+  const handleStatusChange = (e, id) => {
+    setStatusMap((prev) => ({
+      ...prev,
+      [id]: e.target.value,
+    }));
+  };
+
+  const staticData = [
+    {
+      id: 2072,
+      timestamp: "2024-09-10T11:56:22.638Z",
+      cameraId: "1",
+      metadata: {
+        size: "large",
+        color: "green",
+      },
+      trackId: "track_001",
+      camera_ip: "192.168.1.101",
+      boxCoords: "10,20,30,40",
+      detectionClass: "spitting",
+      classConfidence: 0.87,
+      topColor: "green",
+      bottomColor: "brown",
+      licenseNumber: null,
+      incidentType: null,
+      camera: {
+        cameraId: "1",
+        cameraIp: "127.0.0.1",
+        facingAngle: "90",
+        location: "Intersection of Sikar Road and Amer Road",
+        coordinates: [26.9124, 75.7873],
+        cameraName: "SikarAmerIntersection",
+        connectionType: "Wired",
+        cameraType: "CCTV",
+        status: "ACTIVE",
+        installed: "2024-08-01T08:00:00.000Z",
+        lastOnline: "2024-08-01T10:00:00.000Z",
+        routerIp: "192.168.1.1",
+        manufacturer: "Canon",
+        crowdThreshold: 50.5,
+        areaName: "Subhash Chowk",
+      },
+    },
+    {
+      id: 2071,
+      timestamp: "2024-09-10T12:17:22.638Z",
+      cameraId: "1",
+      metadata: {
+        size: "large",
+        color: "green",
+      },
+      trackId: "track_001",
+      camera_ip: "192.168.1.101",
+      boxCoords: "10,20,30,40",
+      detectionClass: "peeing",
+      classConfidence: 0.87,
+      topColor: "green",
+      bottomColor: "brown",
+      licenseNumber: null,
+      incidentType: null,
+      camera: {
+        cameraId: "1",
+        cameraIp: "127.0.0.1",
+        facingAngle: "90",
+        location: "Intersection of Sikar Road and Amer Road",
+        coordinates: [26.9124, 75.7873],
+        cameraName: "SikarAmerIntersection",
+        connectionType: "Wired",
+        cameraType: "CCTV",
+        status: "ACTIVE",
+        installed: "2024-08-01T08:00:00.000Z",
+        lastOnline: "2024-08-01T10:00:00.000Z",
+        routerIp: "192.168.1.1",
+        manufacturer: "Canon",
+        crowdThreshold: 50.5,
+        areaName: "Subhash Chowk",
+      },
+    },
+  ];
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const { mutate, data, isLoading, isError, error, closeEventSource } =
+  let { mutate, data, isLoading, isError, error, closeEventSource } =
     useGabageSearch();
 
   useEffect(() => {
     mutate();
+    console.log("garbage data", data);
+    // add static data to the data.data
   }, []);
 
   console.log("garbage data", data);
@@ -56,7 +144,7 @@ const IncidentSearchTable = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "96vh",
-          width: "96vw",
+          width: "100%",
         }}
       >
         <CircularProgress color="inherit" />
@@ -104,7 +192,7 @@ const IncidentSearchTable = () => {
         height: "100vh",
         display: "flex",
         flexDirection: "column",
-        width: "96vw",
+        width: "100%",
       }}
     >
       <TableContainer
@@ -144,8 +232,8 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Thumbnail</BoldTableCell>
               <BoldTableCell>Time Stamp</BoldTableCell>
               <BoldTableCell>Camera</BoldTableCell>
-              <BoldTableCell>class</BoldTableCell>
-              <BoldTableCell>Confidence</BoldTableCell>
+              <BoldTableCell>Incident</BoldTableCell>
+              <BoldTableCell>Action</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -183,24 +271,66 @@ const IncidentSearchTable = () => {
                     </div>
                   </TableCell>
                   <TableCell>{item?.detectionClass}</TableCell>
-                  <TableCell
-                    sx={{
-                      color:
-                        parseFloat(
-                          item?.classConfidence || item?.prediction_confidence
-                        ) < 0.4
-                          ? "#CD5C5C"
-                          : "#90EE90",
-                    }}
-                  >
-                    <strong>
-                      {item?.classConfidence?.toFixed(2) ||
-                        item?.prediction_confidence?.toFixed(2)}
-                    </strong>
+                  <TableCell>
+                    {/* Render a dropdown to select resolved or unresolved */}
+                    <Select
+                      value={statusMap[item.id] || "unresolved"} // Get status per row
+                      onChange={(e) => handleStatusChange(e, item.id)}
+                      sx={{ color: "white" }}
+                      MenuProps={{
+                        sx: {
+                          color: "white",
+                        },
+                      }}
+                    >
+                      <MenuItem value="resolved">Resolved</MenuItem>
+                      <MenuItem value="unresolved">Unresolved</MenuItem>
+                    </Select>
                   </TableCell>
                   {item?.license_number && (
                     <TableCell>{item?.license_number || "N/A"}</TableCell>
                   )}
+                </TableRow>
+              ))}
+              {staticData.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell
+                    onClick={() => {
+                      handleOpen(item, index+4);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img
+                      src={`/assets/garbage/garbage${index + 5}.png`}
+                      alt={item.licenseNumber || "No License Number"}
+                      style={{ width: 100, height: 60, objectFit: "cover" }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {new Date(item.timestamp).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <strong>Camera ID:</strong> {item.camera?.cameraId}
+                    </div>
+                    <div>
+                      <strong>Camera Name:</strong> {item.camera?.cameraName}
+                    </div>
+                    <div>
+                      <strong>Location:</strong> {item.camera?.location}
+                    </div>
+                    <div>
+                      <strong>Type:</strong> {item.camera?.cameraType}
+                    </div>
+                  </TableCell>
+                  <TableCell>{item?.detectionClass}</TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="primary">
+                      <Typography variant="body1" color="white">
+                        Track
+                      </Typography>
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

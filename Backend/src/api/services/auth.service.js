@@ -68,14 +68,9 @@ const login = async (userData) => {
     throw new Error("Invalid password");
   }
 
-  const { accessToken, refreshToken } = generateToken(existingUser);
+  const { token } = await generateToken(existingUser);
 
-  return {
-    employeeId: existingUser.employee_Id,
-    name: existingUser.name,
-    accessToken,
-    refreshToken,
-  };
+  return token;
 };
 
 export { register, login };

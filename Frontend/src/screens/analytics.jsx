@@ -22,8 +22,12 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import ReportIcon from "@mui/icons-material/Report";
 import IncidentsChart from "../components/charts/IncidentsChart";
 import PieChart from "../components/charts/PieChart";
-import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
+// import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
+import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart";
+// import ScatterPlot from "../components/charts/ScatterPlot";
+import BubbleChart from "../components/charts/BubbleChart";
+import TimeAreaChart from "../components/charts/TimeAreaChart";
 
 const COLORS = [
   "#0088FE",
@@ -56,7 +60,7 @@ export default function Analytics() {
   const { data: incidentData, isLoading } = useFetchIncidents(dateRange);
 
   const {
-    filteredData,
+    // filteredData,
     totalIncidents,
     incidentTrendData,
     pieChartData,
@@ -179,7 +183,9 @@ export default function Analytics() {
           count,
           lastOccurrence: lastIncident.timestamp,
           severity: lastIncident.severity,
-          location: lastIncident.location,
+          location: lastIncident.camera.location,
+          cameraId: lastIncident.camera.cameraId,
+          area: lastIncident.camera.areaName,
         };
       });
 
@@ -217,71 +223,85 @@ export default function Analytics() {
     ],
   };
 
+  console.log("date range", selectedIncidentType);
+
   return (
     <Box
       sx={{
-        margin: { xs: 2, md: 4 },
+        paddingLeft: 2,
+        paddingRight: 2,
         backgroundColor: theme.palette.background.default,
       }}
     >
-      <Typography
-        variant="h4"
-        gutterBottom
+      {/* Sticky Header */}
+      <Box
         sx={{
-          fontWeight: "bold",
-          color: theme.palette.primary.main,
-          textAlign: { xs: "center", md: "left" },
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          backgroundColor: theme.palette.background.default,
+          paddingTop: 2,
+          paddingBottom: 2,
         }}
       >
-        Incident Reports Dashboard
-      </Typography>
-      <Grid container spacing={2} gap={2}>
-        <Grid item xs={12} md={12}>
-          <Card>
-            <CardContent
-              sx={{
-                display: "flex",
-                justifyContent: { xs: "center", md: "space-between" },
-                alignItems: "center",
-                flexDirection: { xs: "column", md: "row" },
-              }}
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+            color: theme.palette.primary.main,
+            textAlign: { xs: "center", md: "left" },
+          }}
+        >
+          Analaytics
+        </Typography>
+        <Card>
+          <CardContent
+            sx={{
+              display: "flex",
+              justifyContent: { xs: "center", md: "space-between" },
+              alignItems: "center",
+              flexDirection: { xs: "column", md: "row" },
+            }}
+          >
+            <ButtonGroup
+              variant="outlined"
+              size="small"
+              sx={{ mb: { xs: 2, md: 0 } }}
             >
-              <ButtonGroup
-                variant="outlined"
-                size="large"
-                sx={{ mb: { xs: 2, md: 0 } }}
-              >
-                {["today", "weekly", "monthly"].map((range) => (
-                  <Button
-                    key={range}
-                    onClick={() => handleDateRangeChange(range)}
-                    color={dateRange === range ? "primary" : "inherit"}
-                    sx={{ fontWeight: "bold", textTransform: "capitalize" }}
-                  >
-                    {range}
-                  </Button>
-                ))}
-              </ButtonGroup>
-              <FormControl variant="outlined" sx={{ minWidth: 200 }}>
-                <InputLabel>Incident Type</InputLabel>
-                <Select
-                  value={selectedIncidentType}
-                  onChange={handleIncidentTypeChange}
-                  label="Incident Type"
+              {["today", "weekly", "monthly"].map((range) => (
+                <Button
+                  key={range}
+                  onClick={() => handleDateRangeChange(range)}
+                  color={dateRange === range ? "primary" : "inherit"}
+                  sx={{ fontWeight: "bold", textTransform: "capitalize" }}
                 >
-                  <MenuItem value="allIncidents">All Incidents</MenuItem>
-                  <MenuItem value="vehicleAndRoad">Vehicle and Road</MenuItem>
-                  <MenuItem value="municipal">Municipal</MenuItem>
-                </Select>
-              </FormControl>
-            </CardContent>
-          </Card>
-        </Grid>
+                  {range}
+                </Button>
+              ))}
+            </ButtonGroup>
+            <FormControl size="small" variant="outlined" sx={{ minWidth: 200 }}>
+              <InputLabel>Incident Type</InputLabel>
+              <Select
+                value={selectedIncidentType}
+                onChange={handleIncidentTypeChange}
+                label="Incident Type"
+              >
+                <MenuItem value="allIncidents">All Incidents</MenuItem>
+                <MenuItem value="vehicleAndRoad">Vehicle and Road</MenuItem>
+                <MenuItem value="municipal">Municipal</MenuItem>
+              </Select>
+            </FormControl>
+          </CardContent>
+        </Card>
+      </Box>
 
+      {/* Scrollable Content */}
+      <Grid container spacing={2} gap={2} sx={{ mt: 2, mb: 2 }}>
         {/* Incident Trend Card */}
         <Grid item xs={12} md={12}>
-          <Card  sx={{ height: "100%"}}>
-            <CardContent sx={{ height: "100%"}}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" component="div" color="textPrimary">
@@ -381,7 +401,7 @@ export default function Analytics() {
 
             {/* Incident Distribution */}
             <Grid item xs={12} md={3}>
-              <Card  sx={{ height: "100%" }}>
+              <Card sx={{ height: "100%" }}>
                 <CardContent sx={{ height: "100%" }}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <PieChartIcon color="primary" sx={{ mr: 1 }} />
@@ -423,7 +443,7 @@ export default function Analytics() {
           </Grid>
         </Grid>
 
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -436,6 +456,67 @@ export default function Analytics() {
                 <Skeleton variant="rectangular" width="100%" height={350} />
               ) : incidentTypeLineChartData.datasets.length > 0 ? (
                 <IncidentTypeLineChart data={incidentTypeLineChartData} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid> */}
+
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Detected vs Solved Analaytics
+                </Typography>
+              </Box>
+              <CameraIncidentBarChart
+                time={dateRange}
+                incidentType={selectedIncidentType}
+                selectedCamera={1}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident vs Area
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                // <ScatterPlot incidentsData={incidentData?.data} />
+                <BubbleChart incidentsData={incidentData?.data} />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No incident type data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Incident vs Time
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentTypeLineChartData.datasets.length > 0 ? (
+                <TimeAreaChart incidentsData={incidentData?.data} />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No incident type data available for the selected period.
