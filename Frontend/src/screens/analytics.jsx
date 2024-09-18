@@ -61,7 +61,6 @@ export default function Analytics() {
   const { data: incidentData, isLoading } = useFetchIncidents(dateRange);
 
   const {
-    filteredData,
     totalIncidents,
     incidentTrendData,
     pieChartData,

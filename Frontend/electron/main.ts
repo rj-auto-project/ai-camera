@@ -4,13 +4,6 @@ import path from "node:path";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
 process.env.APP_ROOT = path.join(__dirname, "..");
 
 export const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -47,6 +40,18 @@ function createWindow() {
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
+
+  win.on("minimize", () => {
+    if (newWindow) {
+      newWindow.minimize();
+    }
+  });
+
+  win.on("restore", () => {
+    if (newWindow) {
+      newWindow.restore();
+    }
+  });
 }
 
 app.on("window-all-closed", () => {
@@ -74,15 +79,21 @@ function openModalWindow(data: any, title: string) {
   newWindow = new BrowserWindow({
     width: 700,
     height: 500,
-    parent: win,
-    modal: true,
-    title: title ? title : "Model window",
+    parent: win, 
+    modal: true, 
+    minimizable: false,
+    title: title ? title : "Modal window",
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+
+  newWindow.on("minimize", (event: any) => {
+    event.preventDefault(); 
   });
 
   if (VITE_DEV_SERVER_URL) {
@@ -102,7 +113,6 @@ function openModalWindow(data: any, title: string) {
   });
 }
 
-// Listen for the IPC event to open a modal window
 ipcMain.on("open-modal-window", (event, data, title) => {
   openModalWindow(data, title);
 });
