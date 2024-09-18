@@ -7,10 +7,11 @@ import {
   Title,
   LinearScale,
   PointElement,
+  CategoryScale,
 } from "chart.js";
 
 // Register necessary chart components
-ChartJS.register(Tooltip, Legend, Title, LinearScale, PointElement);
+ChartJS.register(Tooltip, Legend, Title, LinearScale, PointElement, CategoryScale);
 
 function convertData(incidents) {
   const areaMap = new Map();
@@ -45,7 +46,7 @@ const BubbleChart = ({ incidentsData }) => {
       {
         label: "Incidents",
         data: formattedData,
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
+        backgroundColor: "#00C9FF",
       },
     ],
   };
@@ -58,6 +59,12 @@ const BubbleChart = ({ incidentsData }) => {
         title: {
           display: true,
           text: "Number of Incidents",
+          color: "rgba(255, 255, 255, 0.9)",
+        },
+        ticks: {
+          color: "rgba(255, 255, 255, 0.9)",
+          stepSize: 2,
+          precision: 0,
         },
       },
       x: {
@@ -65,6 +72,10 @@ const BubbleChart = ({ incidentsData }) => {
         title: {
           display: true,
           text: "Area",
+          color: "rgba(255, 255, 255, 0.9)",
+        },
+        ticks: {
+          color: "rgba(255, 255, 255, 0.9)",
         },
       },
     },

@@ -22,10 +22,10 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import ReportIcon from "@mui/icons-material/Report";
 import IncidentsChart from "../components/charts/IncidentsChart";
 import PieChart from "../components/charts/PieChart";
-import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
+// import IncidentTypeLineChart from "../components/charts/IncidentTypeLineChart";
 import TopIncidentsList from "../components/TopIncidentsList";
 import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart";
-import ScatterPlot from "../components/charts/ScatterPlot";
+// import ScatterPlot from "../components/charts/ScatterPlot";
 import BubbleChart from "../components/charts/BubbleChart";
 import TimeAreaChart from "../components/charts/TimeAreaChart";
 import TopLocationIssueChart from "../components/charts/TopIssueLocationGraph";
@@ -526,13 +526,13 @@ export default function Analytics() {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" component="div" color="textPrimary">
-                  Time Area Chart
+                  Incident vs Time
                 </Typography>
               </Box>
               {isLoading ? (
                 <Skeleton variant="rectangular" width="100%" height={350} />
               ) : incidentTypeLineChartData.datasets.length > 0 ? (
-                <TimeAreaChart />
+                <TimeAreaChart incidentsData={incidentData?.data} />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No incident type data available for the selected period.
