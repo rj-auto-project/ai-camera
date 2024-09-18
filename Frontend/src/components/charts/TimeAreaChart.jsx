@@ -8,190 +8,175 @@ import {
   LinearScale,
   PointElement,
   TimeScale,
-  CategoryScale,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 
-// Register necessary chart components
 ChartJS.register(
   Tooltip,
   Legend,
   Title,
   LinearScale,
   PointElement,
-  TimeScale,
-  CategoryScale
+  TimeScale
 );
 
+function convertIncidentData(incidentData) {
+  return incidentData.map(incident => ({
+    id: incident.id,
+    timestamp: incident.timestamp,
+    camera: {
+      areaName: incident.camera.areaName,
+      location: incident.camera.location,
+    },
+    incidentType: incident.incidentType,
+  }));
+}
 
-const TimeAreaChart = () => {
-  // Expanded sample data with last incident time for each entry
+function processIncidentData(incidentData) {
+  const timeslots = [
+    "00:00-01:59", "02:00-03:59", "04:00-05:59", "06:00-07:59",
+    "08:00-09:59", "10:00-11:59", "12:00-13:59", "14:00-15:59",
+    "16:00-17:59", "18:00-19:59", "20:00-21:59", "22:00-23:59"
+  ];
+
+  const chartData = [];
+
+  // Aggregate incidents by timeslot
+  const timeslotMap = new Map();
+
+  incidentData.forEach((incident) => {
+    const timestamp = new Date(incident.timestamp);
+    const hour = timestamp.getHours();
+    const timeslotIndex = Math.floor(hour / 2); // Group by 2-hour intervals
+    const timeslot = timeslots[timeslotIndex];
+
+    if (!timeslotMap.has(timeslot)) {
+      timeslotMap.set(timeslot, []);
+    }
+    timeslotMap.get(timeslot).push(incident);
+  });
+
+  // Create chart data points
+  timeslotMap.forEach((incidents, timeslot) => {
+    const timeslotIndex = timeslots.indexOf(timeslot);
+    chartData.push({
+      x: timeslotIndex * 2, // Use hour as x-value for linear scale
+      y: incidents.length, // Number of incidents in this timeslot
+      r: Math.min(30, incidents.length * 2), // Adjust bubble radius based on incident count
+      incidents: incidents.map(inc => ({
+        areaName: inc.camera.areaName,
+        cameraLocation: inc.camera.location,
+        incidentType: inc.incidentType,
+        incidentTime: new Date(inc.timestamp).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }))
+    });
+  });
+
+  return chartData;
+}
+
+const TimeAreaChart = ({ incidentsData }) => {
+  const simplifiedData = convertIncidentData(incidentsData);
+  const processedData = processIncidentData(simplifiedData);
+  
   const data = {
     datasets: [
       {
         label: "Incidents",
-        data: [
-          {
-            x: "2024-09-17T08:55:00", // Last incident time for Area 1
-            y: "Area 1",
-            r: 5,
-            count: 5,
-            incidents: [
-              {
-                cameraLocation: "Area 1(A)",
-                incidentType: "Type A",
-                incidentTime: "08:30 AM",
-              },
-              {
-                cameraLocation: "Area 1(B)",
-                incidentType: "Type B",
-                incidentTime: "08:32 AM",
-              },
-              {
-                cameraLocation: "Area 1(C)",
-                incidentType: "Type C",
-                incidentTime: "08:35 AM",
-              },
-              {
-                cameraLocation: "Area 1(D)",
-                incidentType: "Type D",
-                incidentTime: "08:38 AM",
-              },
-              {
-                cameraLocation: "Area 1(E)",
-                incidentType: "Type E",
-                incidentTime: "08:55 AM",
-              }, // Last incident
-            ],
-          },
-          {
-            x: "2024-09-17T09:55:00", // Last incident time for Area 2
-            y: "Area 2",
-            r: 3,
-            count: 3,
-            incidents: [
-              {
-                cameraLocation: "Area 2(A)",
-                incidentType: "Type A",
-                incidentTime: "09:45 AM",
-              },
-              {
-                cameraLocation: "Area 2(B)",
-                incidentType: "Type B",
-                incidentTime: "09:50 AM",
-              },
-              {
-                cameraLocation: "Area 2(C)",
-                incidentType: "Type C",
-                incidentTime: "09:55 AM",
-              }, // Last incident
-            ],
-          },
-          {
-            x: "2024-09-17T10:22:00", // Last incident time for Area 3
-            y: "Area 3",
-            r: 4,
-            count: 4,
-            incidents: [
-              {
-                cameraLocation: "Area 3(A)",
-                incidentType: "Type D",
-                incidentTime: "10:15 AM",
-              },
-              {
-                cameraLocation: "Area 3(B)",
-                incidentType: "Type E",
-                incidentTime: "10:18 AM",
-              },
-              {
-                cameraLocation: "Area 3(C)",
-                incidentType: "Type A",
-                incidentTime: "10:20 AM",
-              },
-              {
-                cameraLocation: "Area 3(D)",
-                incidentType: "Type B",
-                incidentTime: "10:22 AM",
-              }, // Last incident
-            ],
-          },
-          {
-            x: "2024-09-17T11:35:00", // Last incident time for Area 1 again
-            y: "Area 1",
-            r: 2,
-            count: 2,
-            incidents: [
-              {
-                cameraLocation: "Area 1(A)",
-                incidentType: "Type C",
-                incidentTime: "11:30 AM",
-              },
-              {
-                cameraLocation: "Area 1(B)",
-                incidentType: "Type D",
-                incidentTime: "11:35 AM",
-              }, // Last incident
-            ],
-          },
-        ],
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
+        data: processedData,
+        backgroundColor: "#00C9FF",
       },
     ],
   };
 
-  const areas = [...new Set(data.datasets[0].data.map((item) => item.y))];
-
-  // Custom tooltip configuration and chart options
   const options = {
     scales: {
       x: {
-        type: "time",
-        time: {
-          unit: "hour",
-          tooltipFormat: "h:mm a",
-          displayFormats: {
-            hour: "h:mm a",
-          },
-        },
+        type: "linear",
+        min: 0,
+        max: 24,
         title: {
           display: true,
-          text: "Time of Day (Last Incident Logged)",
+          text: "Hour of Day",
+          color: 'rgba(255, 255, 255, 0.9)'
         },
+        ticks: {
+          stepSize: 2,
+          callback: (value) => `${value}:00`,
+          color: 'rgba(255, 255, 255, 0.9)'
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
+        }
       },
       y: {
-        type: "category", // Use categorical scale for areas
-        labels: areas,
+        type: "linear",
         title: {
           display: true,
-          text: "Area",
+          text: "Number of Incidents",
+          color: 'rgba(255, 255, 255, 0.9)'
         },
-      },
+        ticks: {
+          stepSize: 2,
+          precision: 0,
+          color: 'rgba(255, 255, 255, 0.9)'
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.2)'
+        }
+      }
     },
     plugins: {
       tooltip: {
         callbacks: {
           label: (context) => {
             const data = context.raw;
-            const incidentList = data.incidents.map(
-              (incident) =>
-                `• ${incident.incidentType} at ${incident.incidentTime}`
-            );
-            return [
-              `Camera Location: ${data.y}`,
-              `Total Incidents: ${data.count}`,
-              ...incidentList,
-            ];
+            const areaMap = new Map();
+  
+            // Group incidents by area
+            data.incidents.forEach((incident) => {
+              if (!areaMap.has(incident.areaName)) {
+                areaMap.set(incident.areaName, []);
+              }
+              areaMap.get(incident.areaName).push(incident);
+            });
+  
+            // Start tooltip with total incidents
+            let tooltipText = [`Total Incidents: ${data.y}`];
+  
+            // Add each area with its incidents
+            areaMap.forEach((incidents, areaName) => {
+              tooltipText.push(`${areaName}:`);
+  
+              // Add each incident within the area
+              incidents.forEach((incident) => {
+                tooltipText.push(`  • ${incident.incidentType} at ${incident.cameraLocation} (${incident.incidentTime})`);
+              });
+            });
+  
+            return tooltipText;
           },
         },
       },
       legend: {
         display: true,
         position: "top",
+        labels: {
+          color: 'rgba(255, 255, 255, 0.7)'
+        }
       },
     },
   };
+  
 
-  return <Bubble data={data} options={options} />;
+  return (
+    <div style={{ backgroundColor: '#1e1e1e', padding: '20px' }}>
+      <Bubble data={data} options={options} />
+    </div>
+  );
 };
 
 export default TimeAreaChart;
