@@ -22,6 +22,7 @@ import {
   TaskAltOutlined,
   AnalyticsOutlined,
 } from "@mui/icons-material";
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
@@ -48,6 +49,9 @@ export default function CustomDrawer() {
     { text: "Operations", path: "operations", icon: <TaskAltOutlined /> },
     { text: "Analytics", path: "analytics", icon: <AnalyticsOutlined /> },
     { text: "Incidents", path: "incidents", icon: <FaExclamationTriangle /> },
+    {
+      text: "Track Agent", path: "trackagent",icon:<TrackChangesIcon/>
+    }
   ];
 
   const drawer = (

@@ -17,6 +17,7 @@ const CreateOperations = lazy(() => import("./screens/createOperations"));
 const Operations = lazy(() => import("./screens/operations"));
 const ModelWindow = lazy(() => import("./window/operationData"));
 const Incidents = lazy(() => import("./screens/incidents"));
+const TrackAgent = lazy(() => import("./screens/trackAgent"));
 const StreamsConditionalRender = lazy(
   () => import("./components/conditionalrender/streampage")
 );
@@ -50,6 +51,7 @@ const App = () => {
                   </Route>
                   <Route path="analytics" element={<Analytics />} />
                   <Route path="incidents" element={<Incidents />} />
+                  <Route path="trackagent" element={<TrackAgent />} />
                   <Route path="settings" element={<Setting />} />
                 </Route>
               </Route>
