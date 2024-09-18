@@ -19,8 +19,10 @@ import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/csvButton";
 import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
+import { useNavigate } from "react-router-dom";
 
 const IncidentSearchTable = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
@@ -119,9 +121,7 @@ const IncidentSearchTable = () => {
 
   useEffect(() => {
     mutate();
-    console.log("garbage data", data);
-    // add static data to the data.data
-  }, []);
+  }, [mutate]);
 
   console.log("garbage data", data);
 
@@ -292,47 +292,51 @@ const IncidentSearchTable = () => {
                   )}
                 </TableRow>
               ))}
-              {staticData.map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell
-                    onClick={() => {
-                      handleOpen(item, index+4);
-                    }}
-                    style={{ cursor: "pointer" }}
+            {staticData.map((item, index) => (
+              <TableRow key={item.id}>
+                <TableCell
+                  onClick={() => {
+                    handleOpen(item, index + 4);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={`/assets/garbage/garbage${index + 5}.png`}
+                    alt={item.licenseNumber || "No License Number"}
+                    style={{ width: 100, height: 60, objectFit: "cover" }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {new Date(item.timestamp).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <strong>Camera ID:</strong> {item.camera?.cameraId}
+                  </div>
+                  <div>
+                    <strong>Camera Name:</strong> {item.camera?.cameraName}
+                  </div>
+                  <div>
+                    <strong>Location:</strong> {item.camera?.location}
+                  </div>
+                  <div>
+                    <strong>Type:</strong> {item.camera?.cameraType}
+                  </div>
+                </TableCell>
+                <TableCell>{item?.detectionClass}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate(`/dashboard/trackagent`)}
                   >
-                    <img
-                      src={`/assets/garbage/garbage${index + 5}.png`}
-                      alt={item.licenseNumber || "No License Number"}
-                      style={{ width: 100, height: 60, objectFit: "cover" }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(item.timestamp).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <strong>Camera ID:</strong> {item.camera?.cameraId}
-                    </div>
-                    <div>
-                      <strong>Camera Name:</strong> {item.camera?.cameraName}
-                    </div>
-                    <div>
-                      <strong>Location:</strong> {item.camera?.location}
-                    </div>
-                    <div>
-                      <strong>Type:</strong> {item.camera?.cameraType}
-                    </div>
-                  </TableCell>
-                  <TableCell>{item?.detectionClass}</TableCell>
-                  <TableCell>
-                    <Button variant="contained" color="primary">
-                      <Typography variant="body1" color="white">
-                        Track
-                      </Typography>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <Typography variant="body1" color="white">
+                      Track
+                    </Typography>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
