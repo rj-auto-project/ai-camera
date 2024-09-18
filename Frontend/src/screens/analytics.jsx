@@ -29,7 +29,6 @@ import ScatterPlot from "../components/charts/ScatterPlot";
 import BubbleChart from "../components/charts/BubbleChart";
 import TimeAreaChart from "../components/charts/TimeAreaChart";
 
-
 const COLORS = [
   "#0088FE",
   "#00C49F",
@@ -229,8 +228,8 @@ export default function Analytics() {
   return (
     <Box
       sx={{
-        paddingLeft:2,
-        paddingRight:2,
+        paddingLeft: 2,
+        paddingRight: 2,
         backgroundColor: theme.palette.background.default,
       }}
     >
@@ -298,7 +297,7 @@ export default function Analytics() {
       </Box>
 
       {/* Scrollable Content */}
-      <Grid container spacing={2} gap={2} sx={{ mt: 2 ,mb:2}}>
+      <Grid container spacing={2} gap={2} sx={{ mt: 2, mb: 2 }}>
         {/* Incident Trend Card */}
         <Grid item xs={12} md={12}>
           <Card sx={{ height: "100%" }}>
@@ -517,7 +516,7 @@ export default function Analytics() {
               {isLoading ? (
                 <Skeleton variant="rectangular" width="100%" height={350} />
               ) : incidentTypeLineChartData.datasets.length > 0 ? (
-                <TimeAreaChart />
+                <TimeAreaChart incidentsData={incidentData?.data} />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No incident type data available for the selected period.
