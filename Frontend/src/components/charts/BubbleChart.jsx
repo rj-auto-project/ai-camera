@@ -7,10 +7,11 @@ import {
   Title,
   LinearScale,
   PointElement,
+  CategoryScale,
 } from "chart.js";
 
 // Register necessary chart components
-ChartJS.register(Tooltip, Legend, Title, LinearScale, PointElement);
+ChartJS.register(Tooltip, Legend, Title, LinearScale, PointElement, CategoryScale);
 
 function convertData(incidents) {
   const areaMap = new Map();
