@@ -487,7 +487,7 @@ export default function Analytics() {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" component="div" color="textPrimary">
-                  Top 5 Locations by Solved vs Unsolved Issues
+                  Top Locations by Detected vs solved Issues
                 </Typography>
               </Box>
               <TopLocationIssueChart
