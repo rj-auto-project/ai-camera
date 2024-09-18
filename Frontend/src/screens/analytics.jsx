@@ -28,7 +28,7 @@ import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart"
 import ScatterPlot from "../components/charts/ScatterPlot";
 import BubbleChart from "../components/charts/BubbleChart";
 import TimeAreaChart from "../components/charts/TimeAreaChart";
-
+import TopLocationIssueChart from "../components/charts/TopIssueLocationGraph";
 
 const COLORS = [
   "#0088FE",
@@ -228,8 +228,8 @@ export default function Analytics() {
   return (
     <Box
       sx={{
-        paddingLeft:2,
-        paddingRight:2,
+        paddingLeft: 2,
+        paddingRight: 2,
         backgroundColor: theme.palette.background.default,
       }}
     >
@@ -297,7 +297,7 @@ export default function Analytics() {
       </Box>
 
       {/* Scrollable Content */}
-      <Grid container spacing={2} gap={2} sx={{ mt: 2 ,mb:2}}>
+      <Grid container spacing={2} gap={2} sx={{ mt: 2, mb: 2 }}>
         {/* Incident Trend Card */}
         <Grid item xs={12} md={12}>
           <Card sx={{ height: "100%" }}>
@@ -477,11 +477,27 @@ export default function Analytics() {
               <CameraIncidentBarChart
                 time={dateRange}
                 incidentType={selectedIncidentType}
-                selectedCamera={1}
               />
             </CardContent>
           </Card>
         </Grid>
+        <Grid item xs={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Top 5 Locations by Solved vs Unsolved Issues
+                </Typography>
+              </Box>
+              <TopLocationIssueChart
+                timeRange={dateRange}
+                incidentType={selectedIncidentType}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
         <Grid item xs={12}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
