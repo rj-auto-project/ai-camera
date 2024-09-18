@@ -23,7 +23,6 @@ ChartJS.register(
   CategoryScale
 );
 
-
 const TimeAreaChart = () => {
   // Expanded sample data with last incident time for each entry
   const data = {
@@ -34,7 +33,7 @@ const TimeAreaChart = () => {
           {
             x: "2024-09-17T08:55:00", // Last incident time for Area 1
             y: "Area 1",
-            r: 5,
+            r: 2,
             count: 5,
             incidents: [
               {
@@ -144,6 +143,7 @@ const TimeAreaChart = () => {
   // Custom tooltip configuration and chart options
   const options = {
     scales: {
+      
       x: {
         type: "time",
         time: {
@@ -191,7 +191,11 @@ const TimeAreaChart = () => {
     },
   };
 
-  return <Bubble data={data} options={options} />;
+  return (
+    <div style={{ height: "500px", width: "100%" }}>
+      <Bubble data={data} options={options} />
+    </div>
+  );
 };
 
 export default TimeAreaChart;
