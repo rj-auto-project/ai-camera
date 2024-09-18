@@ -94,6 +94,7 @@ const TimeAreaChart = ({ incidentsData }) => {
 
   const options = {
     scales: {
+      
       x: {
         type: "linear",
         min: 0,

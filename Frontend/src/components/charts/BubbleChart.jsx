@@ -97,7 +97,11 @@ const BubbleChart = ({ incidentsData }) => {
     },
   };
 
-  return <Bubble data={data} options={options} />;
+  return (
+    <div style={{ height: "500px", width: "100%" }}>
+      <Bubble data={data} options={options} />
+    </div>
+  );
 };
 
 export default BubbleChart;
