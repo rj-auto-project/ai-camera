@@ -19,7 +19,7 @@ function NewWindow() {
   }, []);
   // Trigger fetch when `data` is updated
   useEffect(() => {
-    if (data) {
+    if (data?.operationStatus === "ACTIVE") {
       setFetchParams({
         operationId: data.id,
         opType: data.operationType,
@@ -28,7 +28,7 @@ function NewWindow() {
   }, [data]); // Depend on `data`
 
   // Fetch live vehicle search data
-  const { eventData, isLoading, isError, error } = useFetchLiveVehicleSearch(
+  const { eventData=data?.operationResponseData, isLoading, isError, error } = useFetchLiveVehicleSearch(
     fetchParams ? fetchParams : {}, // Use fetchParams for the fetch
   );
   console.log(eventData, "eventData");

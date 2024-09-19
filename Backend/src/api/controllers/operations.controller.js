@@ -7,7 +7,6 @@ import {
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
-// to be done
 // const faceDetection = async (req, res) => {
 //   try {
 //     const files = req.files;
@@ -200,8 +199,10 @@ const vehicleOperation = async (req, res) => {
     } = req.body;
     const { type } = req.query;
 
+    // Initialize an empty object to store operation data
     let operationData = {};
 
+    // Fetch employeeId from req.userId, return error if missing
     const employeeId = req.userId;
     if (!employeeId) {
       return res.status(401).json({
@@ -209,78 +210,95 @@ const vehicleOperation = async (req, res) => {
         message: "Unauthorized access",
       });
     }
-    if (!cameras || cameras.length === 0) {
+
+    // Validate cameras: ensure it's an array and not empty
+    if (!Array.isArray(cameras) || cameras.length === 0) {
       return res.status(400).json({
         status: "fail",
-        message: "No cameras provided",
+        message: "No cameras provided or invalid format",
       });
     }
 
+    // Validate start and end times
     if (!startTime || !endTime) {
       return res.status(400).json({
         status: "fail",
         message: "Start and end time are required",
       });
     }
-    if (!type) {
+
+    // Ensure valid date format and startTime < endTime
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if (isNaN(start) || isNaN(end)) {
       return res.status(400).json({
         status: "fail",
-        message: "Invalid operation type",
+        message: "Invalid date format. Please provide valid start and end times",
+      });
+    }
+    if (start >= end) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Start time must be earlier than end time",
       });
     }
 
-    if (
-      type === "anpr" &&
-      !licensePlate &&
-      !(ownerName && classes?.length > 0)
-    ) {
+    // Validate operation type
+    if (!type || !["anpr", "vehicle_search"].includes(type)) {
       return res.status(400).json({
         status: "fail",
-        message:
-          "At least one of [licensePlate], [ownerName and class of vehicle] is required for ANPR",
-      });
-    } else if (
-      type === "anpr" &&
-      !licensePlate &&
-      ((ownerName && !classes) || (!ownerName && classes))
-    ) {
-      return res.status(400).json({
-        status: "fail",
-        message:
-          "Both [ownerName] and [classes] are required for ANPR while searching with ownerName",
-      });
-    } else if (
-      type === "vehicle_search" &&
-      (!classes || !topColor || !bottomColor)
-    ) {
-      return res.status(400).json({
-        status: "fail",
-        message:
-          "All of [classes], [topColor] and [bottomColor] are required for vehicle search",
+        message: "Invalid operation type. Valid types are 'anpr' or 'vehicle_search'",
       });
     }
 
+    // Validate input fields based on the operation type
     if (type === "anpr") {
+      // For ANPR, either licensePlate must be provided, or both ownerName and classes must be given
+      if (!licensePlate && !(ownerName && Array.isArray(classes) && classes.length > 0)) {
+        return res.status(400).json({
+          status: "fail",
+          message: "For ANPR, provide either a license plate or both ownerName and vehicle class",
+        });
+      }
+
+      // Ensure both ownerName and classes are provided if licensePlate is missing
+      if (!licensePlate && (ownerName && (!Array.isArray(classes) || classes.length === 0))) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Both ownerName and classes are required for ANPR when licensePlate is not provided",
+        });
+      }
+
       operationData = {
         type: "ANPR",
-        licensePlate: licensePlate,
-        ownerName: ownerName && ownerName.toLowerCase(),
+        licensePlate: licensePlate?.trim(),
+        ownerName: ownerName?.trim().toLowerCase(),
         classes,
         cameras,
-        topColor: topColor && topColor.toLowerCase(),
-        bottomColor: bottomColor && bottomColor.toLowerCase(),
+        topColor: topColor?.toLowerCase(),
+        bottomColor: bottomColor?.toLowerCase(),
       };
     } else if (type === "vehicle_search") {
+      // For vehicle search, ensure all fields (classes, topColor, bottomColor) are provided
+      if (!Array.isArray(classes) || classes.length === 0 || !topColor || !bottomColor) {
+        return res.status(400).json({
+          status: "fail",
+          message: "For vehicle search, provide classes, topColor, and bottomColor",
+        });
+      }
+
       operationData = {
         type: "VEHICLE SEARCH",
-        topColor: topColor && topColor.toLowerCase(),
-        bottomColor: bottomColor && bottomColor.toLowerCase(),
+        topColor: topColor.trim().toLowerCase(),
+        bottomColor: bottomColor.trim().toLowerCase(),
         classes,
         cameras,
       };
     }
 
-    let camerasEngaged = await prisma.camera.findMany({
+    // Validate cameras from the database
+    const camerasEngaged = await prisma.camera.findMany({
       where: {
         cameraId: {
           in: cameras,
@@ -288,13 +306,20 @@ const vehicleOperation = async (req, res) => {
       },
     });
 
+    if (camerasEngaged.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "None of the provided cameras were found",
+      });
+    }
+
     // Create new operation log entry
     const newOperation = await prisma.operationLog.create({
       data: {
         operationType: operationData?.type,
         operationRequestData: operationData,
-        initialTimestamp: new Date(startTime),
-        finalTimestamp: new Date(endTime),
+        initialTimestamp: start,
+        finalTimestamp: end,
         userId: employeeId,
         operationStatus: "ACTIVE",
         cameras: {
@@ -306,54 +331,56 @@ const vehicleOperation = async (req, res) => {
     });
 
     const currTime = new Date();
-    const endtime = new Date(endTime);
-    if (currTime < endtime) {
-      // Send response indicating SSE has been triggered
+
+    // Handle live operation (SSE) when the current time is before the end time
+    if (currTime < end) {
       return res.json({
         status: "ok",
         message: `${operationData?.type} live operation initiated`,
         operationId: newOperation.id, // Return the operation ID for SSE
       });
-    } else {
-      // Historical search
-      const results = await vehicleOperationService(
-        operationData,
-        cameras,
-        startTime,
-        endTime,
-      );
+    }
 
-      await prisma.operationLog.update({
-        where: { id: newOperation?.id },
-        data: {
-          operationResponseData: results,
-          operationStatus: "INACTIVE",
-          closeTimestamp: new Date(),
-        },
-      });
+    // Historical search (when endTime is in the past)
+    const results = await vehicleOperationService(
+      operationData,
+      cameras,
+      startTime,
+      endTime,
+    );
 
-      if (!results || results.length === 0) {
-        return res.json({
-          status: "ok",
-          message: "No results found",
-        });
-      }
+    const updatedOperation = await prisma.operationLog.update({
+      where: { id: newOperation?.id },
+      data: {
+        operationResponseData: results,
+        operationStatus: "INACTIVE",
+        closeTimestamp: new Date(),
+      },
+    });
 
+    if (!results || results.length === 0) {
       return res.json({
         status: "ok",
-        message: `${operationData?.type} operation completed successfully`,
-        results,
+        message: "No results found for the specified operation",
       });
     }
+
+    return res.json({
+      status: "ok",
+      message: `${operationData?.type} operation completed successfully`,
+      results,
+    });
+
   } catch (error) {
-    console.error("Error performing operation:", error);
-    res.status(500).json({
+    console.error("Error performing operation:", error.stack || error);
+    return res.status(500).json({
       status: "fail",
-      message: "Vehicle operation failed",
+      message: "An unexpected error occurred during the vehicle operation",
       error: error.message,
     });
   }
 };
+
 
 const liveSuspectSearch = async (req, res) => {
   try {
