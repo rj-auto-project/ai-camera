@@ -116,14 +116,13 @@ const Setting = () => {
         item
         xs={7}
         sx={{
-          overflowY: "auto",
+          height: "100vh",
+          overflow: "hidden",
           borderLeft: "1px solid rgba(128, 128, 128, 0.1)",
           borderRight: "1px solid rgba(128, 128, 128, 0.1)",
-          scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        <Paper sx={{ height: "100%" }}>
+        <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
           <Typography
             sx={{
               padding: 1.5,
@@ -142,7 +141,10 @@ const Setting = () => {
               overflowY: "auto",
               padding: 2,
               scrollbarWidth: "none",
-              "&::-webkit-scrollbar": { display: "none" },
+              msOverflowStyle: "none",
+              "&::-webkit-scrollbar": {
+                display: "none"
+              }
             }}
           >
             {selectedOptions === "Camera" && (
