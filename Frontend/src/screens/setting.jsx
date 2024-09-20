@@ -401,7 +401,7 @@ const modalStyle = {
   transform: "translate(-50%, -50%)",
   backgroundColor: "#1d1c1c",
   boxShadow: 24,
-  p: 4,
+  p: 2,
 };
 
 export default Setting;

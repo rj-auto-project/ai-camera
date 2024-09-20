@@ -20,8 +20,8 @@ const CanvasDraw = () => {
   const [drawMode, setDrawMode] = useState("line");
   const [image, setImage] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({
-    width: 800,
-    height: 500,
+    width: 700,
+    height: 400,
   });
   const [lines, setLines] = useState([]);
   const [currentLine, setCurrentLine] = useState(null);
@@ -270,8 +270,8 @@ const CanvasDraw = () => {
   }, [lineCoordinates, polygonVertices, drawMode]);
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+    <Box sx={{ p: 1 }}>
+      <Paper elevation={3} sx={{ p: 1, mb: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <RadioGroup
             row
@@ -335,7 +335,7 @@ const CanvasDraw = () => {
             `Lines drawn: ${lines.length}${currentLine ? " (1 pending)" : ""}`}
         </Typography>
       </Box>
-      <Paper elevation={3} sx={{ p: 2 }}>
+      <Paper elevation={3} sx={{ p: 1 }}>
         {drawMode === "line" && (
           <Box>
             {lines.map((line, index) => (
