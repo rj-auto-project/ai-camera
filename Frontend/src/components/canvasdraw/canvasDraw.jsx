@@ -1,21 +1,34 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Typography,
+  Paper,
+  IconButton,
+  Divider,
+} from "@mui/material";
+import { Undo, FileUpload } from "@mui/icons-material";
 
 const CanvasDraw = () => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [lineCoordinates, setLineCoordinates] = useState({
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
-  });
+  const [lineCoordinates, setLineCoordinates] = useState([[], [], [], []]);
   const [polygonVertices, setPolygonVertices] = useState([]);
   const [drawMode, setDrawMode] = useState("line");
   const [image, setImage] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({
-    width: 800,
-    height: 500,
+    width: 700,
+    height: 400,
   });
+  const [lines, setLines] = useState([]);
+  const [currentLine, setCurrentLine] = useState(null);
+  const [okEnabled, setOkEnabled] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+
+  const lineColors = ["red", "green", "blue", "purple"];
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -30,15 +43,18 @@ const CanvasDraw = () => {
   const handleMouseDown = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const startX = e.clientX - rect.left;
-    const startY = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    setIsDrawing(true);
-
-    if (drawMode === "line") {
-      setLineCoordinates({ startX, startY, endX: startX, endY: startY });
+    if (drawMode === "line" && lines.length < 4) {
+      setIsDrawing(true);
+      setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     } else if (drawMode === "polygon") {
-      setPolygonVertices([...polygonVertices, { x: startX, y: startY }]);
+      setPolygonVertices((prevVertices) => {
+        const newVertices = [...prevVertices, { x, y }];
+        redrawCanvas(newVertices);
+        return newVertices;
+      });
     }
   };
 
@@ -50,68 +66,131 @@ const CanvasDraw = () => {
     const endX = e.clientX - rect.left;
     const endY = e.clientY - rect.top;
 
-    setLineCoordinates((prevCoords) => ({
-      ...prevCoords,
+    setCurrentLine((prevLine) => ({
+      ...prevLine,
       endX,
       endY,
     }));
 
-    drawLine(lineCoordinates.startX, lineCoordinates.startY, endX, endY);
+    drawLines();
   };
 
   const handleMouseUp = () => {
+    if (drawMode === "line" && isDrawing) {
+      setOkEnabled(true);
+    }
     setIsDrawing(false);
+  };
 
-    if (drawMode === "line") {
-      drawLine(
-        lineCoordinates.startX,
-        lineCoordinates.startY,
-        lineCoordinates.endX,
-        lineCoordinates.endY
+  const drawLines = (linesToDraw = lines) => {
+    clearCanvas();
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    linesToDraw.forEach((line, index) => {
+      context.beginPath();
+      context.moveTo(line.startX, line.startY);
+      context.lineTo(line.endX, line.endY);
+      context.strokeStyle = lineColors[index];
+      context.stroke();
+      drawPoint(line.startX, line.startY, lineColors[index]);
+      drawPoint(line.endX, line.endY, lineColors[index]);
+    });
+
+    if (currentLine) {
+      context.beginPath();
+      context.moveTo(currentLine.startX, currentLine.startY);
+      context.lineTo(currentLine.endX, currentLine.endY);
+      context.strokeStyle = lineColors[linesToDraw.length];
+      context.stroke();
+      drawPoint(
+        currentLine.startX,
+        currentLine.startY,
+        lineColors[linesToDraw.length]
       );
-    } else if (drawMode === "polygon") {
-      if (polygonVertices.length > 0) {
-        drawPolygon(polygonVertices);
-      }
+      drawPoint(
+        currentLine.endX,
+        currentLine.endY,
+        lineColors[linesToDraw.length]
+      );
     }
   };
 
-  const drawLine = (startX, startY, endX, endY) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+  const handleOkClick = () => {
+    if (currentLine) {
+      setLines((prevLines) => {
+        const newLines = [...prevLines, currentLine];
+        setLineCoordinates((prevCoords) => {
+          const newCoords = [...prevCoords];
+          newCoords[newLines.length - 1] = [
+            [currentLine.startX, currentLine.startY],
+            [currentLine.endX, currentLine.endY],
+          ];
+          return newCoords;
+        });
+        return newLines;
+      });
+      setCurrentLine(null);
+      setOkEnabled(false);
+    }
+  };
 
+  const handleUndo = () => {
+    if (drawMode === "line") {
+      setLines((prevLines) => {
+        const newLines = prevLines.slice(0, -1);
+        drawLines(newLines);
+        return newLines;
+      });
+      setCurrentLine(null);
+      setOkEnabled(false);
+    } else if (drawMode === "polygon") {
+      setPolygonVertices((prevVertices) => {
+        const newVertices = prevVertices.slice(0, -1);
+        redrawCanvas(newVertices);
+        return newVertices;
+      });
+    }
+  };
+
+  const redrawCanvas = (vertices = polygonVertices) => {
     clearCanvas();
-    context.beginPath();
-    context.moveTo(startX, startY);
-    context.lineTo(endX, endY);
-    context.stroke();
-
-    // Highlight the start point
-    drawPoint(startX, startY, "blue");
-    drawPoint(endX, endY, "blue");
+    if (image) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    }
+    if (drawMode === "line") {
+      drawLines();
+    } else if (drawMode === "polygon") {
+      drawPolygon(vertices);
+    }
   };
 
   const drawPolygon = (vertices) => {
+    clearCanvas();
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
-    clearCanvas();
-    context.beginPath();
-    context.moveTo(vertices[0].x, vertices[0].y);
+    if (vertices.length > 0) {
+      context.beginPath();
+      context.moveTo(vertices[0].x, vertices[0].y);
 
-    vertices.forEach((vertex, index) => {
-      if (index > 0) {
+      vertices.forEach((vertex) => {
         context.lineTo(vertex.x, vertex.y);
+      });
+
+      if (vertices.length > 2) {
+        context.closePath();
       }
-    });
+      context.strokeStyle = "blue";
+      context.stroke();
 
-    context.closePath();
-    context.stroke();
-
-    // Highlight all vertices
-    vertices.forEach((vertex, index) => {
-      drawPoint(vertex.x, vertex.y, "blue");
-    });
+      // Highlight all vertices
+      vertices.forEach((vertex) => {
+        drawPoint(vertex.x, vertex.y, "blue");
+      });
+    }
   };
 
   const drawPoint = (x, y, color) => {
@@ -130,8 +209,13 @@ const CanvasDraw = () => {
     clearCanvas();
     if (newMode === "line") {
       setPolygonVertices([]);
+      setLines([]);
+      setCurrentLine(null);
+      setOkEnabled(false);
     } else if (newMode === "polygon") {
-      setLineCoordinates({ startX: 0, startY: 0, endX: 0, endY: 0 });
+      setLines([]);
+      setCurrentLine(null);
+      setPolygonVertices([]);
     }
   };
 
@@ -141,7 +225,6 @@ const CanvasDraw = () => {
 
     const img = new Image();
     const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
 
     img.onload = () => {
       const aspectRatio = img.width / img.height;
@@ -152,88 +235,133 @@ const CanvasDraw = () => {
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
 
-      // Draw the image onto the canvas immediately after loading
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
-      setImage(img);
+      setUploadedImage(img);
     };
 
     img.src = URL.createObjectURL(file);
   };
 
-  const handleUndo = () => {
-    clearCanvas();
-    if (drawMode === "line") {
-      setLineCoordinates({ startX: 0, startY: 0, endX: 0, endY: 0 });
-    } else if (drawMode === "polygon") {
-      setPolygonVertices((prevVertices) => {
-        const updatedVertices = prevVertices.slice(0, -1);
-
-        if (updatedVertices.length > 0) {
-          drawPolygon(updatedVertices);
-        }
-        return updatedVertices;
-      });
-    }
-    if (image) {
+  const handleCanvasClick = () => {
+    if (uploadedImage) {
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+      setImage(uploadedImage);
+      setUploadedImage(null);
     }
   };
 
+  useEffect(() => {
+    if (drawMode === "line") {
+      console.log("Line Coordinates:", {
+        line1: lineCoordinates[0],
+        line2: lineCoordinates[1],
+        line3: lineCoordinates[2],
+        line4: lineCoordinates[3],
+      });
+    } else if (drawMode === "polygon") {
+      console.log(
+        "Polygon Coordinates:",
+        polygonVertices.map((vertex) => [vertex.x, vertex.y])
+      );
+    }
+  }, [lineCoordinates, polygonVertices, drawMode]);
+
   return (
-    <div>
-      <div>
-        <label>
-          <input
-            type="radio"
-            value="line"
-            checked={drawMode === "line"}
+    <Box sx={{ p: 1 }}>
+      <Paper elevation={3} sx={{ p: 1, mb: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <RadioGroup
+            row
+            value={drawMode}
             onChange={handleModeChange}
+            sx={{ mr: 2 }}
+          >
+            <FormControlLabel value="line" control={<Radio />} label="Line" />
+            <FormControlLabel value="polygon" control={<Radio />} label="Polygon" />
+          </RadioGroup>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<FileUpload />}
+            sx={{ mr: 2 }}
+          >
+            Upload Image
+            <input type="file" hidden onChange={handleImageUpload} />
+          </Button>
+          <IconButton onClick={handleUndo} title="Undo">
+            <Undo />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ position: "relative" }}>
+          <canvas
+            ref={canvasRef}
+            width={imageDimensions.width}
+            height={imageDimensions.height}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onClick={handleCanvasClick}
+            style={{
+              cursor: uploadedImage ? "pointer" : "default",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
-          Line
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="polygon"
-            checked={drawMode === "polygon"}
-            onChange={handleModeChange}
-          />
-          Polygon
-        </label>
-        <input type="file" onChange={handleImageUpload} />
-        <button
-          title="undo"
-          style={{
-            border: "1px solid white",
-            paddingLeft: 10,
-            paddingRight: 10,
-          }}
-          onClick={handleUndo}
+          {uploadedImage && (
+            <Typography
+              variant="body2"
+              color="error"
+              sx={{ position: "absolute", top: 8, left: 8 }}
+            >
+              Image uploaded. Click on the canvas to display.
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleOkClick}
+          disabled={!okEnabled || lines.length >= 4}
         >
-          <i class="fas fa-undo"></i> Undo
-        </button>
-      </div>
-      <canvas
-        ref={canvasRef}
-        width={imageDimensions.width}
-        height={imageDimensions.height}
-        style={{ border: "1px solid black" }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      />
-      <p>
-        {drawMode === "line" &&
-          `Line Coordinates: Start(${lineCoordinates.startX}, ${lineCoordinates.startY}) - End(${lineCoordinates.endX}, ${lineCoordinates.endY})`}
-        {drawMode === "polygon" &&
-          `Polygon Vertices: ${polygonVertices
-            .map((vertex, index) => `(${vertex.x}, ${vertex.y})`)
-            .join(", ")}`}
-      </p>
-    </div>
+          OK
+        </Button>
+        <Typography variant="body1">
+          {drawMode === "line" &&
+            `Lines drawn: ${lines.length}${currentLine ? " (1 pending)" : ""}`}
+        </Typography>
+      </Box>
+      <Paper elevation={3} sx={{ p: 1 }}>
+        {drawMode === "line" && (
+          <Box>
+            {lines.map((line, index) => (
+              <Typography key={index} variant="body2">
+                Line {index + 1}: ({line.startX.toFixed(2)}, {line.startY.toFixed(2)}) - (
+                {line.endX.toFixed(2)}, {line.endY.toFixed(2)})
+              </Typography>
+            ))}
+            {currentLine && (
+              <Typography variant="body2">
+                Current Line: ({currentLine.startX.toFixed(2)}, {currentLine.startY.toFixed(2)}) - (
+                {currentLine.endX.toFixed(2)}, {currentLine.endY.toFixed(2)})
+              </Typography>
+            )}
+          </Box>
+        )}
+        {drawMode === "polygon" && (
+          <Typography variant="body2">
+            Polygon Vertices:{" "}
+            {polygonVertices
+              .map((vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`)
+              .join(", ")}
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 };
 
