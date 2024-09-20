@@ -397,7 +397,6 @@ const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
-  width: 860,
   borderRadius: 1,
   transform: "translate(-50%, -50%)",
   backgroundColor: "#1d1c1c",

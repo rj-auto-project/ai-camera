@@ -1,4 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Typography,
+  Paper,
+  IconButton,
+  Divider,
+} from "@mui/material";
+import { Undo, FileUpload } from "@mui/icons-material";
 
 const CanvasDraw = () => {
   const canvasRef = useRef(null);
@@ -40,7 +52,7 @@ const CanvasDraw = () => {
     } else if (drawMode === "polygon") {
       setPolygonVertices((prevVertices) => {
         const newVertices = [...prevVertices, { x, y }];
-        drawPolygon(newVertices);
+        redrawCanvas(newVertices);
         return newVertices;
       });
     }
@@ -135,13 +147,13 @@ const CanvasDraw = () => {
     } else if (drawMode === "polygon") {
       setPolygonVertices((prevVertices) => {
         const newVertices = prevVertices.slice(0, -1);
-        drawPolygon(newVertices);
+        redrawCanvas(newVertices);
         return newVertices;
       });
     }
   };
 
-  const redrawCanvas = () => {
+  const redrawCanvas = (vertices = polygonVertices) => {
     clearCanvas();
     if (image) {
       const canvas = canvasRef.current;
@@ -151,23 +163,8 @@ const CanvasDraw = () => {
     if (drawMode === "line") {
       drawLines();
     } else if (drawMode === "polygon") {
-      drawPolygon(polygonVertices);
+      drawPolygon(vertices);
     }
-  };
-
-  const drawLine = (startX, startY, endX, endY) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
-    clearCanvas();
-    context.beginPath();
-    context.moveTo(startX, startY);
-    context.lineTo(endX, endY);
-    context.stroke();
-
-    // Highlight the start point
-    drawPoint(startX, startY, "blue");
-    drawPoint(endX, endY, "blue");
   };
 
   const drawPolygon = (vertices) => {
@@ -179,10 +176,8 @@ const CanvasDraw = () => {
       context.beginPath();
       context.moveTo(vertices[0].x, vertices[0].y);
 
-      vertices.forEach((vertex, index) => {
-        if (index > 0) {
-          context.lineTo(vertex.x, vertex.y);
-        }
+      vertices.forEach((vertex) => {
+        context.lineTo(vertex.x, vertex.y);
       });
 
       if (vertices.length > 2) {
@@ -230,7 +225,6 @@ const CanvasDraw = () => {
 
     const img = new Image();
     const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
 
     img.onload = () => {
       const aspectRatio = img.width / img.height;
@@ -276,108 +270,98 @@ const CanvasDraw = () => {
   }, [lineCoordinates, polygonVertices, drawMode]);
 
   return (
-    <div>
-      <div>
-        <label>
-          <input
-            type="radio"
-            value="line"
-            checked={drawMode === "line"}
+    <Box sx={{ p: 2 }}>
+      <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <RadioGroup
+            row
+            value={drawMode}
             onChange={handleModeChange}
+            sx={{ mr: 2 }}
+          >
+            <FormControlLabel value="line" control={<Radio />} label="Line" />
+            <FormControlLabel value="polygon" control={<Radio />} label="Polygon" />
+          </RadioGroup>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<FileUpload />}
+            sx={{ mr: 2 }}
+          >
+            Upload Image
+            <input type="file" hidden onChange={handleImageUpload} />
+          </Button>
+          <IconButton onClick={handleUndo} title="Undo">
+            <Undo />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ position: "relative" }}>
+          <canvas
+            ref={canvasRef}
+            width={imageDimensions.width}
+            height={imageDimensions.height}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onClick={handleCanvasClick}
+            style={{
+              cursor: uploadedImage ? "pointer" : "default",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
-          Line
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="polygon"
-            checked={drawMode === "polygon"}
-            onChange={handleModeChange}
-          />
-          Polygon
-        </label>
-        <input type="file" onChange={handleImageUpload} />
-        <button
-          title="undo"
-          style={{
-            border: "1px solid white",
-            paddingLeft: 10,
-            paddingRight: 10,
-          }}
-          onClick={handleUndo}
+          {uploadedImage && (
+            <Typography
+              variant="body2"
+              color="error"
+              sx={{ position: "absolute", top: 8, left: 8 }}
+            >
+              Image uploaded. Click on the canvas to display.
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleOkClick}
+          disabled={!okEnabled || lines.length >= 4}
         >
-          <i class="fas fa-undo"></i> Undo
-        </button>
-      </div>
-      <canvas
-        ref={canvasRef}
-        width={imageDimensions.width}
-        height={imageDimensions.height}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onClick={handleCanvasClick}
-        style={{
-          cursor: uploadedImage ? "pointer" : "default",
-          border: "1px solid black",
-        }}
-      />
-      {uploadedImage && (
-        <p style={{ color: "red" }}>
-          Image uploaded. Click on the canvas to display.
-        </p>
-      )}
-      <button
-        onClick={handleOkClick}
-        disabled={!okEnabled || lines.length >= 4}
-        style={{
-          marginLeft: "10px",
-          padding: "5px 10px",
-          backgroundColor: okEnabled && lines.length < 4 ? "#4CAF50" : "#ddd",
-          color: okEnabled && lines.length < 4 ? "white" : "gray",
-          border: "none",
-          borderRadius: "4px",
-          cursor: okEnabled && lines.length < 4 ? "pointer" : "not-allowed",
-        }}
-      >
-        OK
-      </button>
-      <div>
-        <p>
+          OK
+        </Button>
+        <Typography variant="body1">
           {drawMode === "line" &&
             `Lines drawn: ${lines.length}${currentLine ? " (1 pending)" : ""}`}
-        </p>
+        </Typography>
+      </Box>
+      <Paper elevation={3} sx={{ p: 2 }}>
         {drawMode === "line" && (
-          <div>
+          <Box>
             {lines.map((line, index) => (
-              <p key={index}>
-                Line {index + 1}: ({line.startX.toFixed(2)},{" "}
-                {line.startY.toFixed(2)}) - ({line.endX.toFixed(2)},{" "}
-                {line.endY.toFixed(2)})
-              </p>
+              <Typography key={index} variant="body2">
+                Line {index + 1}: ({line.startX.toFixed(2)}, {line.startY.toFixed(2)}) - (
+                {line.endX.toFixed(2)}, {line.endY.toFixed(2)})
+              </Typography>
             ))}
             {currentLine && (
-              <p>
-                Current Line: ({currentLine.startX.toFixed(2)},{" "}
-                {currentLine.startY.toFixed(2)}) - (
+              <Typography variant="body2">
+                Current Line: ({currentLine.startX.toFixed(2)}, {currentLine.startY.toFixed(2)}) - (
                 {currentLine.endX.toFixed(2)}, {currentLine.endY.toFixed(2)})
-              </p>
+              </Typography>
             )}
-          </div>
+          </Box>
         )}
         {drawMode === "polygon" && (
-          <p>
+          <Typography variant="body2">
             Polygon Vertices:{" "}
             {polygonVertices
-              .map(
-                (vertex, index) =>
-                  `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`
-              )
+              .map((vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`)
               .join(", ")}
-          </p>
+          </Typography>
         )}
-      </div>
-    </div>
+      </Paper>
+    </Box>
   );
 };
 
