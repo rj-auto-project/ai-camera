@@ -1,14 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const CanvasDraw = () => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [lineCoordinates, setLineCoordinates] = useState({
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
-  });
+  const [lineCoordinates, setLineCoordinates] = useState([[], [], [], []]);
   const [polygonVertices, setPolygonVertices] = useState([]);
   const [drawMode, setDrawMode] = useState("line");
   const [image, setImage] = useState(null);
@@ -43,7 +38,7 @@ const CanvasDraw = () => {
       setIsDrawing(true);
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     } else if (drawMode === "polygon") {
-      setPolygonVertices(prevVertices => {
+      setPolygonVertices((prevVertices) => {
         const newVertices = [...prevVertices, { x, y }];
         drawPolygon(newVertices);
         return newVertices;
@@ -101,13 +96,28 @@ const CanvasDraw = () => {
         currentLine.startY,
         lineColors[linesToDraw.length]
       );
-      drawPoint(currentLine.endX, currentLine.endY, lineColors[linesToDraw.length]);
+      drawPoint(
+        currentLine.endX,
+        currentLine.endY,
+        lineColors[linesToDraw.length]
+      );
     }
   };
 
   const handleOkClick = () => {
     if (currentLine) {
-      setLines([...lines, currentLine]);
+      setLines((prevLines) => {
+        const newLines = [...prevLines, currentLine];
+        setLineCoordinates((prevCoords) => {
+          const newCoords = [...prevCoords];
+          newCoords[newLines.length - 1] = [
+            [currentLine.startX, currentLine.startY],
+            [currentLine.endX, currentLine.endY],
+          ];
+          return newCoords;
+        });
+        return newLines;
+      });
       setCurrentLine(null);
       setOkEnabled(false);
     }
@@ -115,7 +125,7 @@ const CanvasDraw = () => {
 
   const handleUndo = () => {
     if (drawMode === "line") {
-      setLines(prevLines => {
+      setLines((prevLines) => {
         const newLines = prevLines.slice(0, -1);
         drawLines(newLines);
         return newLines;
@@ -123,7 +133,7 @@ const CanvasDraw = () => {
       setCurrentLine(null);
       setOkEnabled(false);
     } else if (drawMode === "polygon") {
-      setPolygonVertices(prevVertices => {
+      setPolygonVertices((prevVertices) => {
         const newVertices = prevVertices.slice(0, -1);
         drawPolygon(newVertices);
         return newVertices;
@@ -249,6 +259,22 @@ const CanvasDraw = () => {
     }
   };
 
+  useEffect(() => {
+    if (drawMode === "line") {
+      console.log("Line Coordinates:", {
+        line1: lineCoordinates[0],
+        line2: lineCoordinates[1],
+        line3: lineCoordinates[2],
+        line4: lineCoordinates[3],
+      });
+    } else if (drawMode === "polygon") {
+      console.log(
+        "Polygon Coordinates:",
+        polygonVertices.map((vertex) => [vertex.x, vertex.y])
+      );
+    }
+  }, [lineCoordinates, polygonVertices, drawMode]);
+
   return (
     <div>
       <div>
@@ -287,12 +313,14 @@ const CanvasDraw = () => {
         ref={canvasRef}
         width={imageDimensions.width}
         height={imageDimensions.height}
-        style={{ border: "1px solid black" }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onClick={handleCanvasClick}
-        style={{ cursor: uploadedImage ? "pointer" : "default" }}
+        style={{
+          cursor: uploadedImage ? "pointer" : "default",
+          border: "1px solid black",
+        }}
       />
       {uploadedImage && (
         <p style={{ color: "red" }}>
