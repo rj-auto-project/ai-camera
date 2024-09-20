@@ -16,6 +16,12 @@ const CanvasDraw = () => {
     width: 800,
     height: 500,
   });
+  const [lines, setLines] = useState([]);
+  const [currentLine, setCurrentLine] = useState(null);
+  const [okEnabled, setOkEnabled] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+
+  const lineColors = ["red", "green", "blue", "purple"];
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -30,15 +36,18 @@ const CanvasDraw = () => {
   const handleMouseDown = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const startX = e.clientX - rect.left;
-    const startY = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    setIsDrawing(true);
-
-    if (drawMode === "line") {
-      setLineCoordinates({ startX, startY, endX: startX, endY: startY });
+    if (drawMode === "line" && lines.length < 4) {
+      setIsDrawing(true);
+      setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     } else if (drawMode === "polygon") {
-      setPolygonVertices([...polygonVertices, { x: startX, y: startY }]);
+      setPolygonVertices(prevVertices => {
+        const newVertices = [...prevVertices, { x, y }];
+        drawPolygon(newVertices);
+        return newVertices;
+      });
     }
   };
 
@@ -50,29 +59,89 @@ const CanvasDraw = () => {
     const endX = e.clientX - rect.left;
     const endY = e.clientY - rect.top;
 
-    setLineCoordinates((prevCoords) => ({
-      ...prevCoords,
+    setCurrentLine((prevLine) => ({
+      ...prevLine,
       endX,
       endY,
     }));
 
-    drawLine(lineCoordinates.startX, lineCoordinates.startY, endX, endY);
+    drawLines();
   };
 
   const handleMouseUp = () => {
+    if (drawMode === "line" && isDrawing) {
+      setOkEnabled(true);
+    }
     setIsDrawing(false);
+  };
 
-    if (drawMode === "line") {
-      drawLine(
-        lineCoordinates.startX,
-        lineCoordinates.startY,
-        lineCoordinates.endX,
-        lineCoordinates.endY
+  const drawLines = (linesToDraw = lines) => {
+    clearCanvas();
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    linesToDraw.forEach((line, index) => {
+      context.beginPath();
+      context.moveTo(line.startX, line.startY);
+      context.lineTo(line.endX, line.endY);
+      context.strokeStyle = lineColors[index];
+      context.stroke();
+      drawPoint(line.startX, line.startY, lineColors[index]);
+      drawPoint(line.endX, line.endY, lineColors[index]);
+    });
+
+    if (currentLine) {
+      context.beginPath();
+      context.moveTo(currentLine.startX, currentLine.startY);
+      context.lineTo(currentLine.endX, currentLine.endY);
+      context.strokeStyle = lineColors[linesToDraw.length];
+      context.stroke();
+      drawPoint(
+        currentLine.startX,
+        currentLine.startY,
+        lineColors[linesToDraw.length]
       );
+      drawPoint(currentLine.endX, currentLine.endY, lineColors[linesToDraw.length]);
+    }
+  };
+
+  const handleOkClick = () => {
+    if (currentLine) {
+      setLines([...lines, currentLine]);
+      setCurrentLine(null);
+      setOkEnabled(false);
+    }
+  };
+
+  const handleUndo = () => {
+    if (drawMode === "line") {
+      setLines(prevLines => {
+        const newLines = prevLines.slice(0, -1);
+        drawLines(newLines);
+        return newLines;
+      });
+      setCurrentLine(null);
+      setOkEnabled(false);
     } else if (drawMode === "polygon") {
-      if (polygonVertices.length > 0) {
-        drawPolygon(polygonVertices);
-      }
+      setPolygonVertices(prevVertices => {
+        const newVertices = prevVertices.slice(0, -1);
+        drawPolygon(newVertices);
+        return newVertices;
+      });
+    }
+  };
+
+  const redrawCanvas = () => {
+    clearCanvas();
+    if (image) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    }
+    if (drawMode === "line") {
+      drawLines();
+    } else if (drawMode === "polygon") {
+      drawPolygon(polygonVertices);
     }
   };
 
@@ -92,26 +161,31 @@ const CanvasDraw = () => {
   };
 
   const drawPolygon = (vertices) => {
+    clearCanvas();
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
-    clearCanvas();
-    context.beginPath();
-    context.moveTo(vertices[0].x, vertices[0].y);
+    if (vertices.length > 0) {
+      context.beginPath();
+      context.moveTo(vertices[0].x, vertices[0].y);
 
-    vertices.forEach((vertex, index) => {
-      if (index > 0) {
-        context.lineTo(vertex.x, vertex.y);
+      vertices.forEach((vertex, index) => {
+        if (index > 0) {
+          context.lineTo(vertex.x, vertex.y);
+        }
+      });
+
+      if (vertices.length > 2) {
+        context.closePath();
       }
-    });
+      context.strokeStyle = "blue";
+      context.stroke();
 
-    context.closePath();
-    context.stroke();
-
-    // Highlight all vertices
-    vertices.forEach((vertex, index) => {
-      drawPoint(vertex.x, vertex.y, "blue");
-    });
+      // Highlight all vertices
+      vertices.forEach((vertex) => {
+        drawPoint(vertex.x, vertex.y, "blue");
+      });
+    }
   };
 
   const drawPoint = (x, y, color) => {
@@ -130,8 +204,13 @@ const CanvasDraw = () => {
     clearCanvas();
     if (newMode === "line") {
       setPolygonVertices([]);
+      setLines([]);
+      setCurrentLine(null);
+      setOkEnabled(false);
     } else if (newMode === "polygon") {
-      setLineCoordinates({ startX: 0, startY: 0, endX: 0, endY: 0 });
+      setLines([]);
+      setCurrentLine(null);
+      setPolygonVertices([]);
     }
   };
 
@@ -152,33 +231,21 @@ const CanvasDraw = () => {
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
 
-      // Draw the image onto the canvas immediately after loading
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
-      setImage(img);
+      setUploadedImage(img);
     };
 
     img.src = URL.createObjectURL(file);
   };
 
-  const handleUndo = () => {
-    clearCanvas();
-    if (drawMode === "line") {
-      setLineCoordinates({ startX: 0, startY: 0, endX: 0, endY: 0 });
-    } else if (drawMode === "polygon") {
-      setPolygonVertices((prevVertices) => {
-        const updatedVertices = prevVertices.slice(0, -1);
-
-        if (updatedVertices.length > 0) {
-          drawPolygon(updatedVertices);
-        }
-        return updatedVertices;
-      });
-    }
-    if (image) {
+  const handleCanvasClick = () => {
+    if (uploadedImage) {
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+      setImage(uploadedImage);
+      setUploadedImage(null);
     }
   };
 
@@ -224,15 +291,64 @@ const CanvasDraw = () => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onClick={handleCanvasClick}
+        style={{ cursor: uploadedImage ? "pointer" : "default" }}
       />
-      <p>
-        {drawMode === "line" &&
-          `Line Coordinates: Start(${lineCoordinates.startX}, ${lineCoordinates.startY}) - End(${lineCoordinates.endX}, ${lineCoordinates.endY})`}
-        {drawMode === "polygon" &&
-          `Polygon Vertices: ${polygonVertices
-            .map((vertex, index) => `(${vertex.x}, ${vertex.y})`)
-            .join(", ")}`}
-      </p>
+      {uploadedImage && (
+        <p style={{ color: "red" }}>
+          Image uploaded. Click on the canvas to display.
+        </p>
+      )}
+      <button
+        onClick={handleOkClick}
+        disabled={!okEnabled || lines.length >= 4}
+        style={{
+          marginLeft: "10px",
+          padding: "5px 10px",
+          backgroundColor: okEnabled && lines.length < 4 ? "#4CAF50" : "#ddd",
+          color: okEnabled && lines.length < 4 ? "white" : "gray",
+          border: "none",
+          borderRadius: "4px",
+          cursor: okEnabled && lines.length < 4 ? "pointer" : "not-allowed",
+        }}
+      >
+        OK
+      </button>
+      <div>
+        <p>
+          {drawMode === "line" &&
+            `Lines drawn: ${lines.length}${currentLine ? " (1 pending)" : ""}`}
+        </p>
+        {drawMode === "line" && (
+          <div>
+            {lines.map((line, index) => (
+              <p key={index}>
+                Line {index + 1}: ({line.startX.toFixed(2)},{" "}
+                {line.startY.toFixed(2)}) - ({line.endX.toFixed(2)},{" "}
+                {line.endY.toFixed(2)})
+              </p>
+            ))}
+            {currentLine && (
+              <p>
+                Current Line: ({currentLine.startX.toFixed(2)},{" "}
+                {currentLine.startY.toFixed(2)}) - (
+                {currentLine.endX.toFixed(2)}, {currentLine.endY.toFixed(2)})
+              </p>
+            )}
+          </div>
+        )}
+        {drawMode === "polygon" && (
+          <p>
+            Polygon Vertices:{" "}
+            {polygonVertices
+              .map(
+                (vertex, index) =>
+                  `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`
+              )
+              .join(", ")}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
