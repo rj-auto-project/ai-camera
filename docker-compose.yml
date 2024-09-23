@@ -13,7 +13,6 @@ services:
       - app-network
     depends_on:
       - backend
-      - ml_backend
 
   # Node.js Backend Service
   backend:
@@ -21,8 +20,6 @@ services:
     build:
       context: ./Backend
       dockerfile: backend.dockerfile
-    ports:
-      - "4000:4000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -123,8 +120,6 @@ services:
     build:
       context: ./ML Backend
       dockerfile: ml_backend.dockerfile
-    ports:
-      - "5000:5000"
     environment:
       KAFKA_BROKER: kafka:9092
     networks:
