@@ -27,7 +27,7 @@ services:
     depends_on:
       - db
       - redis
-      - kafka
+      # - kafka
     networks:
       - app-network
     restart: always
@@ -115,27 +115,23 @@ services:
   #     retries: 3
 
   # Machine Learning Model Service (ML Backend)
-  # ml_backend:
-  #   image: ml_backend
-  #   build:
-  #     context: ./ML Backend
-  #     dockerfile: ml_backend.dockerfile
-  #   environment:
-  #     KAFKA_BROKER: kafka:9092
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - kafka
-  #   restart: always
-  #   deploy:
-  #     replicas: 2 
-  #     restart_policy:
-  #       condition: on-failure
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
+  ml_backend:
+    image: ml_backend
+    build:
+      context: ./ML Backend
+      dockerfile: ml_backend.dockerfile
+    networks:
+      - app-network
+    restart: always
+    deploy:
+      replicas: 2 
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   pgdata: {}
