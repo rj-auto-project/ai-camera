@@ -1,14 +1,21 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# WORKDIR /app
+# Set the working directory
+WORKDIR /app
 
-# COPY . .
+# Copy the requirements file first for better caching
+COPY requirements.txt .
 
-# RUN pip install --no-cache-dir -r requirements.txt
+# Update pip to the latest version (optional but recommended)
+RUN pip install --upgrade pip
 
-# EXPOSE 5000
+# Install dependencies with increased timeout and alternative mirror
+RUN pip install --no-cache-dir --default-timeout=1000 -r requirements.txt \
+    --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-# ENV FLASK_APP=your_ml_app.py 
+# Copy the rest of the application code
+COPY . .
 
-# CMD ["python", "your_ml_app.py"]  # Replace with your actual entry point
+# Command to run the application
+CMD ["python", "main.py"]
