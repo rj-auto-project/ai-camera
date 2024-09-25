@@ -94,8 +94,10 @@ model IncidentLogs {
   camera_ip    String       @db.VarChar(30)
   boxCoords    String       @db.VarChar(255)
   incidentType IncidentType
-  resolved     Boolean      @default(false)
-  resolvedAt   DateTime?
+  modelResolved    Boolean      @default(false)
+  modelResolvedAt   DateTime?
+  userResolved     Boolean      @default(false)
+  userResolvedAt   DateTime?
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
