@@ -21,25 +21,25 @@ RUN pip install python-dotenv==1.0.1
 RUN pip install filterpy==1.4.5
 RUN pip install lap==0.4.0
 RUN pip install psycopg2-binary==2.9.9
-# Install dependencies with increased timeout and alternative mirror
 
 # Install dependencies with increased timeout and alternative mirror
 RUN apt-get update && \
     apt-get install -y \
     ffmpeg \
     libgl1-mesa-glx \
-    libglib2.0-0 && \
+    libglib2.0-0 \
+    dos2unix && \
     apt-get clean
 
 # Copy the rest of the application code
 COPY . .
 
-# Copy the run script and give it execute permissions
+# Copy the run script, convert line endings, and give it execute permissions
 COPY run.sh /app/run.sh
-RUN chmod +x /app/run.sh
-RUN ls -l /app/run.sh
+RUN dos2unix /app/run.sh && chmod +x /app/run.sh
+
 # Expose the port
 EXPOSE 8000
 
 # Use the shell script as the entry point
-CMD ["/app/run.sh"]
+CMD ["/bin/bash", "/app/run.sh"]
