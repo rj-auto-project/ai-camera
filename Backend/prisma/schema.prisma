@@ -39,7 +39,7 @@ model DetectionLog {
   id              Int           @id @default(autoincrement())
   timestamp       DateTime      @default(now())
   cameraId        String
-  metadata        Json
+  metadata        Json?
   trackId         String        @db.VarChar(255)
   camera_ip       String        @db.VarChar(30)
   boxCoords       String        @db.VarChar(255)
@@ -89,7 +89,7 @@ model IncidentLogs {
   id           Int          @id @default(autoincrement())
   timestamp    DateTime     @default(now())
   cameraId     String
-  metadata     Json
+  metadata     Json?
   trackId      String       @db.VarChar(255)
   camera_ip    String       @db.VarChar(30)
   boxCoords    String       @db.VarChar(255)
@@ -158,4 +158,6 @@ enum IncidentType {
   POTHOLE
   CATTLE
   WATERLOGGING
+  PEEING
+  SPITTING
 }
