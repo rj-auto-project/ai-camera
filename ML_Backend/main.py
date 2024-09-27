@@ -15,7 +15,7 @@ import os
 # Initialize device and model
 r = redis.Redis(host='localhost', port=6379, db=0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_file = os.path.abspath("D:/ai-cam/ai-camera/ML_Backend/models/objseg50e.pt")
+model_file = os.path.abspath("./models/objseg50e.pt")
 model = YOLO(model_file)
 
 model.to(device)
@@ -178,7 +178,7 @@ def stream_process(camera_id, camera_ip, video_path, batch_size=8):
 
             tracked_frames, track_id_list = track_objects(resized_frames, batch_results, frame_time)
             for tracked_frame in tracked_frames:
-                cv2.imshow("Tracked Frame", tracked_frame)
+                # cv2.imshow("Tracked Frame", tracked_frame)
                 process.stdin.write(tracked_frame.tobytes())
                 print("LLL")
                 # out.write(tracked_frame)
@@ -189,12 +189,11 @@ def stream_process(camera_id, camera_ip, video_path, batch_size=8):
     t2 = time.time()
     print(t2-t1)
     cap.release()
-    out.release()
     cv2.destroyAllWindows()
     print(custom_track_ids)
 
 # Example usage
-video_path = 'D:/ai-cam/ai-camera/data/output.mp4'
+video_path = './data/output.mp4'
 cam_ip = '127.0.0.1'
 cam_id = "1"
 stream_process(cam_id, cam_ip, video_path, batch_size=2)

@@ -698,8 +698,10 @@ pathDefaults:
 paths:
   # example:
   cam1:
-    runOnInit: ffmpeg -i rtsp://localhost:8554/stream -c:v libx264 -preset ultrafast -tune zerolatency -f rtsp rtsp://localhost:$RTSP_PORT/$MTX_PATH
+    runOnInit: ffmpeg -i "rtsp://localhost:8554/stream" -c:v libx264 -preset ultrafast -tune zerolatency -f rtsp "rtsp://localhost:$RTSP_PORT/$MTX_PATH"
     runOnInitRestart: yes
+  # my_camera:
+  #   source: rtsp://my_camera
 
   # Settings under path "all_others" are applied to all paths that
   # do not match another entry.
