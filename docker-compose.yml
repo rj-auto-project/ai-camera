@@ -117,7 +117,7 @@ services:
   ml_backend:
     image: ml_backend
     build:
-      context: ./ML Backend
+      context: ./ML_Backend
       dockerfile: ml_backend.dockerfile
     networks:
       - app-network
