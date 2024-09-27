@@ -424,8 +424,7 @@ const liveSuspectSearch = async (req, res) => {
       await prisma.operationLog.update({
         where: { id: parseInt(operationId) },
         data: {
-          operationStatus: 'FAILED',
-          errorMessage: error.message,
+          operationStatus: 'INACTIVE',
           closeTimestamp: new Date(),
         },
       });
@@ -517,8 +516,7 @@ const liveVehicleOperation = async (req, res) => {
       await prisma.operationLog.update({
         where: { id: parseInt(operationId) },
         data: {
-          operationStatus: 'FAILED',
-          errorMessage: error.message,
+          operationStatus: 'INACTIVE',
           closeTimestamp: new Date(),
         },
       });
