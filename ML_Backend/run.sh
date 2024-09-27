@@ -16,6 +16,8 @@ if [ -d "mediamtx" ]; then
         echo "Running mediamtx"
         # Run mediamtx in the background
         ./mediamtx &
+        mediamtx_pid=$!  # Store the process ID of mediamtx
+        echo "mediamtx started with PID: $mediamtx_pid"
     else
         echo "mediamtx executable not found"
     fi
@@ -24,15 +26,26 @@ else
     echo "mediamtx directory not found"
 fi
 
-# Check if main.py exists and run it in parallel with mediamtx
+# Ensure mediamtx starts properly before running main.py
+if [ -n "$mediamtx_pid" ]; then
+    echo "Waiting for mediamtx to initialize..."
+    sleep 5  # Add a delay to ensure mediamtx has time to initialize
+fi
+
+# Check if main.py exists and run it
 if [ -f "main.py" ]; then
     echo "Running main.py"
     python3 main.py &
+    main_pid=$!  # Store the process ID of main.py
+    echo "main.py started with PID: $main_pid"
 else
     echo "main.py not found"
     echo "Contents of /app directory:"
     ls -la /app
 fi
 
-# Wait for all background processes to finish
-wait
+# Wait for both processes (mediamtx and main.py) to finish
+wait $mediamtx_pid
+wait $main_pid
+
+echo "Both mediamtx and main.py have completed"
