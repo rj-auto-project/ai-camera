@@ -121,11 +121,14 @@ services:
     build:
       context: ./ML_Backend
       dockerfile: ml_backend.dockerfile
+    ports:
+      - "8889:8889"
+      - "8554:8554"
     networks:
       - app-network
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8889/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

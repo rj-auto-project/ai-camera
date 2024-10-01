@@ -52,7 +52,7 @@ COPY run.sh /app/run.sh
 RUN dos2unix /app/run.sh && chmod +x /app/run.sh
 
 # Expose the port
-EXPOSE 8000
+EXPOSE 8889 8554
 
 # Use the shell script as the entry point
 CMD ["/bin/bash", "/app/run.sh"]
