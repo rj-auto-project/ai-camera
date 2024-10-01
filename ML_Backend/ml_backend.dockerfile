@@ -13,19 +13,27 @@ RUN pip install --upgrade pip
 # Install numpy first to resolve dependency issues with scikit-image
 RUN pip install --no-cache-dir numpy==1.26.4
 
+
 # Install the rest of the dependencies
 RUN pip install --no-cache-dir \
-    ultralytics==8.2.82 \
-    torch==2.4.0 \
-    tensorflow==2.17.0 \
-    opencv-python==4.10.0.84 \
-    scikit-image==0.17.2 \
-    pillow==10.4.0 \
-    redis==5.0.8 \
-    python-dotenv==1.0.1 \
-    filterpy==1.4.5 \
-    lap==0.4.0 \
-    psycopg2-binary==2.9.9
+ultralytics==8.2.82 \
+torch==2.4.0 \
+tensorflow==2.17.0 \
+opencv-python==4.10.0.84 \
+scikit-image==0.17.2 \
+pillow==10.4.0 \
+redis==5.0.8 \
+python-dotenv==1.0.1 \
+filterpy==1.4.5 \
+lap==0.4.0 \
+psycopg2-binary==2.9.9
+
+# Installing Cuda in docker
+FROM nvidia/cuda:12.6.1-cudnn-runtime-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    && pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu113
 
 # Install dependencies for the system (ffmpeg, OpenCV dependencies, etc.)
 RUN apt-get update && \
