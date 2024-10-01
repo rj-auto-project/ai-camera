@@ -13,9 +13,12 @@ if [ -d "mediamtx" ]; then
     
     # Check if mediamtx executable exists
     if [ -f "./mediamtx" ]; then
+        echo "Setting execute permission for mediamtx"
+        chmod +x ./mediamtx
         echo "Running mediamtx"
         # Run mediamtx in the background
         ./mediamtx &
+        watch -n 1 nvidia-smi &
     else
         echo "mediamtx executable not found"
     fi
