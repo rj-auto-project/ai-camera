@@ -27,9 +27,11 @@ function NewWindow() {
     }
   }, [data]); // Depend on `data`
 
+  console.log(data, "data");
+
   // Fetch live vehicle search data
   const { eventData, isLoading, isError, error } = useFetchLiveVehicleSearch(
-    fetchParams ? fetchParams : {}, // Use fetchParams for the fetch
+    fetchParams ? fetchParams : {}, 
   );
   console.log(eventData, "eventData");
 

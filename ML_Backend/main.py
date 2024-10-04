@@ -16,11 +16,10 @@ from functions import detect_wrong_way_violation
 import subprocess
 
 
-# Initialize device and model
-PARENT_DIR = "/home/annone/ai"
+
 # r = redis.Redis(host='localhost', port=6379, db=0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = YOLO("/home/annone/ai/models/objseg50e.pt")
+model = YOLO("./models/objseg50e.pt")
 model.to(device)
 print(f"{device} as Computation Device initiated")
 tracker = Sort()
@@ -256,7 +255,7 @@ def stream_process(camera_id, camera_ip, video_path, batch_size=8):
     # out.release()
     cv2.destroyAllWindows()
 
-video_path = '/home/annone/ai/data/wrongway.mp4'
+video_path = "./data/output.mp4"
 cam_ip = '127.0.0.1'
 cam_id = "1"
 stream_process(cam_id, cam_ip, video_path, batch_size=2)

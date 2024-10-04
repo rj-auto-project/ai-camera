@@ -10,7 +10,6 @@ const useFetchLiveVehicleSearch = ({ operationId, opType }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState(null);
-  const dispatch = useDispatch();
 
   const type =
     opType === "ANPR" || opType === "VEHICLE SEARCH"
