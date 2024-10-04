@@ -155,24 +155,24 @@ const suspectSearch = async (req, res) => {
       .sort()
       .join(",")}:${startTime}:${endTime}:${top_color}:${bottom_color}`;
     console.log("cacheKey", cacheKey);
-    const cachedData = await redisClient.get(cacheKey);
+    // const cachedData = await redisClient.get(cacheKey);
     let results = [];
 
-    if (cachedData) results = JSON.parse(cachedData);
-    else {
-      // Non-live operation: Standard search (historical data)
-      results = await suspectSearchService(
-        cameras,
-        classes,
-        startTime,
-        endTime,
-        top_color,
-        bottom_color,
-        employeeId,
-      );
-      if (results.length > 0)
-        await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
-    }
+    // if (cachedData) results = JSON.parse(cachedData);
+    // else {
+    // Non-live operation: Standard search (historical data)
+    results = await suspectSearchService(
+      cameras,
+      classes,
+      startTime,
+      endTime,
+      top_color,
+      bottom_color,
+      employeeId
+    );
+    // if (results.length > 0)
+    //   await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+    // }
     //update operation at end
     await prisma.operationLog.update({
       where: { id: newOperation?.id },
@@ -335,22 +335,22 @@ const vehicleOperation = async (req, res) => {
       });
     } else {
       const cacheKey = `vehicleOperation-${type}:${JSON.stringify(
-        operationData,
+        operationData
       )}:${startTime}:${endTime}`;
-      const cachedData = await redisClient.get(cacheKey);
+      // const cachedData = await redisClient.get(cacheKey);
       let results = [];
 
-      if (cachedData) results = JSON.parse(cachedData);
-      else {
-        // Historical search
-        results = await vehicleOperationService(
-          operationData,
-          cameras,
-          startTime,
-          endTime,
-        );
-        await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
-      }
+      // if (cachedData) results = JSON.parse(cachedData);
+      // else {
+      // Historical search
+      results = await vehicleOperationService(
+        operationData,
+        cameras,
+        startTime,
+        endTime
+      );
+      // await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+      // }
       await prisma.operationLog.update({
         where: { id: newOperation?.id },
         data: {
@@ -419,7 +419,7 @@ const liveSuspectSearch = async (req, res) => {
             bottom_color: operation.operationRequestData?.bottom_color,
           },
         },
-      },
+      }
     );
 
     // Listen for messages from the worker (live results)
@@ -437,7 +437,7 @@ const liveSuspectSearch = async (req, res) => {
           `data: ${JSON.stringify({
             status: "fail",
             message: liveResults.error,
-          })}\n\n`,
+          })}\n\n`
         );
         return res.end();
       }
@@ -462,7 +462,7 @@ const liveSuspectSearch = async (req, res) => {
         `data: ${JSON.stringify({
           status: "fail",
           message: "Error occurred in live search",
-        })}\n\n`,
+        })}\n\n`
       );
       res.end();
     });
@@ -525,7 +525,7 @@ const liveVehicleOperation = async (req, res) => {
             operationRequestData: operation.operationRequestData,
           },
         },
-      },
+      }
     );
 
     // Listen for messages from the worker (live results)
@@ -543,7 +543,7 @@ const liveVehicleOperation = async (req, res) => {
           `data: ${JSON.stringify({
             status: "fail",
             message: liveResults.error,
-          })}\n\n`,
+          })}\n\n`
         );
         return res.end();
       }
@@ -568,7 +568,7 @@ const liveVehicleOperation = async (req, res) => {
         `data: ${JSON.stringify({
           status: "fail",
           message: "Error occurred in live operation",
-        })}\n\n`,
+        })}\n\n`
       );
       res.end();
     });
@@ -670,9 +670,9 @@ const liveIncidentsTracking = async (req, res) => {
           startTime = new Date(
             Math.max(
               ...incidents.map((incident) =>
-                new Date(incident?.timestamp).getTime(),
-              ),
-            ) + 1,
+                new Date(incident?.timestamp).getTime()
+              )
+            ) + 1
           );
         }
 

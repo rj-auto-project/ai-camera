@@ -86,18 +86,20 @@ model AnprLogs {
 }
 
 model IncidentLogs {
-  id           Int          @id @default(autoincrement())
-  timestamp    DateTime     @default(now())
-  cameraId     String
-  metadata     Json?
-  trackId      String       @db.VarChar(255)
-  camera_ip    String       @db.VarChar(30)
-  boxCoords    String       @db.VarChar(255)
-  incidentType IncidentType
-  modelResolved    Boolean      @default(false)
-  modelResolvedAt   DateTime?
-  userResolved     Boolean      @default(false)
-  userResolvedAt   DateTime?
+  id              Int          @id @default(autoincrement())
+  timestamp       DateTime     @default(now())
+  cameraId        String
+  metadata        Json?
+  trackId         String       @db.VarChar(255)
+  camera_ip       String       @db.VarChar(30)
+  boxCoords       String       @db.VarChar(255)
+  incidentType    IncidentType
+  modelResolved   Boolean      @default(false)
+  modelResolvedAt DateTime?
+  userResolved    Boolean      @default(false)
+  userResolvedAt  DateTime?
+  resolved        Boolean      @default(false)
+  resolvedAt      DateTime?    @default(now())
 
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }

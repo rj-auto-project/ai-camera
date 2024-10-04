@@ -169,7 +169,7 @@ const Streams = React.memo(() => {
       </Stack>
 
       <Box mt={9}>
-        <VideoStream />
+        {/* <VideoStream /> */}
         <Grid container spacing={2}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
