@@ -9,7 +9,7 @@ import prisma from "../../config/prismaClient.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import redisClient from "../../config/redisClient.js";
+// import redisClient from "../../config/redisClient.js";
 
 // Resolve __dirname equivalent in ES module
 const __filename = fileURLToPath(import.meta.url);
