@@ -147,8 +147,8 @@ export default function Analytics() {
     const allDates = [
       ...new Set(
         filtered.map((incident) =>
-          dayjs(incident.timestamp).format("YYYY-MM-DD"),
-        ),
+          dayjs(incident.timestamp).format("YYYY-MM-DD")
+        )
       ),
     ].sort();
 
@@ -161,14 +161,15 @@ export default function Analytics() {
           borderColor: COLORS[index % COLORS.length],
           backgroundColor: COLORS[index % COLORS.length] + "40",
           fill: false,
-        }),
+        })
       ),
     };
 
     // Calculate most common incident type
-    const mostCommonIncidentType = Object.entries(typeCounts).reduce((a, b) =>
-      a[1] > b[1] ? a : b,
-    );
+    const mostCommonIncidentType =
+      Object.entries(typeCounts).length > 0
+        ? Object.entries(typeCounts).reduce((a, b) => (a[1] > b[1] ? a : b))
+        : [null, 0]; // Default value if there are no incidents
 
     // Calculate top incident types
     const sortedIncidentTypes = Object.entries(typeCounts)

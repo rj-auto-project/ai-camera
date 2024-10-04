@@ -21,6 +21,7 @@ import { formatTimeToIST } from "../../utils/formatTime.js";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DoneIcon from "@mui/icons-material/Done";
 import { green, red } from "@mui/material/colors";
+import ResponseDataModal from "../model/ResponseDataModal.jsx";
 
 const OperationsTable = ({ data, isError }) => {
   const [page, setPage] = useState(0);
@@ -29,6 +30,7 @@ const OperationsTable = ({ data, isError }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [operationData, setOperationData] = useState([]);
   const [dataModal, setDataModal] = useState(false);
+  const [responseModal, setResponseModal] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -61,10 +63,17 @@ const OperationsTable = ({ data, isError }) => {
     return <Typography>No data available</Typography>;
   }
 
-  const handleOpenWindow = (operation) => {
-    const dataToSend = { operation };
-    const modalTitle = "Operation response";
-    window.ipcRenderer.send("open-modal-window", dataToSend, modalTitle);
+  // const handleOpenWindow = (operation) => {
+  //   const dataToSend = { operation };
+  //   const modalTitle = "Operation Response";
+  //   console.log("Sending data to new window", dataToSend);
+  //   window.ipcRenderer.send("open-modal-window", dataToSend, modalTitle);
+  //   console.log("Opening window");
+  // };
+
+  const handleOpenNewModal = (operation) => {
+    setOperationData(operation);
+    setResponseModal(true);
   };
 
   return (
@@ -170,10 +179,10 @@ const OperationsTable = ({ data, isError }) => {
                       </Box>
                     </TableCell>
                     <TableCell
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
+                    // style={{
+                    //   display: "flex",
+                    //   flexDirection: "column",
+                    // }}
                     >
                       <Button
                         variant="contained"
@@ -188,16 +197,6 @@ const OperationsTable = ({ data, isError }) => {
                       >
                         <Typography variant="body2" style={{ color: "white" }}>
                           Request Data
-                        </Typography>
-                      </Button>
-                      <br />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleOpenWindow(operation)}
-                      >
-                        <Typography variant="body2" style={{ color: "white" }}>
-                          Response Data
                         </Typography>
                       </Button>
                     </TableCell>
@@ -246,6 +245,11 @@ const OperationsTable = ({ data, isError }) => {
         onClose={handleCloseDataModal}
         operationData={operationData}
       />
+      {/* <ResponseDataModal
+        open={responseModal}
+        onClose={() => setResponseModal(false)}
+        operationData={operationData}
+      /> */}
     </Paper>
   );
 };
