@@ -15,7 +15,7 @@ const ImageModel = ({
     setSelectedItem(null);
   };
 
-  console.log("index", index)
+  console.log("index", index);
 
   const handleSaveImage = () => {
     const link = document.createElement("a");
@@ -65,7 +65,11 @@ const ImageModel = ({
           </IconButton>
         </Box>
         <img
-          src={index>=0 ?`/assets/garbage/garbage${index + 1}.png`:"/assets/cctv.jpeg"}
+          src={
+            index >= 0
+              ? `/assets/garbage/garbage${index + 1}.png`
+              : "/assets/cctv.jpeg"
+          }
           alt={
             selectedItem.licenseNumber ||
             selectedItem?.license_number ||

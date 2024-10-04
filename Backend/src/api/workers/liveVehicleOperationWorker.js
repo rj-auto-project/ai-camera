@@ -1,6 +1,6 @@
-import { parentPort, workerData } from 'worker_threads';
-import prisma from '../../config/prismaClient.js';
-import { vehicleOperationService } from '../services/operations.service.js';
+import { parentPort, workerData } from "worker_threads";
+import prisma from "../../config/prismaClient.js";
+import { vehicleOperationService } from "../services/operations.service.js";
 
 (async () => {
   try {

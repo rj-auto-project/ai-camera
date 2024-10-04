@@ -30,7 +30,7 @@ const mockCameraData = [
         issueName: "Pothole",
         incidentType: "vehicleAndRoad",
         issueDate: "2024-09-06",
-        solvedDate:null,
+        solvedDate: null,
       },
       {
         issueId: 6,
@@ -61,7 +61,6 @@ const mockCameraData = [
         solvedDate: null,
       },
 
-
       {
         issueId: 3,
         issueName: "Municipal Waste",
@@ -81,7 +80,7 @@ const mockCameraData = [
         issueName: "Pothole",
         incidentType: "vehicleAndRoad",
         issueDate: "2024-09-06",
-        solvedDate:null,
+        solvedDate: null,
       },
       {
         issueId: 6,
@@ -171,7 +170,6 @@ const processCameraData = (cameraData, time, incidentType) => {
         filteredData.detected[formattedIssueDate] = 0;
       filteredData.detected[formattedIssueDate] += 1;
 
-  
       if (solvedDate) {
         if (!filteredData.solved[formattedIssueDate])
           filteredData.solved[formattedIssueDate] = 0;
@@ -185,7 +183,7 @@ const processCameraData = (cameraData, time, incidentType) => {
 
 export default function CameraIncidentBarChart({ time, incidentType }) {
   const [selectedLocation, setSelectedLocation] = useState(
-    mockCameraData[0]?.cameraLocation || ""
+    mockCameraData[0]?.cameraLocation || "",
   );
   const [cameraData, setCameraData] = useState(mockCameraData[0] || null);
   const [chartData, setChartData] = useState({ detected: [], solved: [] });
@@ -195,7 +193,7 @@ export default function CameraIncidentBarChart({ time, incidentType }) {
   useEffect(() => {
     if (selectedLocation) {
       const camera = mockCameraData.find(
-        (cam) => cam.cameraLocation === selectedLocation
+        (cam) => cam.cameraLocation === selectedLocation,
       );
       if (camera) {
         setCameraData(camera);
@@ -211,10 +209,10 @@ export default function CameraIncidentBarChart({ time, incidentType }) {
         new Set([
           ...Object.keys(processedData.detected),
           ...Object.keys(processedData.solved),
-        ])
+        ]),
       ).sort();
       const detectedData = labels.map(
-        (date) => processedData.detected[date] || 0
+        (date) => processedData.detected[date] || 0,
       );
       const solvedData = labels.map((date) => processedData.solved[date] || 0);
       console.log("solved data: ", processedData);
@@ -230,7 +228,7 @@ export default function CameraIncidentBarChart({ time, incidentType }) {
 
   // Get unique locations from the mock data
   const locations = Array.from(
-    new Set(mockCameraData.map((camera) => camera.cameraLocation))
+    new Set(mockCameraData.map((camera) => camera.cameraLocation)),
   );
 
   return (

@@ -44,7 +44,7 @@ const ScatterPlot = ({
       x: areaName, // Area name for x-axis
       y: incidents.length, // Number of incidents for y-axis
       details: incidents, // Store incident details for tooltip
-    })
+    }),
   );
 
   const data = {
@@ -74,7 +74,7 @@ const ScatterPlot = ({
             const { x, y, details } = tooltipItem.raw;
             const incidentDetails = details.map(
               (detail) =>
-                `Type: ${detail.incidentType}, Location: ${detail.cameraLocation}, Time: ${detail.timestamp}`
+                `Type: ${detail.incidentType}, Location: ${detail.cameraLocation}, Time: ${detail.timestamp}`,
             );
 
             return [`Area: ${x}`, `Incidents: ${y}`, ...incidentDetails];
@@ -115,7 +115,8 @@ const ScatterPlot = ({
 
   return (
     <div>
-      <h2 style={{ color: "white" }}>{title}</h2> {/* Set title color to white */}
+      <h2 style={{ color: "white" }}>{title}</h2>{" "}
+      {/* Set title color to white */}
       <Scatter data={data} options={options} />
     </div>
   );

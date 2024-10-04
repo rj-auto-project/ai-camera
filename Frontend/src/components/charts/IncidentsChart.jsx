@@ -23,7 +23,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 const IncidentsChart = ({ data, xAxisFormatter, xAxisTitle, yAxisTitle }) => {
@@ -150,8 +150,8 @@ const IncidentsChart = ({ data, xAxisFormatter, xAxisTitle, yAxisTitle }) => {
   };
 
   return (
-    <Paper elevation={1} sx={{  height: "100%" }}>
-      <Box sx={{ height: 400, width: "100%"}}>
+    <Paper elevation={1} sx={{ height: "100%" }}>
+      <Box sx={{ height: 400, width: "100%" }}>
         <Line data={chartData} options={options} />
       </Box>
     </Paper>
