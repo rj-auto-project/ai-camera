@@ -134,7 +134,7 @@ def track_objects(frames, batch_results, frame_time):
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
                 score = box.conf[0].item()
                 label = model.names[int(box.cls[0])]
-                detections.append([x1, y1, x2, y2, score])
+                detections.append([x1, y1, x2, y2, score,int(box.cls[0])])
                 labels.append(label)
                 confs.append(score)
                 cv2.polylines(frame, [np.array(mask, dtype=np.int32)], isClosed=True, color=(0, 255, 0), thickness=1)
@@ -145,6 +145,7 @@ def track_objects(frames, batch_results, frame_time):
         for i, track in enumerate(tracks):
             track_id = int(track[4]) 
             x1, y1, x2, y2 = map(int, track[:4])
+            label = model.names[track[5]]
             cx, cy = (x1 + x2) // 2, (y1 + y2) // 2 
             # print(roi_points)
             check_illegal_parking(track_id, cx, cy)
