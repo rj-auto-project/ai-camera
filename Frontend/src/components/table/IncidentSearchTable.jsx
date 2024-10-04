@@ -253,7 +253,7 @@ const IncidentSearchTable = () => {
                   </TableCell>
                   <TableCell>
                     {new Date(
-                      item?.timestamp || item?.time_stamp
+                      item?.timestamp || item?.time_stamp,
                     ).toLocaleString()}
                   </TableCell>
                   <TableCell>

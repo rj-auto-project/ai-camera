@@ -40,7 +40,7 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
-  endTime = ""
+  endTime = "",
 ) => {
   const whereClause = {
     incidentType: incidentType,

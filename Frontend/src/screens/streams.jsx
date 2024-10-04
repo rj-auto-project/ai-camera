@@ -14,6 +14,7 @@ import ReactPlayer from "react-player";
 import { useVideo } from "../context/videoContext";
 import video1 from "/assets/videos/output1.mp4";
 import video2 from "/assets/videos/output2.mp4";
+import VideoStream from "../components/Videotest";
 
 const Streams = React.memo(() => {
   const [streams, setStreams] = useState([]);
@@ -168,6 +169,7 @@ const Streams = React.memo(() => {
       </Stack>
 
       <Box mt={9}>
+        <VideoStream />
         <Grid container spacing={2}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>

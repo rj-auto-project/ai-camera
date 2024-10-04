@@ -24,10 +24,7 @@ export const operations = [
   { name: "Crowd Restriction", icon: <FaPeopleGroup size={18} /> },
 ];
 
-
 export const settingsOptions = [
   { name: "User", icon: <FaUser size={18} /> },
   { name: "Camera", icon: <FaCamera size={18} /> },
- 
 ];
-

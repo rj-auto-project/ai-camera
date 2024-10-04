@@ -19,7 +19,7 @@ const ModelWindow = lazy(() => import("./window/operationData"));
 const Incidents = lazy(() => import("./screens/incidents"));
 const TrackAgent = lazy(() => import("./screens/trackAgent"));
 const StreamsConditionalRender = lazy(
-  () => import("./components/conditionalrender/streampage")
+  () => import("./components/conditionalrender/streampage"),
 );
 
 const App = () => {

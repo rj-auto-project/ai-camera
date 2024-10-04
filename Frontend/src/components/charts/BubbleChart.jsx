@@ -11,7 +11,14 @@ import {
 } from "chart.js";
 
 // Register necessary chart components
-ChartJS.register(Tooltip, Legend, Title, LinearScale, PointElement, CategoryScale);
+ChartJS.register(
+  Tooltip,
+  Legend,
+  Title,
+  LinearScale,
+  PointElement,
+  CategoryScale,
+);
 
 function convertData(incidents) {
   const areaMap = new Map();
@@ -89,7 +96,7 @@ const BubbleChart = ({ incidentsData }) => {
               "Incidents:",
               ...data.incidents.map(
                 (incident) =>
-                  `  Location: ${incident.cameraLocation}, Type: ${incident.incidentType}, Time: ${incident.incidentTime}`
+                  `  Location: ${incident.cameraLocation}, Type: ${incident.incidentType}, Time: ${incident.incidentTime}`,
               ),
             ];
           },
