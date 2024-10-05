@@ -1,6 +1,6 @@
-import { parentPort, workerData } from 'worker_threads';
-import { suspectSearchService } from '../services/operations.service.js';
-import prisma from '../../config/prismaClient.js';
+import { parentPort, workerData } from "worker_threads";
+import { suspectSearchService } from "../services/operations.service.js";
+import prisma from "../../config/prismaClient.js";
 
 (async () => {
   try {
@@ -9,7 +9,11 @@ import prisma from '../../config/prismaClient.js';
 
     // Continue fetching data until the final timestamp
     while (new Date() < new Date(operationDetails.finalTimestamp)) {
-      console.log('Performing live search', lastFetchedTimestamp, new Date().toISOString());
+      console.log(
+        "Performing live search",
+        lastFetchedTimestamp,
+        new Date().toISOString(),
+      );
 
       // Perform the suspect search operation
       const liveResults = await suspectSearchService(
@@ -18,7 +22,7 @@ import prisma from '../../config/prismaClient.js';
         lastFetchedTimestamp,
         new Date().toISOString(),
         operationDetails.top_color,
-        operationDetails.bottom_color
+        operationDetails.bottom_color,
       );
 
       // Send results back to the main thread
@@ -26,7 +30,9 @@ import prisma from '../../config/prismaClient.js';
         parentPort.postMessage({ data: liveResults });
 
         // Update the last fetched timestamp
-        const latestTimestamp = Math.max(...liveResults.map(result => new Date(result.timestamp).getTime()));
+        const latestTimestamp = Math.max(
+          ...liveResults.map((result) => new Date(result.timestamp).getTime()),
+        );
         lastFetchedTimestamp = new Date(latestTimestamp + 1);
 
         // Update operation log with the new results
@@ -34,21 +40,20 @@ import prisma from '../../config/prismaClient.js';
           where: { id: operationId },
           data: {
             operationResponseData: {
-              push: liveResults
+              push: liveResults,
             },
           },
         });
       }
 
       // Pause for a brief period before the next fetch
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     // Signal the end of the operation
     parentPort.postMessage({ data: [], finished: true });
-
   } catch (error) {
-    console.error('Error in live suspect search worker:', error);
+    console.error("Error in live suspect search worker:", error);
     parentPort.postMessage({ error: error.message });
   }
 })();

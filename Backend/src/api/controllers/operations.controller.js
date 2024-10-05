@@ -1,4 +1,3 @@
-import fs from "fs";
 import {
   suspectSearchService,
   getOperationsService,
@@ -7,9 +6,10 @@ import {
 } from "../services/operations.service.js";
 import prisma from "../../config/prismaClient.js";
 
-import { Worker } from 'worker_threads';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Worker } from "worker_threads";
+import path from "path";
+import { fileURLToPath } from "url";
+// import redisClient from "../../config/redisClient.js";
 
 // Resolve __dirname equivalent in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -151,17 +151,28 @@ const suspectSearch = async (req, res) => {
       });
     }
 
+    const cacheKey = `suspectSearchService:${cameras.sort().join(",")}:${classes
+      .sort()
+      .join(",")}:${startTime}:${endTime}:${top_color}:${bottom_color}`;
+    console.log("cacheKey", cacheKey);
+    // const cachedData = await redisClient.get(cacheKey);
+    let results = [];
+
+    // if (cachedData) results = JSON.parse(cachedData);
+    // else {
     // Non-live operation: Standard search (historical data)
-    const results = await suspectSearchService(
+    results = await suspectSearchService(
       cameras,
       classes,
       startTime,
       endTime,
       top_color,
       bottom_color,
-      employeeId,
+      employeeId
     );
-
+    // if (results.length > 0)
+    //   await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+    // }
     //update operation at end
     await prisma.operationLog.update({
       where: { id: newOperation?.id },
@@ -323,14 +334,23 @@ const vehicleOperation = async (req, res) => {
         operationId: newOperation.id, // Return the operation ID for SSE
       });
     } else {
+      const cacheKey = `vehicleOperation-${type}:${JSON.stringify(
+        operationData
+      )}:${startTime}:${endTime}`;
+      // const cachedData = await redisClient.get(cacheKey);
+      let results = [];
+
+      // if (cachedData) results = JSON.parse(cachedData);
+      // else {
       // Historical search
-      const results = await vehicleOperationService(
+      results = await vehicleOperationService(
         operationData,
         cameras,
         startTime,
-        endTime,
+        endTime
       );
-
+      // await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+      // }
       await prisma.operationLog.update({
         where: { id: newOperation?.id },
         data: {
@@ -377,38 +397,48 @@ const liveSuspectSearch = async (req, res) => {
       where: { id: parseInt(operationId) },
     });
 
-    if (!operation || operation.operationStatus !== 'ACTIVE') {
-      res.status(404).json({ status: 'fail', message: 'Operation not found or inactive' });
+    if (!operation || operation.operationStatus !== "ACTIVE") {
+      res
+        .status(404)
+        .json({ status: "fail", message: "Operation not found or inactive" });
       return res.end();
     }
 
     // Start the worker for live suspect search
-    const worker = new Worker(path.resolve(__dirname, '../workers/liveSuspectSearchWorker.js'), {
-      workerData: {
-        operationId: parseInt(operationId),
-        operationDetails: {
-          cameras: operation.cameras,
-          classes: operation.operationRequestData?.classes,
-          initialTimestamp: operation.initialTimestamp,
-          finalTimestamp: operation.finalTimestamp,
-          top_color: operation.operationRequestData?.top_color,
-          bottom_color: operation.operationRequestData?.bottom_color,
+    const worker = new Worker(
+      path.resolve(__dirname, "../workers/liveSuspectSearchWorker.js"),
+      {
+        workerData: {
+          operationId: parseInt(operationId),
+          operationDetails: {
+            cameras: operation.cameras,
+            classes: operation.operationRequestData?.classes,
+            initialTimestamp: operation.initialTimestamp,
+            finalTimestamp: operation.finalTimestamp,
+            top_color: operation.operationRequestData?.top_color,
+            bottom_color: operation.operationRequestData?.bottom_color,
+          },
         },
-      },
-    });
+      }
+    );
 
     // Listen for messages from the worker (live results)
-    worker.on('message', async (liveResults) => {
+    worker.on("message", async (liveResults) => {
       if (liveResults.error) {
-        console.error('Worker reported an error:', liveResults.error);
+        console.error("Worker reported an error:", liveResults.error);
         await prisma.operationLog.update({
           where: { id: parseInt(operationId) },
           data: {
-            operationStatus: 'INACTIVE',
+            operationStatus: "INACTIVE",
             closeTimestamp: new Date(),
           },
         });
-        res.write(`data: ${JSON.stringify({ status: 'fail', message: liveResults.error })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            status: "fail",
+            message: liveResults.error,
+          })}\n\n`
+        );
         return res.end();
       }
 
@@ -419,21 +449,26 @@ const liveSuspectSearch = async (req, res) => {
     });
 
     // Handle worker errors
-    worker.on('error', async (error) => {
-      console.error('Worker error:', error);
+    worker.on("error", async (error) => {
+      console.error("Worker error:", error);
       await prisma.operationLog.update({
         where: { id: parseInt(operationId) },
         data: {
-          operationStatus: 'INACTIVE',
+          operationStatus: "INACTIVE",
           closeTimestamp: new Date(),
         },
       });
-      res.write(`data: ${JSON.stringify({ status: 'fail', message: 'Error occurred in live search' })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          status: "fail",
+          message: "Error occurred in live search",
+        })}\n\n`
+      );
       res.end();
     });
 
     // Handle worker exit
-    worker.on('exit', (code) => {
+    worker.on("exit", (code) => {
       if (code !== 0) {
         console.error(`Worker stopped with exit code ${code}`);
       }
@@ -441,17 +476,16 @@ const liveSuspectSearch = async (req, res) => {
     });
 
     // Handle client disconnection
-    req.on('close', () => {
-      console.log('Connection closed by client');
+    req.on("close", () => {
+      console.log("Connection closed by client");
       worker.terminate();
       res.end();
     });
-
   } catch (error) {
-    console.error('Error performing live suspect search:', error);
+    console.error("Error performing live suspect search:", error);
     res.status(500).json({
-      status: 'fail',
-      message: 'Live suspect search failed',
+      status: "fail",
+      message: "Live suspect search failed",
       error: error.message,
     });
   }
@@ -462,45 +496,55 @@ const liveVehicleOperation = async (req, res) => {
     const { operationId } = req.query;
 
     // Set headers for Server-Sent Events (SSE)
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
     // Fetch the operation details
     const operation = await prisma.operationLog.findUnique({
       where: { id: parseInt(operationId) },
     });
 
-    if (!operation || operation.operationStatus !== 'ACTIVE') {
-      res.status(404).json({ status: 'fail', message: 'Operation not found or inactive' });
+    if (!operation || operation.operationStatus !== "ACTIVE") {
+      res
+        .status(404)
+        .json({ status: "fail", message: "Operation not found or inactive" });
       return res.end();
     }
 
     // Start the worker for live vehicle operation
-    const worker = new Worker(path.resolve(__dirname, '../workers/liveVehicleOperationWorker.js'), {
-      workerData: {
-        operationId: parseInt(operationId),
-        operationDetails: {
-          cameras: operation.cameras,
-          initialTimestamp: operation.initialTimestamp,
-          finalTimestamp: operation.finalTimestamp,
-          operationRequestData: operation.operationRequestData,
+    const worker = new Worker(
+      path.resolve(__dirname, "../workers/liveVehicleOperationWorker.js"),
+      {
+        workerData: {
+          operationId: parseInt(operationId),
+          operationDetails: {
+            cameras: operation.cameras,
+            initialTimestamp: operation.initialTimestamp,
+            finalTimestamp: operation.finalTimestamp,
+            operationRequestData: operation.operationRequestData,
+          },
         },
-      },
-    });
+      }
+    );
 
     // Listen for messages from the worker (live results)
-    worker.on('message', async (liveResults) => {
+    worker.on("message", async (liveResults) => {
       if (liveResults.error) {
-        console.error('Worker reported an error:', liveResults.error);
+        console.error("Worker reported an error:", liveResults.error);
         await prisma.operationLog.update({
           where: { id: parseInt(operationId) },
           data: {
-            operationStatus: 'INACTIVE',
+            operationStatus: "INACTIVE",
             closeTimestamp: new Date(),
           },
         });
-        res.write(`data: ${JSON.stringify({ status: 'fail', message: liveResults.error })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            status: "fail",
+            message: liveResults.error,
+          })}\n\n`
+        );
         return res.end();
       }
 
@@ -511,21 +555,26 @@ const liveVehicleOperation = async (req, res) => {
     });
 
     // Handle worker errors
-    worker.on('error', async (error) => {
-      console.error('Worker error:', error);
+    worker.on("error", async (error) => {
+      console.error("Worker error:", error);
       await prisma.operationLog.update({
         where: { id: parseInt(operationId) },
         data: {
-          operationStatus: 'INACTIVE',
+          operationStatus: "INACTIVE",
           closeTimestamp: new Date(),
         },
       });
-      res.write(`data: ${JSON.stringify({ status: 'fail', message: 'Error occurred in live operation' })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          status: "fail",
+          message: "Error occurred in live operation",
+        })}\n\n`
+      );
       res.end();
     });
 
     // Handle worker exit
-    worker.on('exit', (code) => {
+    worker.on("exit", (code) => {
       if (code !== 0) {
         console.error(`Worker stopped with exit code ${code}`);
       }
@@ -533,16 +582,16 @@ const liveVehicleOperation = async (req, res) => {
     });
 
     // Handle client disconnection
-    req.on('close', () => {
-      console.log('Connection closed by client');
+    req.on("close", () => {
+      console.log("Connection closed by client");
       worker.terminate();
       res.end();
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'fail',
-      message: 'Error performing operation',
+      status: "fail",
+      message: "Error performing operation",
       error: error.message,
     });
   }
@@ -621,9 +670,9 @@ const liveIncidentsTracking = async (req, res) => {
           startTime = new Date(
             Math.max(
               ...incidents.map((incident) =>
-                new Date(incident?.timestamp).getTime(),
-              ),
-            ) + 1,
+                new Date(incident?.timestamp).getTime()
+              )
+            ) + 1
           );
         }
 

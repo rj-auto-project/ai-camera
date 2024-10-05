@@ -79,8 +79,8 @@ function openModalWindow(data: any, title: string) {
   newWindow = new BrowserWindow({
     width: 700,
     height: 500,
-    parent: win, 
-    modal: true, 
+    parent: win,
+    modal: true,
     minimizable: false,
     title: title ? title : "Modal window",
     autoHideMenuBar: true,
@@ -91,9 +91,8 @@ function openModalWindow(data: any, title: string) {
     },
   });
 
-
   newWindow.on("minimize", (event: any) => {
-    event.preventDefault(); 
+    event.preventDefault();
   });
 
   if (VITE_DEV_SERVER_URL) {

@@ -122,7 +122,9 @@ const Setting = () => {
           borderRight: "1px solid rgba(128, 128, 128, 0.1)",
         }}
       >
-        <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Paper
+          sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+        >
           <Typography
             sx={{
               padding: 1.5,
@@ -143,8 +145,8 @@ const Setting = () => {
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               "&::-webkit-scrollbar": {
-                display: "none"
-              }
+                display: "none",
+              },
             }}
           >
             {selectedOptions === "Camera" && (
@@ -378,7 +380,7 @@ const Setting = () => {
               onClick={() => openAnnotationModal("redLightCrossing")}
               style={{ width: "40%" }}
             >
-             {`UPDATE ${selectedOptions}`}
+              {`UPDATE ${selectedOptions}`}
             </Button>
 
             <Button
@@ -386,7 +388,7 @@ const Setting = () => {
               onClick={() => openAnnotationModal("wrongWay")}
               style={{ width: "40%" }}
             >
-             {`DELETE ${selectedOptions}`}
+              {`DELETE ${selectedOptions}`}
             </Button>
           </Grid>
         </Paper>

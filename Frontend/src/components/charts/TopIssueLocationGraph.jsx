@@ -168,7 +168,7 @@ const mockCameraData = [
       },
     ],
   },
-    {
+  {
     cameraIp: "192.168.1.2",
     cameraLocation: "Civil Lines",
     camId: 2,
@@ -264,7 +264,7 @@ const aggregateIssuesByLocation = (data, timeRange, incidentType) => {
     // Then, filter by incident type
     const filteredIssues = filterByIncidentType(
       filteredIssuesByDate,
-      incidentType
+      incidentType,
     );
 
     if (!locationIssues[cameraLocation]) {
