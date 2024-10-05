@@ -21,7 +21,6 @@ import { formatTimeToIST } from "../../utils/formatTime.js";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DoneIcon from "@mui/icons-material/Done";
 import { green, red } from "@mui/material/colors";
-import ResponseDataModal from "../model/ResponseDataModal.jsx";
 
 const OperationsTable = ({ data, isError }) => {
   const [page, setPage] = useState(0);
@@ -178,12 +177,7 @@ const OperationsTable = ({ data, isError }) => {
                         </Tooltip>
                       </Box>
                     </TableCell>
-                    <TableCell
-                    // style={{
-                    //   display: "flex",
-                    //   flexDirection: "column",
-                    // }}
-                    >
+                    <TableCell>
                       <Button
                         variant="contained"
                         color="primary"
@@ -245,11 +239,6 @@ const OperationsTable = ({ data, isError }) => {
         onClose={handleCloseDataModal}
         operationData={operationData}
       />
-      {/* <ResponseDataModal
-        open={responseModal}
-        onClose={() => setResponseModal(false)}
-        operationData={operationData}
-      /> */}
     </Paper>
   );
 };
