@@ -28,6 +28,7 @@ const IncidentSearchTable = () => {
   const [isOpen, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [index, setIndex] = useState(null);
+  const [incidentType, setIncidentType] = useState("");
 
   // Track status for each item by its id
   const [statusMap, setStatusMap] = useState({});
@@ -38,79 +39,6 @@ const IncidentSearchTable = () => {
       [id]: e.target.value,
     }));
   };
-
-  const staticData = [
-    {
-      id: 2072,
-      timestamp: "2024-09-10T11:56:22.638Z",
-      cameraId: "1",
-      metadata: {
-        size: "large",
-        color: "green",
-      },
-      trackId: "track_001",
-      camera_ip: "192.168.1.101",
-      boxCoords: "10,20,30,40",
-      detectionClass: "spitting",
-      classConfidence: 0.87,
-      topColor: "green",
-      bottomColor: "brown",
-      licenseNumber: null,
-      incidentType: null,
-      camera: {
-        cameraId: "1",
-        cameraIp: "127.0.0.1",
-        facingAngle: "90",
-        location: "Intersection of Sikar Road and Amer Road",
-        coordinates: [26.9124, 75.7873],
-        cameraName: "SikarAmerIntersection",
-        connectionType: "Wired",
-        cameraType: "CCTV",
-        status: "ACTIVE",
-        installed: "2024-08-01T08:00:00.000Z",
-        lastOnline: "2024-08-01T10:00:00.000Z",
-        routerIp: "192.168.1.1",
-        manufacturer: "Canon",
-        crowdThreshold: 50.5,
-        areaName: "Subhash Chowk",
-      },
-    },
-    {
-      id: 2071,
-      timestamp: "2024-09-10T12:17:22.638Z",
-      cameraId: "1",
-      metadata: {
-        size: "large",
-        color: "green",
-      },
-      trackId: "track_001",
-      camera_ip: "192.168.1.101",
-      boxCoords: "10,20,30,40",
-      detectionClass: "peeing",
-      classConfidence: 0.87,
-      topColor: "green",
-      bottomColor: "brown",
-      licenseNumber: null,
-      incidentType: null,
-      camera: {
-        cameraId: "1",
-        cameraIp: "127.0.0.1",
-        facingAngle: "90",
-        location: "Intersection of Sikar Road and Amer Road",
-        coordinates: [26.9124, 75.7873],
-        cameraName: "SikarAmerIntersection",
-        connectionType: "Wired",
-        cameraType: "CCTV",
-        status: "ACTIVE",
-        installed: "2024-08-01T08:00:00.000Z",
-        lastOnline: "2024-08-01T10:00:00.000Z",
-        routerIp: "192.168.1.1",
-        manufacturer: "Canon",
-        crowdThreshold: 50.5,
-        areaName: "Subhash Chowk",
-      },
-    },
-  ];
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -133,6 +61,7 @@ const IncidentSearchTable = () => {
   const handleOpen = (item, index) => {
     setSelectedItem(item);
     setIndex(index);
+    setIncidentType(item?.detectionClass || item?.incidentType);
     setOpen(true);
   };
 
@@ -237,7 +166,7 @@ const IncidentSearchTable = () => {
             </TableRow>
           </StickyTableHead>
           <TableBody>
-            {data.data
+            {data?.data
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((item, index) => (
                 <TableRow key={item.id}>
@@ -246,14 +175,25 @@ const IncidentSearchTable = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <img
-                      src={`/assets/garbage/garbage${index + 1}.png`}
+                      src={
+                        (item?.incidentType &&
+                          ((item?.incidentType === "GARBAGE" &&
+                            `/assets/garbage/garbage1.png`) ||
+                            (item?.incidentType === "POTHOLE" &&
+                              `/assets/garbage/garbage3.png`) ||
+                            (item?.incidentType === "SPITTING" &&
+                              `/assets/garbage/garbage5.png`) ||
+                            (item?.incidentType === "PEEING" &&
+                              `/assets/garbage/garbage6.png`))) ||
+                        `/assets/cctv.jpeg`
+                      }
                       alt={item.licenseNumber || "No License Number"}
                       style={{ width: 100, height: 60, objectFit: "cover" }}
                     />
                   </TableCell>
                   <TableCell>
                     {new Date(
-                      item?.timestamp || item?.time_stamp,
+                      item?.timestamp || item?.time_stamp
                     ).toLocaleString()}
                   </TableCell>
                   <TableCell>
@@ -270,73 +210,40 @@ const IncidentSearchTable = () => {
                       <strong>Type:</strong> {item?.camera?.cameraType}
                     </div>
                   </TableCell>
-                  <TableCell>{item?.detectionClass}</TableCell>
                   <TableCell>
-                    {/* Render a dropdown to select resolved or unresolved */}
-                    <Select
-                      value={statusMap[item.id] || "unresolved"} // Get status per row
-                      onChange={(e) => handleStatusChange(e, item.id)}
-                      sx={{ color: "white" }}
-                      MenuProps={{
-                        sx: {
-                          color: "white",
-                        },
-                      }}
-                    >
-                      <MenuItem value="resolved">Resolved</MenuItem>
-                      <MenuItem value="unresolved">Unresolved</MenuItem>
-                    </Select>
+                    {item?.detectionClass || item?.incidentType}
+                  </TableCell>
+                  <TableCell>
+                    {item?.incidentType === "PEEING" ||
+                    item?.incidentType === "SPITTING" ? (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate(`/dashboard/trackagent`)}
+                      >
+                        Track
+                      </Button>
+                    ) : (
+                      <Select
+                        value={statusMap[item.id] || "unresolved"} // Get status per row
+                        onChange={(e) => handleStatusChange(e, item.id)}
+                        sx={{ color: "white" }}
+                        MenuProps={{
+                          sx: {
+                            color: "white",
+                          },
+                        }}
+                      >
+                        <MenuItem value="resolved">Resolved</MenuItem>
+                        <MenuItem value="unresolved">Unresolved</MenuItem>
+                      </Select>
+                    )}
                   </TableCell>
                   {item?.license_number && (
                     <TableCell>{item?.license_number || "N/A"}</TableCell>
                   )}
                 </TableRow>
               ))}
-            {staticData.map((item, index) => (
-              <TableRow key={item.id}>
-                <TableCell
-                  onClick={() => {
-                    handleOpen(item, index + 4);
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img
-                    src={`/assets/garbage/garbage${index + 5}.png`}
-                    alt={item.licenseNumber || "No License Number"}
-                    style={{ width: 100, height: 60, objectFit: "cover" }}
-                  />
-                </TableCell>
-                <TableCell>
-                  {new Date(item.timestamp).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <div>
-                    <strong>Camera ID:</strong> {item.camera?.cameraId}
-                  </div>
-                  <div>
-                    <strong>Camera Name:</strong> {item.camera?.cameraName}
-                  </div>
-                  <div>
-                    <strong>Location:</strong> {item.camera?.location}
-                  </div>
-                  <div>
-                    <strong>Type:</strong> {item.camera?.cameraType}
-                  </div>
-                </TableCell>
-                <TableCell>{item?.detectionClass}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate(`/dashboard/trackagent`)}
-                  >
-                    <Typography variant="body1" color="white">
-                      Track
-                    </Typography>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -373,6 +280,7 @@ const IncidentSearchTable = () => {
           setSelectedItem={setSelectedItem}
           isOpen={isOpen}
           setOpen={setOpen}
+          incident={incidentType}
         />
       )}
     </Paper>
