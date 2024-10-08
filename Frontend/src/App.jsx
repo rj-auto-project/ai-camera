@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
@@ -7,6 +7,7 @@ import NotFound from "./screens/pagenotfound/notfound";
 import SplashScreen from "./screens/splashScreen";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./screens/dashboard";
+import addNotification, { Notifications } from "react-push-notification";
 
 const Login = lazy(() => import("./screens/login"));
 const Signup = lazy(() => import("./screens/signup"));
@@ -18,12 +19,25 @@ const Operations = lazy(() => import("./screens/operations"));
 const ModelWindow = lazy(() => import("./window/operationData"));
 const Incidents = lazy(() => import("./screens/incidents"));
 const TrackAgent = lazy(() => import("./screens/trackAgent"));
+
 const StreamsConditionalRender = lazy(
-  () => import("./components/conditionalrender/streampage"),
+  () => import("./components/conditionalrender/streampage")
 );
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
+
+  useEffect(() => {
+    addNotification({
+      title: "Warning",
+      subtitle: "This is a subtitle",
+      message: "This is a very long message",
+      theme: "darkblue",
+      native: true,
+      timeout: null
+    });
+  }, []);
+
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -60,6 +74,7 @@ const App = () => {
           </Suspense>
         </Router>
         <Toaster position="center" reverseOrder={false} />
+        <Notifications />
       </div>
     </ThemeProvider>
   );
