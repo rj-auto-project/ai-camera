@@ -1,0 +1,83 @@
+/* DraggablePanel.css */
+.resizable-panel {
+  position: fixed;
+  background-color: hsl(0, 1%, 21%);
+  border: 1px solid #414141;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  border-radius: 8px;
+}
+
+.panel-header {
+  background-color: #1e1e1e;
+  padding: 10px;
+  cursor: default;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #383838;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.panel-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.panel-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.panel-button:hover {
+  background-color: #e0e0e05e;
+}
+
+.panel-content {
+  padding: 15px;
+  overflow-y: auto;
+  flex: 1;
+  color: #444;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.panel-content::-webkit-scrollbar {
+  display: none;
+}
+
+.panel-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+
+  text-align: center;
+}
+
+.footer-button {
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.footer-button:hover {
+  background-color: #1c1c1c;
+}
