@@ -32,6 +32,10 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
     include: {
       camera: true,
     },
+    orderBy: {
+      timestamp: "desc",
+    },
+    distinct: ["trackId"],
   });
 
   return incidents || [];
@@ -40,7 +44,7 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
-  endTime = "",
+  endTime = ""
 ) => {
   const whereClause = {
     incidentType: incidentType,
