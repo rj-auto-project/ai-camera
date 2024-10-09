@@ -1,3 +1,4 @@
+import pg from "pg"; // Import the default export from pg
 import { getDateRange } from "../../utils/helperFunctions.js";
 import {
   detectGarbageService,
@@ -5,6 +6,67 @@ import {
   getSpecificIncidentService,
 } from "../services/incidents.service.js";
 
+const { Client } = pg;
+let clients = [];
+let notificationCount = 0;
+let clientCounter = 0;
+
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, 
+  }, 
+});
+
+
+client
+  .connect()
+  .then(() => {
+    console.log("Connected to PostgreSQL");
+    return client.query("LISTEN new_incident");
+  })
+  .catch((err) => {
+    console.error("Connection error:", err.stack);
+  });
+
+// Notify all connected clients
+const notifyClients = () => {
+  console.log("Notification count",notificationCount)
+  clients.forEach((client) => {
+    client.res.write(
+      `data: ${JSON.stringify({ count: notificationCount })}\n\n`
+    );
+  });
+};
+
+// Handle notifications
+client.on("notification", (msg) => {
+  
+  if (msg.channel === "new_incident") {
+    notificationCount++;
+    notifyClients(); // Notify all connected clients of new data
+  }
+});
+
+const incidentNotificationSSE = (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  
+  const clientId = ++clientCounter;
+  const clientObj = { id: clientId, res };
+  clients.push(clientObj);
+  res.write(`data: Connected to SSE with ID: ${clientId}\n\n`);
+
+  // Clean up when the client disconnects
+  req.on("close", () => {
+    clients = clients.filter((c) => c.id !== clientId);
+  });
+};
+
+// Your other functions (getIncidents, getSpecificIncident, etc.) remain unchanged
 const garbageDetection = async (req, res) => {
   try {
     const results = await detectGarbageService();
@@ -28,6 +90,7 @@ const getIncidents = async (req, res) => {
     }
 
     const incidents = await getIncidentsService(startDate, endDate);
+    notificationCount = 0; // Reset notification count when incidents are fetched
     if (!incidents || incidents.length === 0) {
       return res.status(200).send({ message: "No incidents found" });
     }
@@ -54,7 +117,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate,
+      endDate
     );
 
     if (!incidents || incidents.length === 0) {
@@ -72,4 +135,9 @@ const getSpecificIncident = async (req, res) => {
   }
 };
 
-export { garbageDetection, getIncidents, getSpecificIncident };
+export {
+  garbageDetection,
+  getIncidents,
+  getSpecificIncident,
+  incidentNotificationSSE,
+};
