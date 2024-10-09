@@ -120,6 +120,7 @@ model Camera {
   manufacturer   String?  @db.VarChar(30)
   crowdThreshold Float?   @default(0)
   areaName       String?  @db.VarChar(255)
+  rtspLink       String?  @db.VarChar(255)
 
   // todo: add area
 
