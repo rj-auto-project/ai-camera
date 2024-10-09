@@ -100,7 +100,7 @@ model IncidentLogs {
   userResolvedAt  DateTime?
   resolved        Boolean      @default(false)
   resolvedAt      DateTime?    @default(now())
-
+  metaCoords      Float[]
   camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
 

@@ -27,26 +27,6 @@ const StreamsConditionalRender = lazy(
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
 
-  // Adding multiple notifications
-  useEffect(() => {
-    addNotification({
-      title: "Notification 1",
-      subtitle: "This is a subtitle",
-      message: "This is a message",
-      theme: "darkblue",
-   
-    });
-
-    addNotification({
-      title: "Notification 2",
-      subtitle: "Another subtitle",
-      message: "Another message here",
-      theme: "darkred",
-      
-    });
-  }, []);
-
-  
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />

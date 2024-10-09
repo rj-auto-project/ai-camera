@@ -58,7 +58,8 @@ const incidentNotificationSSE = (req, res) => {
   const clientId = ++clientCounter;
   const clientObj = { id: clientId, res };
   clients.push(clientObj);
-  res.write(`data: Connected to SSE with ID: ${clientId}\n\n`);
+  res.write( `data: ${JSON.stringify({ count: notificationCount })}\n\n`);
+
 
   // Clean up when the client disconnects
   req.on("close", () => {
