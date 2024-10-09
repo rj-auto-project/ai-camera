@@ -1,0 +1,39 @@
+  const connectToSSE = () => {
+    try {
+      const eventSource = new EventSource(
+        "http://localhost:4000/api/v1/incidents/notifications/sse",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send the token as a header
+          },
+        }
+      );
+
+      // Event listener for when the connection is opened
+      eventSource.onopen = () => {
+        console.log("Connected to SSE");
+      };
+
+      // Event listener for messages received from the server
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("Notification received:", data);
+          // Handle the notification data as needed
+        } catch (parseError) {
+          console.error("Error parsing SSE data:", parseError);
+        }
+      };
+
+      // Event listener for errors
+      eventSource.onerror = (error) => {
+        console.error("Error in SSE connection:", error);
+        eventSource.close(); // Close the connection on error
+      };
+    } catch (error) {
+      console.error("Error establishing SSE connection:", error);
+    }
+  };
+
+  // Call the function to connect to SSE
+  connectToSSE();

@@ -14,7 +14,7 @@ router.get(
   authMiddleware,
   getSpecificIncident,
 );
-router.get('/notifications/sse', authMiddleware, incidentNotificationSSE);
+router.get('/notifications/sse',  incidentNotificationSSE);
 // Get the status of map route
 router.get("/status", (req, res) => {
   res.json({ status: "ok" });
