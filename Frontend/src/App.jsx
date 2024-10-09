@@ -27,18 +27,26 @@ const StreamsConditionalRender = lazy(
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
 
+  // Adding multiple notifications
   useEffect(() => {
     addNotification({
-      title: "Warning",
+      title: "Notification 1",
       subtitle: "This is a subtitle",
-      message: "This is a very long message",
+      message: "This is a message",
       theme: "darkblue",
-      native: true,
-      timeout: null
+   
+    });
+
+    addNotification({
+      title: "Notification 2",
+      subtitle: "Another subtitle",
+      message: "Another message here",
+      theme: "darkred",
+      
     });
   }, []);
 
-
+  
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -73,8 +81,21 @@ const App = () => {
             </Routes>
           </Suspense>
         </Router>
+
+        {/* Toaster for additional notification styles */}
         <Toaster position="center" reverseOrder={false} />
-        <Notifications />
+
+        {/* Notifications positioned at the center */}
+        <div
+          style={{
+            position: "absolute",
+            top: "65%",
+            left: "20%",
+            zIndex: 9999,
+          }}
+        >
+          <Notifications />
+        </div>
       </div>
     </ThemeProvider>
   );
