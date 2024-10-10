@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Divider,
@@ -6,34 +7,13 @@ import {
   ListItemText,
   Paper,
   Typography,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  Modal,
-  InputLabel,
 } from "@mui/material";
-
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
 import { settingsOptions } from "../data/data";
-import CanvasDraw from "../components/canvasdraw/canvasDraw";
+import CameraSettings from "../components/settings/CameraSettings";
 
 const Setting = () => {
   const [selectedOptions, setSelectedOptions] = useState("User");
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm();
   const [openModal, setOpenModal] = useState(null);
-
-  const onSubmit = (data) => {
-    console.log(data);
-    // Handle form data
-  };
 
   const openAnnotationModal = (type) => {
     setOpenModal(type);
@@ -42,6 +22,7 @@ const Setting = () => {
   const closeAnnotationModal = () => {
     setOpenModal(null);
   };
+
   const handleOperationSelect = (option) => {
     setSelectedOptions(option);
   };
@@ -111,7 +92,7 @@ const Setting = () => {
         </Paper>
       </Grid>
 
-      {/* Middle Column - Form */}
+      {/* Middle Column - Settings Form */}
       <Grid
         item
         xs={7}
@@ -150,262 +131,40 @@ const Setting = () => {
             }}
           >
             {selectedOptions === "Camera" && (
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid container spacing={2} p={5}>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Camera IP"
-                      {...register("cameraIp", {
-                        required: "Camera IP is required",
-                      })}
-                      error={!!errors.cameraIp}
-                      helperText={errors.cameraIp?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Camera Name"
-                      {...register("cameraName", {
-                        required: "Camera name is required",
-                      })}
-                      error={!!errors.cameraName}
-                      helperText={errors.cameraName?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Latitude"
-                      type="number"
-                      {...register("cameraCoordinates.lat", {
-                        required: "Latitude is required",
-                      })}
-                      error={!!errors.cameraCoordinates?.lat}
-                      helperText={errors.cameraCoordinates?.lat?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Longitude"
-                      type="number"
-                      {...register("cameraCoordinates.long", {
-                        required: "Longitude is required",
-                      })}
-                      error={!!errors.cameraCoordinates?.long}
-                      helperText={errors.cameraCoordinates?.long?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Camera Location"
-                      {...register("cameraLocation", {
-                        required: "Camera location is required",
-                      })}
-                      error={!!errors.cameraLocation}
-                      helperText={errors.cameraLocation?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Camera Type</InputLabel>
-                      <Controller
-                        name="cameraType"
-                        control={control}
-                        defaultValue=""
-                        render={({ field }) => (
-                          <Select {...field}>
-                            <MenuItem value="wired">Wired</MenuItem>
-                            <MenuItem value="wireless">Wireless</MenuItem>
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Specialization Tag</InputLabel>
-                      <Controller
-                        name="specializationTag"
-                        control={control}
-                        defaultValue={[]}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            multiple
-                            value={field.value}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          >
-                            <MenuItem value="ANPR">ANPR</MenuItem>
-                            <MenuItem value="illegalParking">
-                              Illegal Parking
-                            </MenuItem>
-                            <MenuItem value="vehicleCount">
-                              Vehicle Count
-                            </MenuItem>
-                            {/* Add other options here */}
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Vehicle Count Threshold"
-                      type="number"
-                      {...register("vehicleCountThreshold", {
-                        required: "Threshold is required",
-                      })}
-                      error={!!errors.vehicleCountThreshold}
-                      helperText={errors.vehicleCountThreshold?.message}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Crowd Count Threshold"
-                      type="number"
-                      {...register("crowdCountThreshold", {
-                        required: "Threshold is required",
-                      })}
-                      error={!!errors.crowdCountThreshold}
-                      helperText={errors.crowdCountThreshold?.message}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography>Set Coordinates for:</Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Grid
-                      container
-                      sx={{ justifyContent: "space-between", pb: 2 }}
-                    >
-                      <Button
-                        variant="outlined"
-                        onClick={() => openAnnotationModal("illegalParking")}
-                      >
-                        Illegal Parking
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        onClick={() => openAnnotationModal("redLightCrossing")}
-                      >
-                        Red Light Crossing
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        onClick={() => openAnnotationModal("wrongWay")}
-                      >
-                        Wrong Way
-                      </Button>
-                    </Grid>
-                    <Divider />
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Button type="submit" variant="outline" color="primary">
-                      Add Camera
-                    </Button>
-                  </Grid>
-                </Grid>
-
-                {/* Modal for setting coordinates */}
-                <Modal open={!!openModal} onClose={closeAnnotationModal}>
-                  <Box sx={{ ...modalStyle }}>
-                    <h2>Set Coordinates for {openModal}</h2>
-                    <CanvasDraw />
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
-                      <Button onClick={closeAnnotationModal}>Cancle</Button>
-                      <Button onClick={closeAnnotationModal}>Submit</Button>
-                    </Box>
-                  </Box>
-                </Modal>
-              </form>
+              <CameraSettings
+                openModal={openModal}
+                closeModal={closeAnnotationModal}
+                openAnnotationModal={openAnnotationModal}
+              />
             )}
           </Box>
         </Paper>
       </Grid>
 
-      {/* Right Column - Additional Information */}
-      <Grid item xs={3} sx={{ overflowY: "auto", scrollbarWidth: "none" }}>
+      {/* Right Column - Additional Actions */}
+      <Grid item xs={3} sx={{ overflowY: "auto" }}>
         <Paper sx={{ height: "100%" }}>
           <Typography
             sx={{
               padding: 1.5,
+              display: "flex",
+              flexDirection: "row",
               backgroundColor: "rgb(0,0,0,0.4)",
+              justifyContent: "center",
               color: "#fff",
               textAlign: "center",
+              alignItems: "center",
               fontWeight: "bold",
             }}
           >
-            Additional Information
+            Additional Actions
           </Typography>
           <Divider />
-          <Grid
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              gap: 5,
-              marginTop: 5,
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => openAnnotationModal("illegalParking")}
-              style={{ width: "40%" }}
-            >
-              {`ADD ${selectedOptions}`}
-            </Button>
-
-            <Button
-              variant="outlined"
-              onClick={() => openAnnotationModal("redLightCrossing")}
-              style={{ width: "40%" }}
-            >
-              {`UPDATE ${selectedOptions}`}
-            </Button>
-
-            <Button
-              variant="outlined"
-              onClick={() => openAnnotationModal("wrongWay")}
-              style={{ width: "40%" }}
-            >
-              {`DELETE ${selectedOptions}`}
-            </Button>
-          </Grid>
+          {/* Your additional actions for each setting */}
         </Paper>
       </Grid>
     </Grid>
   );
-};
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  borderRadius: 1,
-  transform: "translate(-50%, -50%)",
-  backgroundColor: "#1d1c1c",
-  boxShadow: 24,
-  p: 2,
 };
 
 export default Setting;

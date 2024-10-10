@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Undo, FileUpload } from "@mui/icons-material";
 
-const CanvasDraw = () => {
+const CanvasDraw = ({ modelType }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [lineCoordinates, setLineCoordinates] = useState([[], [], [], []]);
@@ -106,12 +106,12 @@ const CanvasDraw = () => {
       drawPoint(
         currentLine.startX,
         currentLine.startY,
-        lineColors[linesToDraw.length],
+        lineColors[linesToDraw.length]
       );
       drawPoint(
         currentLine.endX,
         currentLine.endY,
-        lineColors[linesToDraw.length],
+        lineColors[linesToDraw.length]
       );
     }
   };
@@ -264,7 +264,7 @@ const CanvasDraw = () => {
     } else if (drawMode === "polygon") {
       console.log(
         "Polygon Coordinates:",
-        polygonVertices.map((vertex) => [vertex.x, vertex.y]),
+        polygonVertices.map((vertex) => [vertex.x, vertex.y])
       );
     }
   }, [lineCoordinates, polygonVertices, drawMode]);
@@ -363,7 +363,7 @@ const CanvasDraw = () => {
             Polygon Vertices:{" "}
             {polygonVertices
               .map(
-                (vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`,
+                (vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`
               )
               .join(", ")}
           </Typography>
