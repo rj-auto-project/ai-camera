@@ -5,6 +5,7 @@ import mapRoutes from "./map.routes.js";
 import operationsRoutes from "./operations.route.js";
 import incidentsRoutes from "./incidents.routes.js";
 import adminRoutes from "./admin.routes.js";
+import settingRoutes from "./settings.routes.js"
 
 import authMiddleware from "../../middleware/authMiddleware.js";
 import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
@@ -18,6 +19,7 @@ router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
 router.use("/incidents", incidentsRoutes);
 router.use("/admin", adminRoutes);
+router.use("/settings", settingRoutes);
 
 router.get("/objectTypes", authMiddleware, getObjectTypes);
 router.get("/classlist", authMiddleware, getClassList);

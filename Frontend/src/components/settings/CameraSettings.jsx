@@ -101,8 +101,8 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
               defaultValue=""
               render={({ field }) => (
                 <Select {...field}>
-                  <MenuItem value="wired">Wired</MenuItem>
-                  <MenuItem value="wireless">Wireless</MenuItem>
+                  <MenuItem value="dome">Dome</MenuItem>
+                  <MenuItem value="bullet">Bullet</MenuItem>
                 </Select>
               )}
             />
@@ -110,9 +110,9 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
         </Grid>
         <Grid item xs={6}>
           <FormControl fullWidth>
-            <InputLabel>Specialization Tag</InputLabel>
+            <InputLabel>Connection Type</InputLabel>
             <Controller
-              name="specializationTag"
+              name="ConnectionType"
               control={control}
               defaultValue={[]}
               render={({ field }) => (
@@ -122,9 +122,8 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
                 >
-                  <MenuItem value="ANPR">ANPR</MenuItem>
-                  <MenuItem value="illegalParking">Illegal Parking</MenuItem>
-                  <MenuItem value="vehicleCount">Vehicle Count</MenuItem>
+                  <MenuItem value="wired">Wired</MenuItem>
+                  <MenuItem value="wireless">Wireless</MenuItem>
                 </Select>
               )}
             />
@@ -152,6 +151,29 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             })}
             error={!!errors.crowdCountThreshold}
             helperText={errors.crowdCountThreshold?.message}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Facing Angle"
+            type="number"
+            {...register("facingAngle", {
+              required: "Facing angle is required",
+            })}
+            error={!!errors.facingAngle}
+            helperText={errors.facingAngle?.message}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Area Name"
+            {...register("areaName", {
+              required: "Area is required",
+            })}
+            error={!!errors.areaName}
+            helperText={errors.areaName?.message}
           />
         </Grid>
         <Grid item>
