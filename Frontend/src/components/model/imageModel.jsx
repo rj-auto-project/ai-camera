@@ -9,13 +9,14 @@ const ImageModel = ({
   isOpen,
   setOpen,
   index,
+  incident = "",
 }) => {
   const handleClose = () => {
     setOpen(false);
     setSelectedItem(null);
   };
 
-  console.log("index", index)
+  console.log("index", index);
 
   const handleSaveImage = () => {
     const link = document.createElement("a");
@@ -65,7 +66,14 @@ const ImageModel = ({
           </IconButton>
         </Box>
         <img
-          src={index>=0 ?`/assets/garbage/garbage${index + 1}.png`:"/assets/cctv.jpeg"}
+          src={
+            (incident &&
+              ((incident === "GARBAGE" && `/assets/garbage/garbage1.png`) ||
+                (incident === "POTHOLE" && `/assets/garbage/garbage3.png`) ||
+                (incident === "SPITTING" && `/assets/garbage/garbage5.png`) ||
+                (incident === "PEEING" && `/assets/garbage/garbage6.png`))) ||
+            `/assets/cctv.jpeg`
+          }
           alt={
             selectedItem.licenseNumber ||
             selectedItem?.license_number ||
@@ -97,7 +105,7 @@ const ImageModel = ({
           <Typography variant="body2">
             Timestamp: <br />
             {new Date(
-              selectedItem.timestamp || selectedItem?.time_stamp,
+              selectedItem.timestamp || selectedItem?.time_stamp
             ).toLocaleString()}
           </Typography>
           <Typography variant="body2">

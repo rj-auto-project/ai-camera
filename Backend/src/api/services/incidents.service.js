@@ -32,6 +32,10 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
     include: {
       camera: true,
     },
+    orderBy: {
+      timestamp: "desc",
+    },
+    distinct: ["trackId"],
   });
 
   return incidents || [];

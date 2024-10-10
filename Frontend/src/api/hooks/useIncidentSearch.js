@@ -15,7 +15,7 @@ export const useGabageSearch = () => {
   return useMutation({
     mutationFn: async () => {
       dispatch(incidentSearchStart());
-      const response = await axios.get(`${BASE_URL}/garbagedata`, config());
+      const response = await axios.get(`${BASE_URL}/incidents`, config());
       return response.data;
     },
     onSuccess: (data) => {

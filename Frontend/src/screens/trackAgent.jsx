@@ -33,7 +33,10 @@ const TrackAgent = () => {
 
   return (
     <div className="w-full h-screen relative overflow-hidden ">
-      <div className="fixed inset-0  filter backdrop-blur-lg z-30" style={{ filter: 'blur(20px)' }}></div>
+      <div
+        className="fixed inset-0  filter backdrop-blur-lg z-30"
+        style={{ filter: "blur(20px)" }}
+      ></div>
       <div className="grid grid-cols-1 h-[55%]">
         {/* Top Section */}
         <div

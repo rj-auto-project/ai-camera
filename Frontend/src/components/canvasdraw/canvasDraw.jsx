@@ -106,12 +106,12 @@ const CanvasDraw = () => {
       drawPoint(
         currentLine.startX,
         currentLine.startY,
-        lineColors[linesToDraw.length]
+        lineColors[linesToDraw.length],
       );
       drawPoint(
         currentLine.endX,
         currentLine.endY,
-        lineColors[linesToDraw.length]
+        lineColors[linesToDraw.length],
       );
     }
   };
@@ -264,7 +264,7 @@ const CanvasDraw = () => {
     } else if (drawMode === "polygon") {
       console.log(
         "Polygon Coordinates:",
-        polygonVertices.map((vertex) => [vertex.x, vertex.y])
+        polygonVertices.map((vertex) => [vertex.x, vertex.y]),
       );
     }
   }, [lineCoordinates, polygonVertices, drawMode]);
@@ -280,7 +280,11 @@ const CanvasDraw = () => {
             sx={{ mr: 2 }}
           >
             <FormControlLabel value="line" control={<Radio />} label="Line" />
-            <FormControlLabel value="polygon" control={<Radio />} label="Polygon" />
+            <FormControlLabel
+              value="polygon"
+              control={<Radio />}
+              label="Polygon"
+            />
           </RadioGroup>
           <Button
             variant="contained"
@@ -340,13 +344,15 @@ const CanvasDraw = () => {
           <Box>
             {lines.map((line, index) => (
               <Typography key={index} variant="body2">
-                Line {index + 1}: ({line.startX.toFixed(2)}, {line.startY.toFixed(2)}) - (
-                {line.endX.toFixed(2)}, {line.endY.toFixed(2)})
+                Line {index + 1}: ({line.startX.toFixed(2)},{" "}
+                {line.startY.toFixed(2)}) - ({line.endX.toFixed(2)},{" "}
+                {line.endY.toFixed(2)})
               </Typography>
             ))}
             {currentLine && (
               <Typography variant="body2">
-                Current Line: ({currentLine.startX.toFixed(2)}, {currentLine.startY.toFixed(2)}) - (
+                Current Line: ({currentLine.startX.toFixed(2)},{" "}
+                {currentLine.startY.toFixed(2)}) - (
                 {currentLine.endX.toFixed(2)}, {currentLine.endY.toFixed(2)})
               </Typography>
             )}
@@ -356,7 +362,9 @@ const CanvasDraw = () => {
           <Typography variant="body2">
             Polygon Vertices:{" "}
             {polygonVertices
-              .map((vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`)
+              .map(
+                (vertex) => `(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)})`,
+              )
               .join(", ")}
           </Typography>
         )}

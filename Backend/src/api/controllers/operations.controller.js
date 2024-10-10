@@ -9,7 +9,7 @@ import prisma from "../../config/prismaClient.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import redisClient from "../../config/redisClient.js";
+// import redisClient from "../../config/redisClient.js";
 
 // Resolve __dirname equivalent in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -155,24 +155,24 @@ const suspectSearch = async (req, res) => {
       .sort()
       .join(",")}:${startTime}:${endTime}:${top_color}:${bottom_color}`;
     console.log("cacheKey", cacheKey);
-    const cachedData = await redisClient.get(cacheKey);
+    // const cachedData = await redisClient.get(cacheKey);
     let results = [];
 
-    if (cachedData) results = JSON.parse(cachedData);
-    else {
-      // Non-live operation: Standard search (historical data)
-      results = await suspectSearchService(
-        cameras,
-        classes,
-        startTime,
-        endTime,
-        top_color,
-        bottom_color,
-        employeeId
-      );
-      if (results.length > 0)
-        await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
-    }
+    // if (cachedData) results = JSON.parse(cachedData);
+    // else {
+    // Non-live operation: Standard search (historical data)
+    results = await suspectSearchService(
+      cameras,
+      classes,
+      startTime,
+      endTime,
+      top_color,
+      bottom_color,
+      employeeId
+    );
+    // if (results.length > 0)
+    //   await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+    // }
     //update operation at end
     await prisma.operationLog.update({
       where: { id: newOperation?.id },
@@ -337,20 +337,20 @@ const vehicleOperation = async (req, res) => {
       const cacheKey = `vehicleOperation-${type}:${JSON.stringify(
         operationData
       )}:${startTime}:${endTime}`;
-      const cachedData = await redisClient.get(cacheKey);
+      // const cachedData = await redisClient.get(cacheKey);
       let results = [];
 
-      if (cachedData) results = JSON.parse(cachedData);
-      else {
-        // Historical search
-        results = await vehicleOperationService(
-          operationData,
-          cameras,
-          startTime,
-          endTime
-        );
-        await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
-      }
+      // if (cachedData) results = JSON.parse(cachedData);
+      // else {
+      // Historical search
+      results = await vehicleOperationService(
+        operationData,
+        cameras,
+        startTime,
+        endTime
+      );
+      // await redisClient.setex(cacheKey, 3600, JSON.stringify(results));
+      // }
       await prisma.operationLog.update({
         where: { id: newOperation?.id },
         data: {

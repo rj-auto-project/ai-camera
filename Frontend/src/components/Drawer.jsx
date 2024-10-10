@@ -12,6 +12,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Badge,
 } from "@mui/material";
 import { GrMapLocation } from "react-icons/gr";
 import {
@@ -22,26 +23,47 @@ import {
   TaskAltOutlined,
   AnalyticsOutlined,
 } from "@mui/icons-material";
-import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux"; // Removed useSelector since it's not used
 import { openLogoutDialog } from "../features/auth/authSlice";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { BASE_URL } from "../api/url";
 
 const drawerWidth = 190;
 
 export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [incidentNotificationCount, setIncidentNotificationCount] =
+    React.useState(0);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
   };
+
   const location = useLocation();
   const currentPath = location.pathname.split("/")[2];
 
-  console.log("current path", currentPath);
   const dispatch = useDispatch();
   const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
+
+  React.useEffect(() => {
+    const eventSource = new EventSource(
+      `${BASE_URL}/incidents/notifications/sse`
+    );
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setIncidentNotificationCount(data?.count);
+      } catch (error) {
+        console.error("Error parsing SSE data:", error);
+      }
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, [dispatch]);
 
   const drawerItems = [
     { text: "Map", path: "map", icon: <GrMapLocation size={23} /> },
@@ -50,8 +72,10 @@ export default function CustomDrawer() {
     { text: "Analytics", path: "analytics", icon: <AnalyticsOutlined /> },
     { text: "Incidents", path: "incidents", icon: <FaExclamationTriangle /> },
     {
-      text: "Track Agent", path: "trackagent",icon:<TrackChangesIcon/>
-    }
+      text: "Track Agent",
+      path: "trackagent",
+      icon: <TrackChangesIcon />,
+    },
   ];
 
   const drawer = (
@@ -95,7 +119,19 @@ export default function CustomDrawer() {
                     : "transparent",
               }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon>
+                {item.text === "Incidents" ? (
+                  <Badge
+                    badgeContent={incidentNotificationCount}
+                    color="error"
+                    invisible={incidentNotificationCount === 0}
+                  >
+                    {item.icon}
+                  </Badge>
+                ) : (
+                  item.icon
+                )}
+              </ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>
           ))}
