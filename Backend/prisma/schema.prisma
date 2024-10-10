@@ -104,34 +104,50 @@ model IncidentLogs {
   camera          Camera       @relation(fields: [cameraId], references: [cameraId])
 }
 
+model DetectionTable {
+  id               Int       @id @default(autoincrement())
+  custom_track_id  String    @db.VarChar(255)
+  camera_id        String    @db.VarChar(30)
+  first_appearance DateTime? @default(now())
+  last_appearance  DateTime? @default(now())
+  dbBox            String    @db.VarChar(255)
+  dLabel           String    @db.VarChar(255)
+  dConf            String?   @db.VarChar(255)
+  pLabel           String?   @db.VarChar(255)
+  pConf            String?   @db.VarChar(255)
+
+  camera Camera @relation(fields: [camera_id], references: [cameraId])
+}
+
 model Camera {
-  cameraId              String   @id @db.VarChar(30)
-  cameraIp              String   @db.VarChar(30)
-  facingAngle           String   @db.VarChar(5)
-  location              String   @db.VarChar(50)
+  cameraId              String    @id @db.VarChar(30)
+  cameraIp              String    @db.VarChar(30)
+  facingAngle           String    @db.VarChar(5)
+  location              String    @db.VarChar(50)
   coordinates           Json
-  cameraName            String   @db.VarChar(50)
-  connectionType        String   @db.VarChar(10)
-  cameraType            String   @db.VarChar(10)
+  cameraName            String    @db.VarChar(50)
+  connectionType        String    @db.VarChar(10)
+  cameraType            String    @db.VarChar(10)
   status                Status?
   installed             DateTime? @db.Timestamptz()
   lastOnline            DateTime? @db.Timestamptz()
-  routerIp              String?  @db.VarChar(30)
-  manufacturer          String?  @db.VarChar(30)
-  crowdThreshold        Float?   @default(0)
-  areaName              String?  @db.VarChar(255)
-  rtspLink              String?  @db.VarChar(255)
-  vehicleCountThreshold String?  @db.VarChar(10)
-  crowdCountThreshold   String?  @db.VarChar(10)
+  routerIp              String?   @db.VarChar(30)
+  manufacturer          String?   @db.VarChar(30)
+  crowdThreshold        Float?    @default(0)
+  areaName              String?   @db.VarChar(255)
+  rtspLink              String?   @db.VarChar(255)
+  vehicleCountThreshold String?   @db.VarChar(10)
+  crowdCountThreshold   String?   @db.VarChar(10)
   imageCoordinates      Json?
 
   // todo: add area
 
-  operations   OperationLog[] @relation("OperationCameras")
-  DetectionLog DetectionLog[]
-  AnprLogs     AnprLogs[]
-  CrowdCount   CrowdCount[]
-  IncidentLogs IncidentLogs[]
+  operations     OperationLog[]   @relation("OperationCameras")
+  DetectionLog   DetectionLog[]
+  AnprLogs       AnprLogs[]
+  CrowdCount     CrowdCount[]
+  IncidentLogs   IncidentLogs[]
+  DetectionTable DetectionTable[]
 }
 
 model Class {
