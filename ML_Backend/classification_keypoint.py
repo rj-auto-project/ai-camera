@@ -21,31 +21,29 @@ class KeypointClassification:
         self.load_model()
 
     def load_model(self):
-        self.model = NeuralNet().to(self.device)  # Move the model to GPU
+        self.model = NeuralNet().to(self.device)
         self.model.load_state_dict(
             torch.load(self.path_model, map_location=self.device)
         )
-        self.model.eval()  # Set the model to evaluation mode
+        self.model.eval()
 
     def __call__(self, input_keypoints):
-        # Ensure input_keypoints is a tensor and move to the device
         if not isinstance(input_keypoints, torch.Tensor):
             input_keypoints = torch.tensor(input_keypoints, dtype=torch.float32)
         
-        input_keypoints = input_keypoints.to(self.device)  # Move to GPU
+        input_keypoints = input_keypoints.to(self.device)
         
-        with torch.no_grad():  # Disable gradient calculation
-            out = self.model(input_keypoints)  # Forward pass
-            _, predictions = torch.max(out, dim=1)  # Get predicted class indices
-            label_predictions = [self.classes[pred.item()] for pred in predictions]  # Convert to class labels
+        with torch.no_grad():
+            out = self.model(input_keypoints)
+            _, predictions = torch.max(out, dim=1)
+            label_predictions = [self.classes[pred.item()] for pred in predictions]
         return label_predictions
 
 if __name__ == '__main__':
     keypoint_classification = KeypointClassification(
         path_model='C:/Users/Laptop/Desktop/YoloV8-Pose-Keypoint-Classification-master/model/spit_pose_classification.pth'
     )
-    # Generate a batch of dummy inputs (e.g., batch size of 5)
     batch_size = 5
-    dummy_input = torch.randn(batch_size, 24)  # Shape: (batch_size, input_size)
+    dummy_input = torch.randn(batch_size, 24)
     classification = keypoint_classification(dummy_input)
     print(classification)

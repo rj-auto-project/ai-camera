@@ -8,7 +8,7 @@ from ultralytics.engine.results import Results
 from PIL import Image 
 import torch
 import time
-# Define keypoint
+
 class GetKeypoint(BaseModel):
     NOSE:           int = 0
     LEFT_EYE:       int = 1
@@ -36,11 +36,8 @@ class DetectKeypoint:
         self.__load_model()
 
     def __load_model(self):
-        # if not self.yolov8_model.split('-')[-1] == 'pose':
-        #     sys.exit('Model not yolov8 pose')
         self.model = ultralytics.YOLO(model=self.yolov8_model)
 
-        # extract function keypoint
     def extract_keypoint(self, keypoint: np.ndarray) -> list:
         # nose
         nose_x, nose_y = keypoint[self.get_keypoint.NOSE]
@@ -94,12 +91,8 @@ class DetectKeypoint:
         print(device)
         resized_frames = [cv2.resize(image, (192 // 32 * 32, 320 // 32 * 32)) for image in images]
         images_tensor = torch.from_numpy(np.stack(resized_frames)).permute(0, 3, 1, 2).float().to(device) / 255.0
-        # images_tensor = images_tensor.to(self.model.device)
-
-        # Perform inference with no gradient tracking
         with torch.no_grad():
             results = self.model.predict(images_tensor, save=False)
-            # print(results)
         return [self.get_xy_keypoint(result) for result in results]
 
 # Example usage
