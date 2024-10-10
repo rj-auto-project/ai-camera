@@ -172,7 +172,7 @@ def process_license_plate(image, camera_ip, time):
     license_plate_text = read_license_plate(image, camera_ip, time[0])
     return license_plate_text
 
-def process_lp_images(input_folder="/home/annone/ai/data/lp", camera_ip = "0.0.0.0"):
+def process_lp_images(input_folder="/home/annone/ai-camera/ML_Backend/data/lp", camera_ip = "0.0.0.0"):
     while True:
         if len(os.listdir(input_folder)) > 0:
             file_name = os.listdir(input_folder)[0]

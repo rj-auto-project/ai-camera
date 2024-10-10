@@ -280,6 +280,7 @@ def stream_process(rtsp_url: str, batch_size: int = 8):
 
         if len(frames) >= batch_size:
             batch_results = process_frame_batch(frames)
+            print(batch_results)
             tracked_frames, track_id_list = track_objects(
                 frames, batch_results, frame_time
             )
@@ -319,8 +320,8 @@ def process_urination():
         print(results)
         time.sleep(5)
 
-process_lp_images()
-# stream_process( rtsp_url, batch_size=2)
+# process_lp_images()
+stream_process( cam_rtsp_url, batch_size=2)
 
 # thread1 = threading.Thread(target=stream_process, args=(cam_rtsp_url, 2))
 # thread2 = threading.Thread(target=process_urination)
