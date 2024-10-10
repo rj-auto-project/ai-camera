@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   TextField,
@@ -11,11 +11,14 @@ import {
   Modal,
   Box,
   Divider,
+  IconButton,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import CanvasDraw from "../canvasdraw/canvasDraw";
+import { Close } from "@mui/icons-material";
 
 const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
+  const [imageCoordinates, setImageCordinates] = useState([]);
   const {
     register,
     handleSubmit,
@@ -24,7 +27,8 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    const newdata = { imageCoordinates: imageCoordinates, ...data };
+    console.log(newdata);
     // Handle form data
   };
 
@@ -195,15 +199,31 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
         </Grid>
       </Grid>
 
-      {/* Modal for setting coordinates */}
       <Modal open={!!openModal} onClose={closeModal}>
         <Box sx={{ ...modalStyle }}>
-          <h2>Set Coordinates for {openModal}</h2>
-          <CanvasDraw modelType={openModal} />
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Button onClick={closeModal}>Cancel</Button>
-            <Button onClick={closeModal}>Submit</Button>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography ml={2} mt={1}>
+              Set Coordinates for {openModal}
+            </Typography>
+            <IconButton
+              onClick={closeModal}
+              size="small"
+              sx={{ width: 30, height: 30, backgroundColor: "red", margin: 1 }}
+            >
+              <Close />
+            </IconButton>
           </Box>
+          <CanvasDraw
+            modelType={openModal}
+            closeModal={closeModal}
+            setImageCordinates={setImageCordinates}
+          />
         </Box>
       </Modal>
     </form>
@@ -218,7 +238,6 @@ const modalStyle = {
   transform: "translate(-50%, -50%)",
   backgroundColor: "#1d1c1c",
   boxShadow: 24,
-  p: 2,
 };
 
 export default CameraSettings;
