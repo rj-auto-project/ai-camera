@@ -196,6 +196,7 @@ export default function CustomDrawer() {
               width: drawerOpen ? drawerWidth : 60,
               transition: "width 0.3s ease",
               overflowX: "hidden",
+              scrollbarWidth: "none",
             },
           }}
           open
