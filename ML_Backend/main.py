@@ -1,262 +1,331 @@
-import time 
+import time
 import cv2
 import numpy as np
 import torch
 from ultralytics import YOLO
 from sort.sort import Sort
 import time
-# from module import generate_custom_string
 from collections import defaultdict
-import math
-import redis
-from functions import drawnlinesfortrafficviolation
-from functions  import check_illegal_parking
-from functions import detect_traffic_violation
-from functions import detect_wrong_way_violation
+from module import ViolationDetector
+from module import process_lp_images
 import subprocess
+import uuid
+import threading
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-# Initialize device and model
-PARENT_DIR = "/home/annone/ai"
-# r = redis.Redis(host='localhost', port=6379, db=0)
+parent_dir = os.getenv("PARENT_DIR")
+camera_ip = os.getenv("CAM_IP")
+camera_id = os.getenv("CAM_ID")
+processed_rtsp_url = os.getenv("PROCESSED_RTSP_URL")
+cam_rtsp_url = os.getenv("CAM_RSTP")
+
+var = ViolationDetector()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = YOLO("/home/annone/ai/models/objseg50e.pt")
+model = YOLO(f"{parent_dir}/models/obj_seg_02.pt")
 model.to(device)
 print(f"{device} as Computation Device initiated")
 tracker = Sort()
 
-# CONSTANTS PER CAMERA
-width, height = 640,480
-camera_ip = "198.78.45.89"
-camera_id = 2
+orig_w, orig_h, resized_w, resized_h = (
+    1280,
+    920,
+    int(os.getenv("RESIZED_RESOLUTION_WIDTH")),
+    int(os.getenv("RESIZED_RESOLUTION_HEIGHT")),
+)
+
 fps = 30
-class_list = ['auto', 'bike-rider', 'bolero', 'bus', 'car', 'hatchback', 'jcb', 'motorbike-rider', 'omni', 'pickup',
-              'scooty-rider', 'scorpio', 'sedan', 'suv', 'swift', 'thar', 'tractor', 'truck', 'van']
-previous_positions = defaultdict(lambda: {"x": 0, "y": 0, "time": 0})
-null_mask = np.zeros((height, width), dtype=np.uint8)
-
-
-# STREAMING CONSTANTS
-rtsp_url = 'rtsp://localhost:8554/stream'  # Update this URL as needed
-
-# Construct the FFmpeg command
-ffmpeg_cmd = [
-    'ffmpeg',
-    '-y',  # Overwrite output files without asking
-    '-f', 'rawvideo',  # Input format
-    '-pix_fmt', 'bgr24',  # Pixel format
-    '-s', '640x480',  # Video resolution (adjust as needed)
-    '-r', '25',  # Frame rate
-    '-i', '-',  # Input from stdin
-    '-c:v', 'libx264',  # Video codec
-    '-preset', 'ultrafast',  # Encoding speed
-    '-tune', 'zerolatency',  # Tune for low latency
-    '-f', 'rtsp',  # Output format
-    rtsp_url  # RTSP output URL
+class_list = [
+    "auto",
+    "bike-rider",
+    "bolero",
+    "bus",
+    "car",
+    "hatchback",
+    "jcb",
+    "motorbike-rider",
+    "omni",
+    "pickup",
+    "scooty-rider",
+    "scorpio",
+    "sedan",
+    "suv",
+    "swift",
+    "thar",
+    "tractor",
+    "truck",
+    "van",
 ]
-
-# ffmpeg -re -f rawvideo -pix_fmt bgr24 -s 640x480 -r 25 -i - \
-#     -c:v libx264 -preset ultrafast -tune zerolatency \
-#     -f rtsp rtsp://localhost:8554/stream
-
-
-process = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+previous_positions = defaultdict(lambda: {"x": 0, "y": 0, "time": 0})
+null_mask = np.zeros((resized_h, resized_w), dtype=np.uint8)
 
 
 track_ids_inframe = {}
 custom_track_ids = {}
+tracks_left_frame = []
 known_track_ids = []
 
-offset=10
-count = 0
-total_parking_violations = 0 
-wrong_way_violation_count = 0
-traffic_violation_count = 0  
-crossed_objects_wrong = {}
-violated_objects_wrong = set()
-crossed_objects = {}  # Track objects that have crossed lines
-violated_objects = set()  # Track objects that have already violated
-static_objects = {}  # To track objects that are stationary
-stationary_frame_threshold = 200
-roi_points = np.array([[00, 00], [640, 00], [640, 480], [00, 480]], dtype=np.int32)  # Replace with your specific points
+# Construct the FFmpeg command
+# ffmpeg_cmd = [
+#     'ffmpeg',
+#     '-y',  # Overwrite output files without asking
+#     '-f', 'rawvideo',  # Input format
+#     '-pix_fmt', 'bgr24',  # Pixel format
+#     '-s', '640x480',  # Video resolution (adjust as needed)
+#     '-r', '25',  # Frame rate
+#     '-i', '-',  # Input from stdin
+#     '-c:v', 'libx264',  # Video codec
+#     '-preset', 'ultrafast',  # Encoding speed
+#     '-tune', 'zerolatency',  # Tune for low latency
+#     '-f', 'rtsp',  # Output format
+#     processed_rtsp_url  # RTSP output URL
+# ]
+# process = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, shell=True)
 
-ww_red_line = [
-    [(133, 251), (438, 251)],  # First red line
-    # [(42, 200), (368, 200)],   # Second red line
-    # [(417, 182), (640, 182)]   # Third red line
-]
 
-ww_green_line = [
-    [(44, 390), (525, 390)],   # First green line (paired with first red line)
-    # [(213, 110), (368, 110)],  # Second green line (paired with second red line)
-    # [(404, 118), (561, 118)]    # Third green line (paired with third red line)
-]
-
-# Function to calculate distance in pixels
-def calculate_pixel_distance(x1, y1, x2, y2):
-    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-
-# Function to calculate speed (assuming pixel distance and time interval)
-def calculate_speed(pixel_distance, time_interval):
-    return pixel_distance / time_interval  # Speed in pixels per second
-    
-# Function to process frames in batches
+# Batch Processing
 def process_frame_batch(frames):
-    resized_frames = [cv2.resize(frame, (640 // 32 * 32, 480 // 32 * 32)) for frame in frames]
-    frames_tensor = torch.from_numpy(np.stack(resized_frames)).permute(0, 3, 1, 2).float().to(device) / 255.0
+    resized_frames = [
+        cv2.resize(frame, (resized_w // 32 * 32, resized_h // 32 * 32))
+        for frame in frames
+    ]
+    frames_tensor = (
+        torch.from_numpy(np.stack(resized_frames))
+        .permute(0, 3, 1, 2)
+        .float()
+        .to(device)
+        / 255.0
+    )
 
     with torch.no_grad():
         batch_results = model(frames_tensor, device=device)
 
-    return batch_results, resized_frames
+    return batch_results
 
-import uuid
 
-# Function to generate a custom track ID based on YOLO class, confidence, and a unique UUID
 def generate_custom_track_id(label, confidence):
     return f"{label}_{confidence:.2f}_{uuid.uuid4()}"
 
+
 # Function to track objects and draw segmentation polygons
 def track_objects(frames, batch_results, frame_time):
-    global camera_ip, previous_positions, fps, camera_id, track_ids_inframe, custom_track_ids, known_track_ids, roi_points
+    global camera_ip, previous_positions, fps, camera_id, track_ids_inframe, custom_track_ids, known_track_ids, tracks_left_frame, orig_w, resized_w, orig_h, resized_h
 
     tracked_frames = []
-    current_track_ids = []  # To keep track of the tracks currently in the frame
+    current_track_ids = []
 
     for frame, result in zip(frames, batch_results):
         detections = []
-        img_bin = []
         labels = []
         confs = []
-
+        scale_x, scale_y = orig_w / resized_w, orig_h / resized_h
         if result.masks:
             for mask, box in zip(result.masks.xy, result.boxes):
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                x1, y1, x2, y2 = (
+                    int(x1 * scale_x),
+                    int(y1 * scale_y),
+                    int(x2 * scale_x),
+                    int(y2 * scale_y),
+                )
                 score = box.conf[0].item()
                 label = model.names[int(box.cls[0])]
-                detections.append([x1, y1, x2, y2, score])
+                detections.append([x1, y1, x2, y2, score, int(box.cls[0])])
                 labels.append(label)
                 confs.append(score)
-                cv2.polylines(frame, [np.array(mask, dtype=np.int32)], isClosed=True, color=(0, 255, 0), thickness=1)
-                cv2.putText(frame, f"{label} ({score:.2f})", (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
-
+                cv2.rectangle(
+                    frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2
+                )
+                if label == "license-plate" or (isinstance(label, int) and label == 17):
+                    cropped_plate = frame[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
+                    cv2.imwrite(
+                        f"{parent_dir}/data/lp/{x1}_{y2}_{uuid.uuid4()}.jpg",
+                        cropped_plate,
+                    )
+                if label == "human":
+                    cropped_plate = frame[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
+                    cv2.imwrite(
+                        f"{parent_dir}/data/human/{x1}_{y2}_{uuid.uuid4()}.jpg",
+                        cropped_plate,
+                    )
         tracks = tracker.update(np.array(detections))
 
         for i, track in enumerate(tracks):
-            track_id = int(track[4]) 
+            track_id = int(track[4])
             x1, y1, x2, y2 = map(int, track[:4])
-            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2 
-            # print(roi_points)
-            check_illegal_parking(track_id, cx, cy)
-            detect_traffic_violation(track_id, cx, cy)  
-            detect_wrong_way_violation(track_id, cx, cy)
-            
-            if track_id in static_objects:
-            # wrong way violation
-                if track_id in violated_objects_wrong:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Red for violated objects
-                    cv2.putText(frame, f"{track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-                else:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green for non-violated objects
-                    cv2.putText(frame, f"{track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
-                # traffic violation
-                if track_id in violated_objects:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                    cv2.putText(frame, "Traffic Violation", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-                else:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
-                # Draw bounding boxes around detected objects for illegal parking    
-                if static_objects[track_id]["violated"]:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                    cv2.putText(frame, "Parking Violation", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-                else:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                
-            # If the object is new, generate a custom track ID and store initial data
+            bbox = f"{x1}, {y1}, {x2}, {y2}"
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+            label = model.names[track[5]]
+
+            if label in class_list:
+                var.check_illegal_parking(track_id, cx, cy, label)
+                var.detect_traffic_violation(track_id, cx, cy, label)
+                var.detect_wrong_way_violation(track_id, cx, cy, label)
+
             if track_id not in custom_track_ids:
                 custom_id = generate_custom_track_id(labels[i], confs[i])
                 custom_track_ids[track_id] = {
                     "custom_track_id": custom_id,
                     "camera_id": camera_id,
                     "camera_ip": camera_ip,
-                    "first_appearance": frame_time,  # Store first appearance time
-                    "last_appearance": frame_time,   # Initialize last appearance time
+                    "first_appearance": frame_time,
+                    "last_appearance": frame_time,
                     "dbbox": [[x1, y1, x2, y2]],
                     "dlabel": [labels[i]],
                     "dconf": [confs[i]],
                 }
             else:
-                # Append the new frame data to the existing object in the dict
                 custom_track_ids[track_id]["dbbox"].append([x1, y1, x2, y2])
                 custom_track_ids[track_id]["dlabel"].append(labels[i])
                 custom_track_ids[track_id]["dconf"].append(confs[i])
-                custom_track_ids[track_id]["last_appearance"] = frame_time  # Update last appearance time
+                custom_track_ids[track_id]["last_appearance"] = frame_time
 
-            # Add current track ID to the list of track IDs in the current frame
             current_track_ids.append(track_id)
+            incident_type = None
+            
+            # red light violation
+            if track_id in var.violated_objects:
+                incident_type = var.INCIDENT_TYPES["TRAFFIC_VIOLATION"]
+                if track_id not in var.logged_traffic:
+                    var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type
+                    )
+                    var.logged_traffic.add(track_id)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                cv2.putText(
+                    frame,
+                    "red light violation",
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.9,
+                    (0, 0, 255),
+                    2,
+                )
 
-            # Display the custom track ID on the frame
-            cv2.putText(frame, f"ID: {custom_track_ids[track_id]['custom_track_id']}", (x1, y1 - 30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 1)
-
-            # Append the current frame to the tracked frames
+            # wrong way violation
+            if track_id in var.violated_objects_wrong:
+                incident_type = var.INCIDENT_TYPES["WRONG_WAY"]
+                if track_id not in var.logged_wrong:
+                    var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type
+                    )
+                    var.logged_wrong.add(track_id)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                cv2.putText(
+                    frame,
+                    "wrong way driving",
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.9,
+                    (0, 0, 255),
+                    2,
+                )
+            # illegal parking
+            if (
+                track_id in var.static_objects
+                and var.static_objects[track_id]["violated"]
+            ):
+                incident_type = var.INCIDENT_TYPES["ILLEGAL_PARKING"]
+                if track_id not in var.logged_parking:
+                    var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type
+                    )
+                    var.logged_parking.add(track_id)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                cv2.putText(
+                    frame,
+                    "illegal parking",
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.9,
+                    (0, 0, 255),
+                    2,
+                )
             tracked_frames.append(frame)
 
-    # Check for tracks that are no longer in the current frame (left the frame)
     tracks_left_frame = set(custom_track_ids.keys()) - set(current_track_ids)
-
-    # Insert data into Redis for tracks that left the frame
-    for track_id in tracks_left_frame:
-        track_data = custom_track_ids[track_id]
-        # r.set(track_data['custom_track_id'], str(track_data))  # Insert into Redis as a string or JSON
-
-        # Remove the track ID from the custom_track_ids since it left the frame
-        del custom_track_ids[track_id]
-
     return tracked_frames, list(custom_track_ids.keys())
 
-
-# Function to stream video and process frames in batches
-def stream_process(camera_id, camera_ip, video_path, batch_size=8):
-    cap = cv2.VideoCapture(video_path)
-    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    # out = cv2.VideoWriter("/home/annone/ai/data/output.mp4", fourcc, fps, (640,480))
+# stream function
+def stream_process(rtsp_url: str, batch_size: int = 8):
+    global orig_w, orig_h
+    cap = cv2.VideoCapture(rtsp_url)
+    orig_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    orig_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(f"{parent_dir}/data/output.mp4", fourcc, fps, (640, 480))
     if not cap.isOpened():
-        print(f"Error opening video file: {video_path}")
+        print(f"Error opening video file: {rtsp_url}")
         return
 
     frames = []
     t1 = time.time()
+    start_time = time.time()
+    interval = 120 # 2 min
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Record the current time in seconds for tracking purposes
         frame_time = time.time()
 
         frames.append(frame)
+        elapsed_time = frame_time - start_time
+
+        if elapsed_time >= interval:
+            cv2.imwrite(f"{parent_dir}/data/municipal/{frame_time}_{camera_ip}", frame)
+            start_time = time.time()
 
         if len(frames) >= batch_size:
-            batch_results, resized_frames = process_frame_batch(frames)
+            batch_results = process_frame_batch(frames)
+            print(batch_results)
+            tracked_frames, track_id_list = track_objects(
+                frames, batch_results, frame_time
+            )
 
-            tracked_frames, track_id_list = track_objects(resized_frames, batch_results, frame_time)
             for tracked_frame in tracked_frames:
-                drawnlinesfortrafficviolation(tracked_frame,total_parking_violations)
+                var.draw_lines_for_traffic_violation(
+                    tracked_frame, var.total_parking_violations
+                )
+                tracked_frame = cv2.resize(tracked_frame, (640, 480))
+                # process.stdin.write(tracked_frame.tobytes())
                 cv2.imshow("Tracked Frame", tracked_frame)
-                process.stdin.write(tracked_frame.tobytes())
+                out.write(tracked_frame)
             frames = []
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     t2 = time.time()
-    print(t2-t1)
+    print(t2 - t1)
     cap.release()
-    # out.release()
+    out.release()
     cv2.destroyAllWindows()
 
-video_path = '/home/annone/ai/data/wrongway.mp4'
-cam_ip = '127.0.0.1'
-cam_id = "1"
-stream_process(cam_id, cam_ip, video_path, batch_size=2)
+# update the code to save logs in db
+def process_tracked_obj():
+    global tracks_left_frame, custom_track_ids
+    while tracks_left_frame:
+        track_id = next(iter(tracks_left_frame))
+        print(custom_track_ids[track_id])
+        del custom_track_ids[track_id]
+        tracks_left_frame.remove(track_id)
+
+def process_urination():
+    while True:
+        imgs = [cv2.imread(f"{parent_dir}/data/human/{file}") for file in os.listdir(f"{parent_dir}/data/human")[:10]]
+        model_path = f"{parent_dir}/models/pee_spit.pth"
+        results = var.process_image(imgs, model_path, "uri_000", "000000", "00000")
+        print(results)
+        time.sleep(5)
+
+# process_lp_images()
+stream_process( cam_rtsp_url, batch_size=2)
+
+# thread1 = threading.Thread(target=stream_process, args=(cam_rtsp_url, 2))
+# thread2 = threading.Thread(target=process_urination)
+# thread1.start()
+# thread2.start()
+# thread1.join()
+# thread2.join()

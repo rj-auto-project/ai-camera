@@ -16,6 +16,7 @@ jspm_packages/
 dist/
 build/
 out/
+/data
 
 # Temporary files and folders
 temp/
@@ -32,8 +33,6 @@ temp/
 *.sublime-project
 
 # Environment variables
-.env
-.env.*.local
 
 # System files
 .DS_Store

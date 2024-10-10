@@ -1,10 +1,10 @@
 import cv2
 
 # RTSP link
-rtsp_url = "rtsp://localhost:8554/stream"  # Replace with your RTSP URL
+rtsp_url = "rtsp://intern:Intern1234@192.168.104.190:554/live1s3.sdp"  # Replace with your RTSP URL
 
 # Open the video stream
-cap = cv2.VideoCapture(rtsp_url)
+cap = cv2.VideoCapture(f'{rtsp_url}')
 
 # Check if the video stream opened successfully
 if not cap.isOpened():
