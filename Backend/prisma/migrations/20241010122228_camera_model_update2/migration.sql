@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Camera" ALTER COLUMN "status" DROP NOT NULL,
+ALTER COLUMN "installed" DROP NOT NULL,
+ALTER COLUMN "lastOnline" DROP NOT NULL;
