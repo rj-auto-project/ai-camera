@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
 import NotFound from "./screens/pagenotfound/notfound";
-import SplashScreen from "./screens/splashScreen";
+import SplashScreen from "./screens/splashscreen";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./screens/dashboard";
 import addNotification, { Notifications } from "react-push-notification";
