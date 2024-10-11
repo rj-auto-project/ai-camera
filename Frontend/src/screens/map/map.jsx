@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
-import MapView from "./MapView";
+import MapView from "./mapview";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
