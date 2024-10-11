@@ -16,6 +16,7 @@ class CameraService {
         cameraType: cameraData.cameraType,
         connectionType: cameraData.connectionType ,
         imageCoordinates: cameraData.imageCoordinates,
+        manufacturer: cameraData.manufacturer
       },
     });
   }
@@ -27,6 +28,7 @@ class CameraService {
   }
 
   async updateCamera(cameraId, cameraData) {
+    console.log(cameraData)
     return await prisma.camera.update({
       where: { cameraId },
       data: {
@@ -42,6 +44,7 @@ class CameraService {
         cameraType: cameraData.cameraType,
         connectionType: cameraData.connectionType ,
         imageCoordinates: cameraData.imageCoordinates,
+        manufacturer: cameraData.manufacturer
       },
     });
   }
