@@ -82,7 +82,7 @@ model IncidentLogs {
   metadata        Json?
   trackId         String       @db.VarChar(255)
   camera_ip       String       @db.VarChar(30)
-  boxCoords       String?       @db.VarChar(255)
+  boxCoords       String?      @db.VarChar(255)
   incidentType    IncidentType
   modelResolved   Boolean      @default(false)
   modelResolvedAt DateTime?
