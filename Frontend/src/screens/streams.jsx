@@ -155,7 +155,10 @@ const Streams = React.memo(() => {
           <Chip
             key={index}
             label={
-              <Typography variant="body1" sx={{ fontWeight: "500" }}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "500", fontSize: 13 }}
+              >
                 {chip.label}
               </Typography>
             }
