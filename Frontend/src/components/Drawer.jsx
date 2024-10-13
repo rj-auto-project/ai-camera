@@ -98,7 +98,7 @@ export default function CustomDrawer() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography noWrap component="div">
+          <Typography variant="body1" component="span" fontWeight="bold">
             Dashboard
           </Typography>
         </Toolbar>
@@ -132,7 +132,13 @@ export default function CustomDrawer() {
                   item.icon
                 )}
               </ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemText
+                primary={
+                  <Typography variant="body1" component="span" fontWeight="500">
+                    {item.text}
+                  </Typography>
+                }
+              />
             </ListItem>
           ))}
         </List>
@@ -154,13 +160,25 @@ export default function CustomDrawer() {
             <ListItemIcon>
               <Settings />
             </ListItemIcon>
-            <ListItemText primary={"Settings"} />
+            <ListItemText
+              primary={
+                <Typography variant="body1" component="span" fontWeight="500">
+                  Settings
+                </Typography>
+              }
+            />
           </ListItem>
           <ListItem button onClick={handleOpenLogoutDialog}>
             <ListItemIcon>
               <Logout />
             </ListItemIcon>
-            <ListItemText primary={"Logout"} />
+            <ListItemText
+              primary={
+                <Typography variant="body1" component="span" fontWeight="500">
+                  Logout
+                </Typography>
+              }
+            />
           </ListItem>
         </List>
       </div>

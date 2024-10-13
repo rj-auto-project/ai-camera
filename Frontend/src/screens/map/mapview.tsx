@@ -23,6 +23,7 @@ const trafficdata: [number, number, number][] = [
   [26.9056678517506, 75.80452679452807, 150], // Near Jal Mahal, Amer Road
 ];
 
+
 const MapView = ({
   center,
   DEFAULT_ZOOM,
@@ -50,7 +51,7 @@ const MapView = ({
         <HeatmapLayer
           fitBoundsOnLoad
           fitBoundsOnUpdate
-          points={crowddata}
+          points={heatmapData}
           radius={20}
           longitudeExtractor={(m) => m[1]}
           latitudeExtractor={(m) => m[0]}
@@ -64,7 +65,7 @@ const MapView = ({
         <HeatmapLayer
           fitBoundsOnLoad
           fitBoundsOnUpdate
-          points={trafficdata}
+          points={heatmapData}
           radius={20}
           longitudeExtractor={(m) => m[1]}
           latitudeExtractor={(m) => m[0]}
