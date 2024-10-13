@@ -91,6 +91,7 @@ model IncidentLogs {
   resolved        Boolean      @default(false)
   resolvedAt      DateTime?    @default(now())
   metaCoords      Float[]
+  thumbnail       String?      @db.VarChar(30)
   camera          Camera       @relation(fields: [cameraId], references: [cameraId])
 }
 

@@ -5,6 +5,7 @@ import { generateToken } from "../../utils/index.js";
 import { ACCESSLEVEL } from "@prisma/client";
 
 const register = async (userData) => {
+  console.log(userData)
   const { password, name, employeeId, accessLevel } = userData;
 
   const alreadyExists = await prisma.user.findFirst({

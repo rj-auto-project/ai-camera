@@ -154,7 +154,11 @@ const Streams = React.memo(() => {
         {chipData.map((chip, index) => (
           <Chip
             key={index}
-            label={chip.label}
+            label={
+              <Typography variant="body1" sx={{ fontWeight: "500" }}>
+                {chip.label}
+              </Typography>
+            }
             onClick={() => handleChipClick(chip.label)}
             sx={{
               backgroundColor:
