@@ -31,12 +31,12 @@ class ViolationDetector:
                         }
         
         #  illegal parking area coords
-        self.roi_points = np.array([[0, 0], [1280, 0], [1280, 960], [0, 960]], dtype=np.int32)
+        self.roi_points = np.array([[188, 357], [226, 60], [184, 51], [1, 199], [3, 357]], dtype=np.int32)
 
         # wrong way red lines
-        self.ww_red_line = [[(266, 502), (876, 502)]]
+        self.ww_red_line = [[(260, 240),(484, 222)],[(30, 175), ( 201,195)]]
         # wrong way green lines
-        self.ww_green_line = [[(88, 780), (1050, 780)]]
+        self.ww_green_line = [[(250, 200), (455,193)],[(118,105 ),(217,118)]]
         
         # traffic violation red lines
         self.tv_red_line = [[(266, 502), (876, 502)]]
