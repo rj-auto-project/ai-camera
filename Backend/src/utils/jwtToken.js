@@ -7,7 +7,7 @@ export async function generateToken(user) {
     { employee_Id, name, access_level },
     process.env.JWT_SECRET,
     {
-      expiresIn: "4h",
+      expiresIn: "24h",
     },
   );
 

@@ -53,7 +53,7 @@ class ViolationDetector:
         )
         self.db_cursor = self.db_connection.cursor()   
     
-    def save_violation_to_db(self, camera_id, track_id, camera_ip, bbox, incident_type):
+    def save_violation_to_db(self, camera_id, track_id, camera_ip, bbox, incident_type, thumbnail):
         """Save violation details to the PostgreSQL database."""
         try:
             insert_query = """
@@ -131,16 +131,16 @@ class ViolationDetector:
                     if any(f"red_{j}" in self.crossed_objects[track_id]['red'] for j in range(len(self.tv_red_line))) and track_id not in self.violated_objects:
                         self.traffic_violation_count += 1
                         self.violated_objects.add(track_id)
-    def process_image(self,cropped_image, model_path, track_id, cam_id, camera_ip):
+    def process_image(self,cropped_images, model_path, track_id, cam_id, camera_ip):
         detection_keypoint = DetectKeypoint()
         classification_keypoint = KeypointClassification(model_path)
-        image = cropped_image
-        if image is None:
-            raise ValueError(f"Image not found at the path: {cropped_image}")
-        results = detection_keypoint(image)
+        images = cropped_images
+        if images is None:
+            raise ValueError(f"Image not found at the path: {cropped_images}")
+        results = detection_keypoint(images)
         input_classifications = [result[10:] if result != None else [] for result in results]
-        results_classification = classification_keypoint(input_classifications)
-        return results_classification
+        classification_results = classification_keypoint(input_classifications)
+        return classification_results
 
     def draw_lines_for_traffic_violation(self, frame, total_parking_violations):
         cv2.polylines(frame, [self.roi_points], isClosed=True, color=(255, 0, 0), thickness=2)
