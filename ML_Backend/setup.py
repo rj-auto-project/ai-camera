@@ -20,10 +20,12 @@ def fetch_camera_data(cam_id :str):
 def check_data_dirs(parent_dir):
     folder_names = ["human","lp","municipal","illegal_parking","wrong_way_driving","spiting","urination","garbage_logging","red_light_violation","oversppeding",]
     data_dir = os.path.join(parent_dir,"data")
+    print(data_dir)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     for folder_name in folder_names:
         try:
+            print()
             if not os.path.exists(f"{data_dir}/{folder_name}"):
                 os.makedirs(f"{data_dir}/{folder_name}")
         except:
@@ -31,13 +33,21 @@ def check_data_dirs(parent_dir):
 
 # function to setup requirements before starting the ML engine
 def init_setup(cam_id):
-    check_data_dirs("C:/project/ai-camera/ML_Backend")
-    cam_id,cam_ip, cam_loc, cam_name, cam_rtsp_link = fetch_camera_data(cam_id)
-    update_env_var("CAM_RSTP",cam_rtsp_link)
-    update_env_var("CAM_NAME", cam_name)
-    update_env_var("CAM_ID", cam_id)
-    update_env_var("CAM_IP", cam_ip)
-    update_env_var("CAM_LOCATION",cam_loc)
-
+    try:
+        check_data_dirs("C:/project/ai-camera/ML_Backend")
+    except:
+        print("Permission denied for Constants Overwritting")
+    try:
+        cam_id,cam_ip, cam_loc, cam_name, cam_rtsp_link = fetch_camera_data(cam_id)
+        try:
+            update_env_var("CAM_RSTP",cam_rtsp_link)
+            update_env_var("CAM_NAME", cam_name)
+            update_env_var("CAM_ID", cam_id)
+            update_env_var("CAM_IP", cam_ip)
+            update_env_var("CAM_LOCATION",cam_loc)
+        except:
+            print("Permission denied for Constants Overwritting")
+    except:
+        print("No Cameras registery found")
 if __name__ == "__main__":
     init_setup("3")

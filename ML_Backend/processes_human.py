@@ -41,7 +41,7 @@ def get_file():
         img_batch_size = len(img_list)
     img_list = img_list[:img_batch_size]
     for img in img_list:
-        if img.endswith(".jpeg"):
+        if img.endswith(".jpg"):
             img_path = os.path.join(f"{parent_dir}/data/human", img)
             image = Image.open(img_path)
             buffered = BytesIO()
@@ -74,6 +74,7 @@ while a == 1 :
     conf = []
     metaData = {}
     incident = ""
+    thumbnail = ""
     track_id = 0
     for i,row in enumerate(pred_resps):
         new_track_id,timestamp , _ = img_list[i].split("_")
@@ -82,11 +83,14 @@ while a == 1 :
         predicted_class = row["predicted_classes"]
         if o == 0 and predicted_class[0] != "normal":
             o = timestamp
+            thumbnail = img_list[i]
+            shutil.move(f"{parent_dir}/data/human/{img_list[i]}",f"{parent_dir}/data/{predicted_class[0].lower()}/{img_list[i]}")
         conf.append(row["predictions"][predicted_class[0]]["confidence"])
         label.append(predicted_class[0])
     l = [el for el in label if el != "normal"]
     j = Counter(l)
     k = j.most_common(1)
+    
     if k:
         c, count = k[0]
         incident = class_dict[c]
@@ -99,15 +103,12 @@ while a == 1 :
         conn = Database.get_connection()
         cursor = conn.cursor()
         insert_query = """
-            INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "metadata", "trackId", "camera_ip", "incidentType")
+            INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "metadata", "trackId", "camera_ip", "incidentType", "thumbnail")
             VALUES (%s, %s, %s::json, %s, %s, %s);
             """
-        data_to_insert = (o, camera_id, json.dumps(metaData), track_id, camera_ip, incident)
+        data_to_insert = (o, camera_id, json.dumps(metaData), track_id, camera_ip, incident,thumbnail)
         print(metaData)
         print(data_to_insert)
         cursor.execute(insert_query, data_to_insert)
         conn.commit()
         conn.close()
-    for file in img_list:
-        shutil.move(f"{parent_dir}/data/human/{file}",f"{parent_dir}/data/{incident.lower()}/{file}")
-        # os.remove(f"{parent_dir}/data/human/{file}")
