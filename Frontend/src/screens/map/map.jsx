@@ -11,7 +11,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -74,7 +74,7 @@ const Map = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId),
+      prevList.filter((camera) => camera.cameraId !== cameraId)
     );
     sessionStorage.removeItem("selectedCameraList");
     toast.success(`CAM-${cameraId} successfully removed`, {
@@ -131,7 +131,11 @@ const Map = () => {
           <Chip
             key={index}
             icon={chip.icon}
-            label={chip.label}
+            label={
+              <Typography variant="body1" sx={{ fontWeight: "500" }}>
+                {chip.label}
+              </Typography>
+            }
             onClick={() => handleChipClick(chip.label)}
             sx={{
               backgroundColor:
