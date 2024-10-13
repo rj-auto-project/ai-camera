@@ -1,4 +1,3 @@
-
 import time
 import cv2
 import numpy as np
@@ -20,7 +19,7 @@ import cv2
 import numpy as np
 import supervision as sv
 from sort.sort import Sort
-
+from datetime import datetime
 label_annotator = sv.LabelAnnotator()
 box_annotator = sv.BoundingBoxAnnotator()
 var = ViolationDetector()
@@ -57,17 +56,15 @@ custom_track_ids = {}
 tracks_left_frame = []
 known_track_ids = []
 
-class_list = ['auto', 'bike-rider', 'bolero', 'bus', 'car', 'hatchback', 
-              'jcb', 'motorbike-rider', 'omni', 'pickup', 'scooty-rider', 
-              'scorpio', 'sedan', 'suv', 'swift', 'thar', 'tractor', 'truck', 'van']
-vehicle_class_list = ['auto', 'bike-rider', 'bolero', 'bus', 'car', 'hatchback', 
-              'jcb', 'motorbike-rider', 'omni', 'pickup', 'scooty-rider', 
-              'scorpio', 'sedan', 'suv', 'swift', 'thar', 'tractor', 'truck', 'van']
+class_list = ['auto','bicycle','bicycle-rider','bus', 'car', 'child','hatchback', 'helmet','license_plate','lorry','man','motorbike','motorbike-rider', 'no_helmet', 'person','scooty','scooty-rider','sedan','suv','tractor','truck','van','vendor','woman']
+vehicle_class_list = ['auto','bus', 'car', 'hatchback', 
+              'motorbike-rider', 'scooty-rider', 'motorbike','scooty','sedan'
+              'suv', 'tractor', 'truck', 'van']
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("/home/annone/ai/data/output.mp4", fourcc, 30, (1280,960))
 
 def generate_custom_track_id(label, confidence):
-    return f"{label}_{confidence:.2f}_{uuid.uuid4()}"
+    return f"{label}_{confidence}_{uuid.uuid4()}"
 
 def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     detections = predictions["predictions"]
@@ -75,6 +72,9 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     current_track_ids = []
     track_detections = []
     image = video_frame.image.copy()
+    now = datetime.now()
+    if now.minute==00:
+        cv2.imwrite(f"{parent_dir}/data/municipal/{now}.jpg",image)
     for detection in detections:
         x_center = detection["x"]
         y_center = detection["y"]
@@ -82,21 +82,21 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         height = detection["height"]
         confidence = detection["confidence"]
         class_id = detection["class_id"]
-        x1 = x_center - (width / 2)
-        y1 = y_center - (height / 2)
-        x2 = x_center + (width / 2)
-        y2 = y_center + (height / 2)
+        x1 = int(x_center - (width / 2))
+        y1 = int(y_center - (height / 2))
+        x2 = int(x_center + (width / 2))
+        y2 = int(y_center + (height / 2))
         track_detections.append([x1, y1, x2, y2, confidence, class_id])
-        if class_id == 17:
+        if class_id == 8:
             cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
             cv2.imwrite(
-                        f"{parent_dir}/data/lp/{x1}_{y2}_{uuid.uuid4()}.jpg",
+                        f"{parent_dir}/data/lp/{track_id}_{now}.jpg",
                         cropped_plate,
                     )
-        if class_id == 1:
+        if class_id == 10 or class_id == 14 or class_id == 23:
             cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
             cv2.imwrite(
-                        f"{parent_dir}/data/human/{x1}_{y2}_{uuid.uuid4()}.jpg",
+                        f"{parent_dir}/data/human/{track_id}_{now}.jpg",
                         cropped_plate,
                     )
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -105,7 +105,6 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     tracks = tracker.update(track_detections)
 
     for track in tracks:
-        print(track)
         frame_time = time.time()
         x1, y1, x2, y2, track_id, class_id = map(int, track)
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
@@ -144,9 +143,10 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
             incident_type = var.INCIDENT_TYPES["TRAFFIC_VIOLATION"]
             if track_id not in var.logged_traffic:
                 var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type
+                        camera_id, track_id, camera_ip, bbox, incident_type, now
                     )
                 var.logged_traffic.add(track_id)
+                cv2.imwrite(f"{parent_dir}/red_light_violation/{now}.jpg",image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -163,9 +163,10 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
             incident_type = var.INCIDENT_TYPES["WRONG_WAY"]
             if track_id not in var.logged_wrong:
                 var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type
+                        camera_id, track_id, camera_ip, bbox, incident_type, now
                     )
                 var.logged_wrong.add(track_id)
+                cv2.imwrite(f"{parent_dir}/wrong_way_driving/{now}.jpg",image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -184,9 +185,10 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
             incident_type = var.INCIDENT_TYPES["ILLEGAL_PARKING"]
             if track_id not in var.logged_parking:
                 var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type
+                        camera_id, track_id, camera_ip, bbox, incident_type, now
                     )
                 var.logged_parking.add(track_id)
+                cv2.imwrite(f"{parent_dir}/illegal_parking/{now}.jpg",image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -197,8 +199,7 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                     (0, 0, 255),
                     2,
                 )
-        cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        
+        cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     out.write(image)
     cv2.imshow("Predictions", image)
     cv2.waitKey(1)
@@ -208,8 +209,15 @@ pipeline = InferencePipeline.init(
     on_prediction=my_custom_sink,
     api_key="xlSCYXy7QQXARjVhQJmn"
 )
+def cam_stream():
+    pipeline.start()
+    pipeline.join()
+    out.release()
 
-pipeline.start()
-pipeline.join()
+# cam_stream()
 
-out.release()
+import threading
+
+t1 = threading.Thread(target=cam_stream)
+t1.start()
+t1.join()

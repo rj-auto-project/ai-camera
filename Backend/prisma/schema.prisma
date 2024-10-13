@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
@@ -31,41 +25,38 @@ model CrowdCount {
   confidence   Float
   vehicleCount Int?
   cameraId     String
-
-  camera Camera @relation(fields: [cameraId], references: [cameraId])
+  camera       Camera   @relation(fields: [cameraId], references: [cameraId])
 }
 
 model DetectionLog {
   id              Int           @id @default(autoincrement())
-  timestamp       DateTime      @default(now())
   cameraId        String
   metadata        Json?
   trackId         String        @db.VarChar(255)
   camera_ip       String        @db.VarChar(30)
-  boxCoords       String        @db.VarChar(255)
-  detectionClass  String        @db.VarChar(20)
+  boxCoords       String?        @db.VarChar(255)
   classConfidence Float
-  topColor        String        @db.VarChar(20)
+  detectionClass  String        @db.VarChar(20)
+  timestamp       DateTime      @default(now())
   bottomColor     String        @db.VarChar(20)
+  topColor        String        @db.VarChar(20)
   licenseNumber   String?       @db.VarChar(20)
   incidentType    IncidentType?
-
-  camera Camera @relation(fields: [cameraId], references: [cameraId])
+  camera          Camera        @relation(fields: [cameraId], references: [cameraId])
 }
 
 model OperationLog {
   id                    Int       @id @default(autoincrement())
   operationType         String    @db.VarChar(255)
-  operationRequestData  Json?     @db.Json
-  operationResponseData Json?     @db.Json
   initialTimestamp      DateTime
   finalTimestamp        DateTime
   userId                String    @db.VarChar(20)
   closeTimestamp        DateTime?
   operationStatus       Status    @default(ACTIVE)
+  operationRequestData  Json?     @db.Json
+  operationResponseData Json?     @db.Json
   operationTimestamp    DateTime? @default(now())
-
-  cameras Camera[] @relation("OperationCameras")
+  cameras               Camera[]  @relation("OperationCameras")
 }
 
 model AnprLogs {
@@ -78,11 +69,10 @@ model AnprLogs {
   license_number        String   @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
-  boxCoords             String   @db.VarChar(255)
+  boxCoords             String?   @db.VarChar(255)
   detectionClass        String   @db.VarChar(20)
   ownerName             String?  @db.VarChar(255)
-
-  camera Camera @relation(fields: [camera_id], references: [cameraId])
+  camera                Camera   @relation(fields: [camera_id], references: [cameraId])
 }
 
 model IncidentLogs {
@@ -115,39 +105,35 @@ model DetectionTable {
   dConf            String?   @db.VarChar(255)
   pLabel           String?   @db.VarChar(255)
   pConf            String?   @db.VarChar(255)
-
-  camera Camera @relation(fields: [camera_id], references: [cameraId])
+  camera           Camera    @relation(fields: [camera_id], references: [cameraId])
 }
 
 model Camera {
-  cameraId              String    @id @db.VarChar(30)
-  cameraIp              String    @db.VarChar(30)
-  facingAngle           String    @db.VarChar(5)
-  location              String    @db.VarChar(50)
-  coordinates           Json
-  cameraName            String    @db.VarChar(50)
-  connectionType        String    @db.VarChar(10)
-  cameraType            String    @db.VarChar(10)
+  cameraId              String           @id @db.VarChar(30)
+  cameraIp              String           @db.VarChar(30)
+  facingAngle           String           @db.VarChar(5)
+  location              String           @db.VarChar(50)
+  cameraName            String           @db.VarChar(50)
+  connectionType        String           @db.VarChar(10)
+  cameraType            String           @db.VarChar(10)
   status                Status?
-  installed             DateTime? @db.Timestamptz()
-  lastOnline            DateTime? @db.Timestamptz()
-  routerIp              String?   @db.VarChar(30)
-  manufacturer          String?   @db.VarChar(30)
-  crowdThreshold        Float?    @default(0)
-  areaName              String?   @db.VarChar(255)
-  rtspLink              String?   @db.VarChar(255)
-  vehicleCountThreshold String?   @db.VarChar(10)
-  crowdCountThreshold   String?   @db.VarChar(10)
+  installed             DateTime?        @db.Timestamptz(6)
+  lastOnline            DateTime?        @db.Timestamptz(6)
+  coordinates           Json
+  manufacturer          String?          @db.VarChar(30)
+  routerIp              String?          @db.VarChar(30)
+  crowdThreshold        Float?           @default(0)
+  areaName              String?          @db.VarChar(255)
+  rtspLink              String?          @db.VarChar(255)
   imageCoordinates      Json?
-
-  // todo: add area
-
-  operations     OperationLog[]   @relation("OperationCameras")
-  DetectionLog   DetectionLog[]
-  AnprLogs       AnprLogs[]
-  CrowdCount     CrowdCount[]
-  IncidentLogs   IncidentLogs[]
-  DetectionTable DetectionTable[]
+  crowdCountThreshold   String?          @db.VarChar(10)
+  vehicleCountThreshold String?          @db.VarChar(10)
+  AnprLogs              AnprLogs[]
+  CrowdCount            CrowdCount[]
+  DetectionLog          DetectionLog[]
+  DetectionTable        DetectionTable[]
+  IncidentLogs          IncidentLogs[]
+  operations            OperationLog[]   @relation("OperationCameras")
 }
 
 model Class {
@@ -162,10 +148,10 @@ enum Status {
 }
 
 enum ACCESSLEVEL {
-  ADMIN // access to everything  eg. creation of user
-  WORK // access to operations
-  VIEW // for viewer developers
-  SERVER //for server developers
+  ADMIN
+  WORK
+  VIEW
+  SERVER
 }
 
 enum IncidentType {
