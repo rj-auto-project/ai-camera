@@ -78,7 +78,14 @@ const Operations = () => {
           {operationStatusValues.map((chip, index) => (
             <Chip
               key={index}
-              label={chip.label}
+              label={
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "500", fontSize: 13 }}
+                >
+                  {chip.label}
+                </Typography>
+              }
               onClick={() => setType(chip.value)}
               sx={{
                 ...(chip.value === type && {

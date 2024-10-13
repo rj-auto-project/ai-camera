@@ -8,7 +8,8 @@ const CameraCard = ({ camera, onRemove }) => {
         <div className="flex flex-col">
           <strong className="text-sm tracking-wide">{camera.cameraName}</strong>
           <div className="mt-0.5 text-xs tracking-wide">
-            <b>Camera Id:</b> {camera.cameraId}
+            <b>Camera Id:</b>
+            <span className="font-medium ml-2">{camera.cameraId}</span>
           </div>
         </div>
         <button
