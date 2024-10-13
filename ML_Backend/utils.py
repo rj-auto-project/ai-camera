@@ -1,6 +1,6 @@
 import os
 
-def update_env_var(key, value, env_file='/home/annone/ai-camera/ML_Backend/.env'):
+def update_env_var(key, value, env_file='C:/project/ai-camera/ML_Backend/.env'):
     lines = []
     key_found = False
 
@@ -18,7 +18,7 @@ def update_env_var(key, value, env_file='/home/annone/ai-camera/ML_Backend/.env'
 
     # If the key wasn't found, append it
     if not key_found:
-        lines.append(f"{key}={value}\n")
+        lines.append(f"{key}={value}/n")
 
     # Write the updated .env file
     with open(env_file, 'w') as file:

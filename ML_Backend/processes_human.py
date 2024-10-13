@@ -7,6 +7,11 @@ import time
 from dotenv import load_dotenv
 import os
 from db import Database
+from datetime import datetime
+from collections import Counter
+import json
+import shutil
+
 load_dotenv()
 
 project_id = "human-classification-gzeln"
@@ -19,7 +24,7 @@ img_batch_size = 100
 parent_dir = os.getenv("PARENT_DIR")
 camera_ip = os.getenv("CAM_IP")
 camera_id = os.getenv("CAM_ID")
-
+class_dict = {"normal":"NORMAL","spit":"SPITTING","urinate":"PEEING","garbage-littering":"GARBAGE LITTERING"}
 infer_payload = {
     "model_id": f"{project_id}/{model_version}",
     "image": [],
@@ -30,14 +35,14 @@ infer_payload = {
 
 def get_file():
     global img_batch_size
-    prefix = os.listdir("/home/annone/ai/data/images/human")[0].split("_")[0]
-    img_list = [i for i in os.listdir("/home/annone/ai/data/images/human") if i.startswith(prefix)]
+    prefix = os.listdir(f"{parent_dir}/data/human")[0].split("_")[0]
+    img_list = [i for i in os.listdir(f"{parent_dir}/data/human") if i.startswith(prefix)]
     if len(img_list) < img_batch_size:
         img_batch_size = len(img_list)
     img_list = img_list[:img_batch_size]
     for img in img_list:
-        if img.endswith(".png"):
-            img_path = os.path.join("/home/annone/ai/data/images/human", img)
+        if img.endswith(".jpg"):
+            img_path = os.path.join(f"{parent_dir}/data/human", img)
             image = Image.open(img_path)
             buffered = BytesIO()
             image.save(buffered, quality=100, format="JPEG")
@@ -54,39 +59,56 @@ a =1
 while a == 1 :
     a = 2
     img_list = get_file()
+    print(img_list)
     t1 = time.time()
     res = requests.post(
-        f"http://localhost:8976/infer/{task}",
+        f"http://localhost:9001/infer/{task}",
         json=infer_payload,
     )
     pred_resps = res.json()
-    print(pred_resps)
+    print(pred_resps,"-----")
     t2 =  time.time()
     print(t2-t1)
-    o = 0
+    o = datetime.now()
     label = []
     conf = []
     metaData = {}
     incident = ""
+    thumbnail = ""
+    track_id = 0
     for i,row in enumerate(pred_resps):
-        track_id,timestamp , _ = img_list[i].split("_")
+        new_track_id,timestamp , _ = img_list[i].split("_")
         print(row)
+        track_id = new_track_id
         predicted_class = row["predicted_classes"]
         if o == 0 and predicted_class[0] != "normal":
             o = timestamp
-            incident = predicted_class[0]
+            thumbnail = img_list[i]
+            shutil.move(f"{parent_dir}/data/human/{img_list[i]}",f"{parent_dir}/data/{predicted_class[0].lower()}/{img_list[i]}")
         conf.append(row["predictions"][predicted_class[0]]["confidence"])
         label.append(predicted_class[0])
+    l = [el for el in label if el != "normal"]
+    j = Counter(l)
+    k = j.most_common(1)
+    
+    if k:
+        c, count = k[0]
+        incident = class_dict[c]
+    else:
+        incident = "NORMAL"
+
     metaData["labels"] = label
     metaData["confs"] = conf
-
-    conn = Database.get_connection()
-    cursor = conn.cursor()
-    insert_query = """
-        INSERT INTO "incidentLogs" (timestamp, cameraId, metadata, trackId, camera_ip, incidentType)
-        VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """
-    data_to_insert = (timestamp, camera_id, metaData, track_id, camera_ip, incident)
-    cursor.execute(insert_query, data_to_insert)
-    conn.commit()
-    conn.close()
+    if incident != "NORMAL":
+        conn = Database.get_connection()
+        cursor = conn.cursor()
+        insert_query = """
+            INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "metadata", "trackId", "camera_ip", "incidentType", "thumbnail")
+            VALUES (%s, %s, %s::json, %s, %s, %s);
+            """
+        data_to_insert = (o, camera_id, json.dumps(metaData), track_id, camera_ip, incident,thumbnail)
+        print(metaData)
+        print(data_to_insert)
+        cursor.execute(insert_query, data_to_insert)
+        conn.commit()
+        conn.close()
