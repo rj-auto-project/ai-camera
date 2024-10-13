@@ -104,7 +104,7 @@ const Streams = React.memo(() => {
       setCurrentPage(value);
       navigate(`?page=${value}`);
     },
-    [navigate],
+    [navigate]
   );
 
   const handleStreamClick = useCallback(
@@ -112,7 +112,7 @@ const Streams = React.memo(() => {
       setVideoSrc(scr);
       navigate(`?page=${currentPage}&cameraId=${id}`);
     },
-    [navigate, currentPage],
+    [navigate, currentPage]
   );
 
   const handleChipClick = (category) => {
@@ -124,16 +124,18 @@ const Streams = React.memo(() => {
     (stream) =>
       activeCategory === "All" ||
       (activeCategory === "Active" && stream.status === "Active") ||
-      (activeCategory === "Inactive" && stream.status === "Inactive"),
+      (activeCategory === "Inactive" && stream.status === "Inactive")
   );
 
   const currentStreams = filteredStreams.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
+  console.log("current streams", currentStreams);
+
   return (
-    <Container >
+    <Container sx={{ height: "100vh" }}>
       <Stack
         direction="row"
         spacing={2}
@@ -168,8 +170,7 @@ const Streams = React.memo(() => {
         ))}
       </Stack>
 
-      <Box mt={9} >
-        {/* <VideoStream /> */}
+      <Box mt={9}>
         <Grid container spacing={2}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
@@ -228,23 +229,43 @@ const Streams = React.memo(() => {
           ))}
         </Grid>
       </Box>
-      <Box
-        mt={4}
-        display="flex"
-        justifyContent="center"
-        position="fixed"
-        bottom={0}
-        left={0}
-        right={0}
-        p={2}
-      >
-        <Pagination
-          count={Math.ceil(filteredStreams.length / itemsPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Box>
+
+      {!currentStreams.length && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+          width="100%"
+          position="absolute"
+          top={0}
+          left={0}
+        >
+          <Typography variant="h6" color="textSecondary">
+            No Camera available
+          </Typography>
+        </Box>
+      )}
+
+      {!!currentStreams.length && (
+        <Box
+          mt={4}
+          display="flex"
+          justifyContent="center"
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          p={2}
+        >
+          <Pagination
+            count={Math.ceil(filteredStreams.length / itemsPerPage)}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+          />
+        </Box>
+      )}
     </Container>
   );
 });

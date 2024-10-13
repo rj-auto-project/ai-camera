@@ -260,31 +260,33 @@ const IncidentSearchTable = () => {
         )}
       </TableContainer>
       {/* Export Data Button */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px",
-        }}
-      >
-        <CSVButton
-          csvData={csvData}
-          headers={headers}
-          filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
-          key={`vehicle_search_data_${new Date().toLocaleString()}`}
-        />
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={data?.data?.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Box>
+      {data?.data && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "10px",
+          }}
+        >
+          <CSVButton
+            csvData={csvData}
+            headers={headers}
+            filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
+            key={`vehicle_search_data_${new Date().toLocaleString()}`}
+          />
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50]}
+            component="div"
+            count={data?.data?.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
+      )}
       {selectedItem && (
         <ImageModel
           index={index}
