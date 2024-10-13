@@ -67,11 +67,10 @@ const Operations = () => {
           top: 0,
           zIndex: 1000,
           padding: "10px",
-          boxShadow: "0px 4px 2px -2px gray",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: "#000",
+          backgroundColor: "#131313",
         }}
       >
         {/* Left Side: Chips */}

@@ -23,13 +23,16 @@ const CameraCard = ({ camera, onRemove }) => {
       </div>
       <div className="p-1">
         <div className="mb-1 text-xs">
-          <b>Location:</b> {camera.location}
+          <b className="font-bold">Location:</b>{" "}
+          <span className="font-semibold">{camera.location}</span>
         </div>
         <div className="mb-1 text-xs">
-          <b>Status:</b> {camera.status}
+          <b className="font-bold">Status:</b>{" "}
+          <span className="font-semibold">{camera.status}</span>
         </div>
         <div className="text-xs">
-          <b>Type:</b> {camera.cameraType}
+          <b className="font-bold">Type:</b>{" "}
+          <span className="font-semibold">{camera.cameraType}</span>
         </div>
       </div>
     </div>

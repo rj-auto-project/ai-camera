@@ -11,7 +11,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 
 const Map = () => {
@@ -134,7 +134,11 @@ const Map = () => {
           <Chip
             key={index}
             icon={chip.icon}
-            label={chip.label}
+            label={
+              <Typography variant="body1" sx={{ fontWeight: "500", fontSize:13 }}>
+                {chip.label}
+              </Typography>
+            }
             onClick={() => handleChipClick(chip.label)}
             sx={{
               backgroundColor:

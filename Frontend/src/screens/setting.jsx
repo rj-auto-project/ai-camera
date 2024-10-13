@@ -63,7 +63,7 @@ const Setting = () => {
                 onClick={() => handleOperationSelect(option.name)}
                 selected={selectedOptions === option.name}
                 sx={{
-                  py: 2,
+                  py: 1.5,
                   backgroundColor:
                     selectedOptions === option.name
                       ? "rgba(0, 123, 255, 0.1)"
@@ -76,13 +76,20 @@ const Setting = () => {
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Box sx={{ marginRight: 2 }}>{option.icon}</Box>
                   <ListItemText
-                    secondary={option.name}
-                    sx={{
-                      color:
-                        selectedOptions === option.name
-                          ? "primary.main"
-                          : "inherit",
-                    }}
+                    secondary={
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color:
+                            selectedOptions === option.name
+                              ? "primary.main"
+                              : "inherit",
+                        }}
+                        fontWeight={"400"}
+                      >
+                        {option.name}
+                      </Typography>
+                    }
                   />
                 </Box>
               </ListItem>
