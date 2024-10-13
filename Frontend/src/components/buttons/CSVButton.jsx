@@ -3,6 +3,9 @@ import { Button, Icon, Tooltip } from "@mui/material";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 const CSVButton = ({ csvData, headers, filename }) => {
+  if (!csvData || !Array.isArray(csvData)) {
+    return null; 
+  }
   return (
     <Tooltip title={"Download CSV"} placement="top">
       <Button
@@ -13,7 +16,7 @@ const CSVButton = ({ csvData, headers, filename }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "white", // Keep the text color white
+          color: "white",
         }}
       >
         <CSVLink
