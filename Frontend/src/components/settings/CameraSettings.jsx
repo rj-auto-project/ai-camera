@@ -12,13 +12,19 @@ import {
   Box,
   Divider,
   IconButton,
+  CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import CanvasDraw from "../canvasdraw/canvasDraw";
 import { Close } from "@mui/icons-material";
+import { useAddCamera } from "../../api/hooks/useCamera";
+import toast from "react-hot-toast";
 
 const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
   const [imageCoordinates, setImageCordinates] = useState([]);
+  let { mutate, isLoading, error } = useAddCamera();
+
   const {
     register,
     handleSubmit,
@@ -26,15 +32,44 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    const newdata = { imageCoordinates: imageCoordinates, ...data };
-    console.log(newdata);
-    // Handle form data
+  const onSubmit = async (data) => {
+    const cameraCoordinates = [
+      parseFloat(data.cameraLat),
+      parseFloat(data.cameraLong),
+    ];
+    const newData = { ...data, cameraCoordinates, imageCoordinates };
+
+    try {
+      await mutate(newData);
+      toast.success("Camera added successfully!");
+    } catch (err) {
+      toast.error(
+        error?.response?.data?.message ||
+          "An error occurred while adding the camera."
+      );
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={2} p={5}>
+      <Grid container spacing={2} p={2}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Camera Id"
+            {...register("cameraId", {
+              required: "Camera Id name is required",
+            })}
+            error={false} // Keep this as false to avoid red border
+            helperText={
+              errors.cameraId ? (
+                <span style={{ color: "red" }}>{errors.cameraId.message}</span>
+              ) : (
+                ""
+              )
+            }
+          />
+        </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
@@ -42,8 +77,14 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("cameraIp", {
               required: "Camera IP is required",
             })}
-            error={!!errors.cameraIp}
-            helperText={errors.cameraIp?.message}
+            error={false}
+            helperText={
+              errors.cameraIp ? (
+                <span style={{ color: "red" }}>{errors.cameraIp.message}</span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={12}>
@@ -53,32 +94,81 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("cameraName", {
               required: "Camera name is required",
             })}
-            error={!!errors.cameraName}
-            helperText={errors.cameraName?.message}
+            error={false}
+            helperText={
+              errors.cameraName ? (
+                <span style={{ color: "red" }}>
+                  {errors.cameraName.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Manufacturer"
+            {...register("manufacturer", {
+              required: "Manufacturer name is required",
+            })}
+            error={false}
+            helperText={
+              errors.manufacturer ? (
+                <span style={{ color: "red" }}>
+                  {errors.manufacturer.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
             label="Latitude"
-            type="number"
-            {...register("cameraCoordinates.lat", {
+            type="text"
+            {...register("cameraLat", {
               required: "Latitude is required",
+              pattern: {
+                value: /^-?\d+(\.\d+)?$/,
+                message: "Latitude must be a valid number",
+              },
             })}
-            error={!!errors.cameraCoordinates?.lat}
-            helperText={errors.cameraCoordinates?.lat?.message}
+            error={false}
+            helperText={
+              errors.cameraLat ? (
+                <span style={{ color: "red" }}>{errors.cameraLat.message}</span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
             label="Longitude"
-            type="number"
-            {...register("cameraCoordinates.long", {
+            type="text"
+            {...register("cameraLong", {
               required: "Longitude is required",
+              pattern: {
+                value: /^-?\d+(\.\d+)?$/,
+                message: "Longitude must be a valid number",
+              },
             })}
-            error={!!errors.cameraCoordinates?.long}
-            helperText={errors.cameraCoordinates?.long?.message}
+            error={false}
+            helperText={
+              errors.cameraLong ? (
+                <span style={{ color: "red" }}>
+                  {errors.cameraLong.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={12}>
@@ -88,8 +178,16 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("cameraLocation", {
               required: "Camera location is required",
             })}
-            error={!!errors.cameraLocation}
-            helperText={errors.cameraLocation?.message}
+            error={false}
+            helperText={
+              errors.cameraLocation ? (
+                <span style={{ color: "red" }}>
+                  {errors.cameraLocation.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
@@ -99,36 +197,52 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
               name="cameraType"
               control={control}
               defaultValue=""
+              rules={{ required: "Camera Type is required" }}
               render={({ field }) => (
-                <Select {...field}>
+                <Select {...field} error={false}>
+                  <MenuItem value="">Select Camera Type</MenuItem>
                   <MenuItem value="dome">Dome</MenuItem>
                   <MenuItem value="bullet">Bullet</MenuItem>
                 </Select>
               )}
             />
+            {errors.cameraType && (
+              <FormHelperText style={{ color: "red" }}>
+                {errors.cameraType.message}
+              </FormHelperText>
+            )}
           </FormControl>
         </Grid>
+
         <Grid item xs={6}>
           <FormControl fullWidth>
             <InputLabel>Connection Type</InputLabel>
             <Controller
-              name="ConnectionType"
+              name="connectionType"
               control={control}
-              defaultValue={[]}
+              defaultValue=""
+              rules={{ required: "Connection Type is required" }}
               render={({ field }) => (
                 <Select
                   {...field}
-                  multiple
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
+                  error={false}
                 >
+                  <MenuItem value="">Select Connection Type</MenuItem>
                   <MenuItem value="wired">Wired</MenuItem>
                   <MenuItem value="wireless">Wireless</MenuItem>
                 </Select>
               )}
             />
+            {errors.connectionType && (
+              <FormHelperText style={{ color: "red" }}>
+                {errors.connectionType.message}
+              </FormHelperText>
+            )}
           </FormControl>
         </Grid>
+
         <Grid item xs={6}>
           <TextField
             fullWidth
@@ -137,8 +251,16 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("vehicleCountThreshold", {
               required: "Threshold is required",
             })}
-            error={!!errors.vehicleCountThreshold}
-            helperText={errors.vehicleCountThreshold?.message}
+            error={false}
+            helperText={
+              errors.vehicleCountThreshold ? (
+                <span style={{ color: "red" }}>
+                  {errors.vehicleCountThreshold.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
@@ -149,20 +271,40 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("crowdCountThreshold", {
               required: "Threshold is required",
             })}
-            error={!!errors.crowdCountThreshold}
-            helperText={errors.crowdCountThreshold?.message}
+            error={false}
+            helperText={
+              errors.crowdCountThreshold ? (
+                <span style={{ color: "red" }}>
+                  {errors.crowdCountThreshold.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
             label="Facing Angle"
-            type="number"
+            type="text"
             {...register("facingAngle", {
               required: "Facing angle is required",
+              pattern: {
+                value: /^-?\d+(\.\d+)?$/,
+                message: "Facing angle must be a valid number",
+              },
             })}
-            error={!!errors.facingAngle}
-            helperText={errors.facingAngle?.message}
+            error={false}
+            helperText={
+              errors.facingAngle ? (
+                <span style={{ color: "red" }}>
+                  {errors.facingAngle.message}
+                </span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
         <Grid item xs={6}>
@@ -172,10 +314,17 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             {...register("areaName", {
               required: "Area is required",
             })}
-            error={!!errors.areaName}
-            helperText={errors.areaName?.message}
+            error={false}
+            helperText={
+              errors.areaName ? (
+                <span style={{ color: "red" }}>{errors.areaName.message}</span>
+              ) : (
+                ""
+              )
+            }
           />
         </Grid>
+
         <Grid item>
           <Typography>Set Coordinates for:</Typography>
         </Grid>
@@ -215,8 +364,16 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             alignItems: "center",
           }}
         >
-          <Button type="submit" variant="outlined" color="primary">
-            Add Camera
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "16px", color: "white" }}
+            startIcon={
+              isLoading ? <CircularProgress size={20} color="inherit" /> : null
+            }
+          >
+            {isLoading ? "Adding..." : "Add Camera"}
           </Button>
         </Grid>
       </Grid>
