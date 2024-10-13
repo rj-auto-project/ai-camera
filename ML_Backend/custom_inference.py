@@ -36,8 +36,8 @@ cam_rtsp_url = os.getenv("CAM_RSTP")
 fps = 30
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = YOLO(f"{parent_dir}/models/obj_seg_02.pt")
-model.to(device)
+# model = YOLO(f"{parent_dir}/models/obj_seg_02.pt")
+# model.to(device)
 print(f"{device} as Computation Device initiated")
 tracker = Sort()
 
@@ -205,7 +205,7 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     cv2.waitKey(1)
 pipeline = InferencePipeline.init(
     model_id="detection-xt8ag/2",
-    video_reference="/home/annone/ai/data/wrongway.mp4",
+    video_reference=f"{cam_rtsp_url}",
     on_prediction=my_custom_sink,
     api_key="xlSCYXy7QQXARjVhQJmn"
 )

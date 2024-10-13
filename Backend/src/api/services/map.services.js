@@ -36,21 +36,23 @@ const getCamerasFormap = async () => {
 // };
 
 const getHeatmap = async () => {
-  const allRecords = await prisma.crowdCount.findMany({
+  const crowdCounts = await prisma.crowdCount.findMany({
     orderBy: {
       timestamp: "desc",
     },
+    include: {
+      camera: true,
+    },
   });
-  let latestHeatmap = Object.values(
-    allRecords.reduce((acc, record) => {
-      if (!acc[record.camera_ip]) {
-        acc[record.camera_ip] = record;
-      }
-      return acc;
-    }, {}),
-  );
 
-  return latestHeatmap;
+  const latestHeatmap = {};
+  crowdCounts.forEach((record) => {
+    if (!latestHeatmap[record?.cameraId]) {
+      latestHeatmap[record?.cameraId] = record;
+    }
+  });
+
+  return Object.values(latestHeatmap);
 };
 
 export { getCamerasFormap, getHeatmap };

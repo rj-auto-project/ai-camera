@@ -18,14 +18,40 @@ const performRequestedOperation = async (req, res, next) => {
   }
 };
 
-const heatmap = async (req, res) => {
-  try {
-    const heatmap = await getHeatmap();
-    res.status(200).json(heatmap);
-  } catch (error) {
-    console.log("Error sending data");
-    res.status(500).json({ message: "Error sending data", error });
-  }
+const heatmap = (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  let lastSentData = {};
+
+  const sendHeatmapData = async () => {
+    try {
+      const heatmap = await getHeatmap();
+
+      if (JSON.stringify(heatmap) === JSON.stringify(lastSentData)) {
+        return;
+      }
+
+      if (heatmap.length > 0) {
+        lastSentData = heatmap;
+        res.write(`data: ${JSON.stringify(heatmap)}\n\n`);
+      }
+    } catch (error) {
+      console.error("Error fetching heatmap data:", error);
+      res.write(
+        `data: ${JSON.stringify({ message: "Error fetching data" })}\n\n`
+      );
+    }
+  };
+
+  sendHeatmapData();
+  const intervalId = setInterval(sendHeatmapData, 3000);
+
+  req.on("close", () => {
+    clearInterval(intervalId);
+    res.end();
+  });
 };
 
 export { getCamerars, performRequestedOperation, heatmap };

@@ -11,12 +11,14 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress } from "@mui/material";
+import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
   const { data, isLoading, isError, error } = useFetchCameras();
+  const { eventData } = useFetchHeatmap(activeCategory);
   const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
 
@@ -109,6 +111,7 @@ const Map = () => {
   });
 
   console.log(data);
+  console.log(eventData, "eventData");
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -171,6 +174,7 @@ const Map = () => {
         activeCategory={activeCategory}
         camStatus={camStatus}
         DEFAULT_ZOOM={16}
+        heatmapData={eventData}
       >
         {filteredCameras.map((camera) => (
           <Marker

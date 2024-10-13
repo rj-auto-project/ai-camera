@@ -40,12 +40,12 @@ const register = async (userData) => {
     },
   });
 
-  const { accessToken, refreshToken } = await generateToken(user);
+  const { token, refreshToken } = await generateToken(user);
 
   return {
     employeeId: user.employee_Id,
     name: user.name,
-    accessToken,
+    token,
     refreshToken,
   };
 };
@@ -69,7 +69,7 @@ const login = async (userData) => {
     throw new Error("Invalid password");
   }
 
-  const { token } = await generateToken(existingUser);
+  const { token, refreshToken } = await generateToken(existingUser);
 
   return token;
 };
