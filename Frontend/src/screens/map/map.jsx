@@ -11,7 +11,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 
 const Map = () => {
