@@ -79,12 +79,18 @@ while a == 1 :
             cursor = conn.cursor()
             sql_query = """
                 WITH pothole_check AS (
-                    SELECT id
+                    SELECT id, "alerts"
                     FROM "IncidentLogs"
                     WHERE SQRT(POWER("metaCoords"[1] - %s, 2) + POWER("metaCoords"[2] - %s, 2)) <= %s
                 )
-                INSERT INTO "IncidentLogs" ("timestamp","cameraId","trackId","camera_ip", "boxCoords", "incidentType", "metaCoords")
-                SELECT %s,%s, %s, %s, %s, %s, ARRAY[%s, %s]
+                -- Check if a pothole exists
+                UPDATE "IncidentLogs"
+                SET "alerts" = "alerts" + 1 -- Increment the alerts column
+                WHERE id IN (SELECT id FROM pothole_check);
+
+                -- If no existing pothole is found, insert a new record
+                INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "trackId", "camera_ip", "boxCoords", "incidentType", "metaCoords", "alerts")
+                SELECT %s, %s, %s, %s, %s, %s, ARRAY[%s, %s], 1
                 WHERE NOT EXISTS (SELECT 1 FROM pothole_check);
             """
 

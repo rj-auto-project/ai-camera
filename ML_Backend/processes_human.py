@@ -10,6 +10,7 @@ from db import Database
 from datetime import datetime
 from collections import Counter
 import json
+import shutil
 
 load_dotenv()
 
@@ -81,11 +82,9 @@ while a == 1 :
         predicted_class = row["predicted_classes"]
         if o == 0 and predicted_class[0] != "normal":
             o = timestamp
-        # incident = class_dict[predicted_class[0]]
         conf.append(row["predictions"][predicted_class[0]]["confidence"])
         label.append(predicted_class[0])
-    labels = ['normal', 'normal', 'spit', 'garbage_litering', 'spit', 'normal', 'garbage_litering', 'spit']
-    l = [el for el in labels if el != "normal"]
+    l = [el for el in label if el != "normal"]
     j = Counter(l)
     k = j.most_common(1)
     if k:
@@ -109,5 +108,6 @@ while a == 1 :
         cursor.execute(insert_query, data_to_insert)
         conn.commit()
         conn.close()
-
-    # write code to delete the img file after processing
+    for file in img_list:
+        shutil.move(f"{parent_dir}/data/human/{file}",f"{parent_dir}/data/{incident.lower()}/{file}")
+        # os.remove(f"{parent_dir}/data/human/{file}")
