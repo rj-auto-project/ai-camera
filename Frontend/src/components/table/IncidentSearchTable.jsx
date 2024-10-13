@@ -44,8 +44,7 @@ const IncidentSearchTable = () => {
     setPage(newPage);
   };
 
-  let { mutate, data, isLoading, isError, error, closeEventSource } =
-    useGabageSearch();
+  let { mutate, data, isLoading, isError } = useGabageSearch();
 
   useEffect(() => {
     mutate();
@@ -107,7 +106,7 @@ const IncidentSearchTable = () => {
     { label: "Confidence", key: "classConfidence" },
   ];
 
-  const csvData = data.data.map((item, index) => ({
+  const csvData = data?.data?.map((item, index) => ({
     thumbnail: `/assets/garbage/garbage${index + 1}.png`,
     timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
     camera_ip: item?.camera_ip || item?.camera?.cameraIp,
@@ -167,7 +166,7 @@ const IncidentSearchTable = () => {
           </StickyTableHead>
           <TableBody>
             {data?.data
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((item, index) => (
                 <TableRow key={item.id}>
                   <TableCell
@@ -225,7 +224,7 @@ const IncidentSearchTable = () => {
                       </Button>
                     ) : (
                       <Select
-                        value={statusMap[item.id] || "unresolved"} // Get status per row
+                        value={statusMap[item.id] || "unresolved"}
                         onChange={(e) => handleStatusChange(e, item.id)}
                         sx={{ color: "white" }}
                         MenuProps={{
@@ -246,6 +245,19 @@ const IncidentSearchTable = () => {
               ))}
           </TableBody>
         </Table>
+        {!data.length && !isError && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+            width="100%"
+          >
+            <Typography variant="h6" color="textSecondary">
+              No Incidents available
+            </Typography>
+          </Box>
+        )}
       </TableContainer>
       {/* Export Data Button */}
       <Box
@@ -266,7 +278,7 @@ const IncidentSearchTable = () => {
         <TablePagination
           rowsPerPageOptions={[10, 25, 50]}
           component="div"
-          count={data.data.length}
+          count={data?.data?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
