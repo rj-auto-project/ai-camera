@@ -20,7 +20,7 @@ router.post(
   operationValidator,
   performRequestedOperation,
 );
-router.get("/heatmap", authMiddleware, heatmap);
+router.get("/heatmap", heatmap);
 
 // Get the status of map route
 router.get("/status", (req, res) => {
