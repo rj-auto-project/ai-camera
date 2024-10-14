@@ -14,7 +14,7 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [lineCoordinates, setLineCoordinates] = useState([[], [], [], []]);
   const [drawMode, setDrawMode] = useState(
-    modelType === "illegalParking" ? "line" : "polygon"
+    modelType === "illegalParking" ?"polygon": "line"
   );
   const [image, setImage] = useState(null);
   const [lines, setLines] = useState([]);
