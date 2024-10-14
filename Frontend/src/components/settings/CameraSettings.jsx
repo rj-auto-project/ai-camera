@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   TextField,
@@ -23,7 +23,17 @@ import toast from "react-hot-toast";
 
 const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
   const [imageCoordinates, setImageCordinates] = useState([]);
+  const [illegalParkingCords, setIllegalParkingCords] = useState([]);
+  const [redlightCrossingCords, setRedlightCrossingCords] = useState([]);
+  const [wrongwayCords, setWrongWayCords] = useState([]);
+
   let { mutate, isLoading, error } = useAddCamera();
+
+  useEffect(() => {
+    console.log("illegalParkingCords", illegalParkingCords);
+    console.log("redlightCrossingCords", redlightCrossingCords);
+    console.log("wrongwayCords", wrongwayCords);
+  }, [illegalParkingCords, redlightCrossingCords, wrongwayCords]);
 
   const {
     register,
@@ -37,7 +47,13 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
       parseFloat(data.cameraLat),
       parseFloat(data.cameraLong),
     ];
-    const newData = { ...data, cameraCoordinates, imageCoordinates };
+    const newData = {
+      ...data,
+      cameraCoordinates,
+      illegalParkingCords,
+      redlightCrossingCords,
+      wrongwayCords,
+    };
 
     try {
       await mutate(newData);
@@ -402,6 +418,9 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
             modelType={openModal}
             closeModal={closeModal}
             setImageCordinates={setImageCordinates}
+            setIllegalParkingCords={setIllegalParkingCords}
+            setWrongWayCords={setWrongWayCords}
+            setRedlightCrossingCords={setRedlightCrossingCords}
           />
         </Box>
       </Modal>
