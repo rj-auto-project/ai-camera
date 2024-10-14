@@ -245,7 +245,7 @@ const IncidentSearchTable = () => {
               ))}
           </TableBody>
         </Table>
-        {!data.length && !isError && (
+        {!data?.data?.length && !isError && (
           <Box
             display="flex"
             justifyContent="center"

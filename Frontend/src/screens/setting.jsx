@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { settingsOptions } from "../data/data";
 import CameraSettings from "../components/settings/CameraSettings";
+import UserSettings from "../components/settings/UserSettings";
 
 const Setting = () => {
   const [selectedOptions, setSelectedOptions] = useState("User");
@@ -144,6 +145,7 @@ const Setting = () => {
                 openAnnotationModal={openAnnotationModal}
               />
             )}
+            {selectedOptions === "User" && <UserSettings />}
           </Box>
         </Paper>
       </Grid>
