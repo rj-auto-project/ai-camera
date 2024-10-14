@@ -135,7 +135,21 @@ const Streams = React.memo(() => {
   console.log("current streams", currentStreams);
 
   return (
-    <Container sx={{ height: "100vh" }}>
+    <Box
+      sx={{
+        height: "100%",
+        overflow: "hidden",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+    >
+      <style>
+        {`
+        ::-webkit-scrollbar {
+          display: none;
+        }
+      `}
+      </style>
       <Stack
         direction="row"
         spacing={2}
@@ -177,7 +191,7 @@ const Streams = React.memo(() => {
         ))}
       </Stack>
 
-      <Box mt={9}>
+      <Box sx={{ px: "8%", mt: 8, pb: "4%" }}>
         <Grid container spacing={2}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
@@ -237,6 +251,7 @@ const Streams = React.memo(() => {
         </Grid>
       </Box>
 
+      {/* No Streams Message */}
       {!currentStreams.length && (
         <Box
           display="flex"
@@ -254,6 +269,7 @@ const Streams = React.memo(() => {
         </Box>
       )}
 
+      {/* Pagination */}
       {!!currentStreams.length && (
         <Box
           mt={4}
@@ -273,7 +289,7 @@ const Streams = React.memo(() => {
           />
         </Box>
       )}
-    </Container>
+    </Box>
   );
 });
 
