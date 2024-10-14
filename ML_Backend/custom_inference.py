@@ -72,7 +72,9 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     current_track_ids = []
     track_detections = []
     image = video_frame.image.copy()
+    # image = cv2.resize(image,(1280,960))
     now = datetime.now()
+    file_name = now.strftime('%Y-%m-%d %H-%M-%S')
     if now.minute==00:
         cv2.imwrite(f"{parent_dir}/data/municipal/{now}.jpg",image)
     for detection in detections:
@@ -87,19 +89,7 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         x2 = int(x_center + (width / 2))
         y2 = int(y_center + (height / 2))
         track_detections.append([x1, y1, x2, y2, confidence, class_id])
-        if class_id == 8:
-            cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
-            cv2.imwrite(
-                        f"{parent_dir}/data/lp/{now}.jpg",
-                        cropped_plate,
-                    )
-        if class_id == 10 or class_id == 14 or class_id == 23:
-            cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
-            cv2.imwrite(
-                        f"{parent_dir}/data/human/{now}.jpg",
-                        cropped_plate,
-                    )
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+        # cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     track_detections = np.array(track_detections)
     tracks = tracker.update(track_detections)
@@ -110,6 +100,18 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         bbox = f"{x1}, {y1}, {x2}, {y2}"
 
+        if class_id == 8:
+            cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
+            cv2.imwrite(
+                        f"{parent_dir}/data/lp/{track_id}_{file_name}.jpg",
+                        cropped_plate,
+                    )
+        if class_id == 10 or class_id == 14 or class_id == 23:
+            cropped_plate = image[y1 - 10 : y2 + 10, x1 - 10 : x2 + 10]
+            cv2.imwrite(
+                        f"{parent_dir}/data/human/{track_id}_{file_name}.jpg",
+                        cropped_plate,
+                    )
         label = class_list[class_id]
 
         if label in vehicle_class_list:
@@ -141,13 +143,6 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         # red light violation
         if track_id in var.violated_objects:
             incident_type = var.INCIDENT_TYPES["TRAFFIC_VIOLATION"]
-            if track_id not in var.logged_traffic:
-                file_name = now.strftime('%Y-%m-%d %H-%M-%S')
-                var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
-                    )
-                var.logged_traffic.add(track_id)
-                cv2.imwrite(f"{parent_dir}/data/red_light_violation/{file_name}.jpeg",image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -158,18 +153,16 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                     (0, 0, 255),
                     2,
                 )
+            if track_id not in var.logged_traffic:
+                var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
+                    )
+                var.logged_traffic.add(track_id)
+                cv2.imwrite(f"{parent_dir}/data/red_light_violation/{file_name}.jpeg",image)
 
             # wrong way violation
         if track_id in var.violated_objects_wrong:
             incident_type = var.INCIDENT_TYPES["WRONG_WAY"]
-            if track_id not in var.logged_wrong:
-                file_name = now.strftime('%Y-%m-%d %H-%M-%S')
-                var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
-                    )
-                var.logged_wrong.add(track_id)
-                print(f"{parent_dir}/data/wrong_way_driving/{file_name}.jpeg")
-                cv2.imwrite(f"{parent_dir}/data/wrong_way_driving/{file_name}.jpeg", image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -180,19 +173,19 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                     (0, 0, 255),
                     2,
                 )
+            if track_id not in var.logged_wrong:
+                var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
+                    )
+                var.logged_wrong.add(track_id)
+                print(f"{parent_dir}/data/wrong_way_driving/{file_name}.jpeg")
+                cv2.imwrite(f"{parent_dir}/data/wrong_way_driving/{file_name}.jpeg", image)
         # illegal parking
         if (
                 track_id in var.static_objects
                 and var.static_objects[track_id]["violated"]
             ):
             incident_type = var.INCIDENT_TYPES["ILLEGAL_PARKING"]
-            if track_id not in var.logged_parking:
-                file_name = now.strftime('%Y-%m-%d %H-%M-%S')
-                var.save_violation_to_db(
-                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
-                    )
-                var.logged_parking.add(track_id)
-                cv2.imwrite(f"{parent_dir}/data/illegal_parking/{file_name}.jpeg",image)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(
                     image,
@@ -203,16 +196,23 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                     (0, 0, 255),
                     2,
                 )
-        cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            if track_id not in var.logged_parking:
+                var.save_violation_to_db(
+                        camera_id, track_id, camera_ip, bbox, incident_type, f"{file_name}.jpeg"
+                    )
+                var.logged_parking.add(track_id)
+                cv2.imwrite(f"{parent_dir}/data/illegal_parking/{file_name}.jpeg",image)
+        # cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     var.draw_lines_for_traffic_violation(image)
     out.write(image)
     cv2.imshow("Predictions", image)
     cv2.waitKey(1)
 pipeline = InferencePipeline.init(
-    model_id="detection-xt8ag/2",
+    model_id="vehicles-pnvsh/1",
+    confidence=0.10,
     video_reference=f"{cam_rtsp_url}",
     on_prediction=my_custom_sink,
-    api_key="xlSCYXy7QQXARjVhQJmn"
+    api_key="o9xQlct9Wr77cZXqyV17"
 )
 def cam_stream():
     pipeline.start()

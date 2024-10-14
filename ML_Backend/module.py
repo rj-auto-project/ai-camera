@@ -23,7 +23,7 @@ class ViolationDetector:
         self.violated_objects = set()
         self.logged_traffic = set() 
         self.static_objects = {}
-        self.stationary_frame_threshold = 200
+        self.stationary_frame_threshold = 5
         self.cam_ip = '127.0.0.1'
         self.cam_id = "1"
         self.INCIDENT_TYPES = {
@@ -40,7 +40,7 @@ class ViolationDetector:
         self.ww_red_line = []
         # wrong way green lines
         self.ww_green_line = []
-        
+
         # traffic violation red lines
         self.tv_red_line = [[(266, 502), (876, 502)]]
         # traffic violation red lines
