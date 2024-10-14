@@ -9,7 +9,14 @@ import {
 } from "@mui/material";
 import { Undo, FileUpload } from "@mui/icons-material";
 
-const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
+const CanvasDraw = ({
+  modelType,
+  closeModal,
+  setImageCordinates,
+  setIllegalParkingCords,
+  setWrongWayCords,
+  setRedlightCrossingCords,
+}) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawMode, setDrawMode] = useState(
@@ -361,9 +368,19 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
           )}
           <Button
             onClick={() => {
-              setImageCordinates(
-                drawMode === "line" ? linePairs : polygonCoordinates
-              );
+              if (modelType === "illegalParking") {
+                setIllegalParkingCords(
+                  drawMode === "line" ? linePairs : polygonCoordinates
+                );
+              } else if (modelType === "redLightCrossing") {
+                setRedlightCrossingCords(
+                  drawMode === "line" ? linePairs : polygonCoordinates
+                );
+              } else {
+                setWrongWayCords(
+                  drawMode === "line" ? linePairs : polygonCoordinates
+                );
+              }
               closeModal();
             }}
             variant="contained"

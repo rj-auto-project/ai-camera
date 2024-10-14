@@ -14,9 +14,11 @@ class CameraService {
         facingAngle: cameraData.facingAngle,
         areaName: cameraData.areaName,
         cameraType: cameraData.cameraType,
-        connectionType: cameraData.connectionType ,
-        imageCoordinates: cameraData.imageCoordinates,
-        manufacturer: cameraData.manufacturer
+        connectionType: cameraData.connectionType,
+        manufacturer: cameraData.manufacturer,
+        illegalParkingCords: cameraData.illegalParkingCords,
+        redlightCrossingCords: cameraData.redlightCrossingCords,
+        wrongwayCords: cameraData.wrongwayCords,
       },
     });
   }
@@ -28,7 +30,7 @@ class CameraService {
   }
 
   async updateCamera(cameraId, cameraData) {
-    console.log(cameraData)
+    console.log(cameraData);
     return await prisma.camera.update({
       where: { cameraId },
       data: {
@@ -42,9 +44,11 @@ class CameraService {
         facingAngle: cameraData.facingAngle,
         areaName: cameraData.areaName,
         cameraType: cameraData.cameraType,
-        connectionType: cameraData.connectionType ,
-        imageCoordinates: cameraData.imageCoordinates,
-        manufacturer: cameraData.manufacturer
+        connectionType: cameraData.connectionType,
+        manufacturer: cameraData.manufacturer,
+        illegalParkingCords: cameraData.illegalParkingCords,
+        redlightCrossingCords: cameraData.redlightCrossingCords,
+        wrongwayCords: cameraData.wrongwayCords,
       },
     });
   }

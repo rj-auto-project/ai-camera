@@ -34,7 +34,7 @@ model DetectionLog {
   metadata        Json?
   trackId         String        @db.VarChar(255)
   camera_ip       String        @db.VarChar(30)
-  boxCoords       String?        @db.VarChar(255)
+  boxCoords       String?       @db.VarChar(255)
   classConfidence Float
   detectionClass  String        @db.VarChar(20)
   timestamp       DateTime      @default(now())
@@ -69,7 +69,7 @@ model AnprLogs {
   license_number        String   @db.VarChar(20)
   prediction_confidence Float
   trackId               String   @db.VarChar(255)
-  boxCoords             String?   @db.VarChar(255)
+  boxCoords             String?  @db.VarChar(255)
   detectionClass        String   @db.VarChar(20)
   ownerName             String?  @db.VarChar(255)
   camera                Camera   @relation(fields: [camera_id], references: [cameraId])
@@ -126,9 +126,11 @@ model Camera {
   crowdThreshold        Float?           @default(0)
   areaName              String?          @db.VarChar(255)
   rtspLink              String?          @db.VarChar(255)
-  imageCoordinates      Json?
   crowdCountThreshold   String?          @db.VarChar(10)
   vehicleCountThreshold String?          @db.VarChar(10)
+  illegalParkingCords   Json?
+  redlightCrossingCords Json?
+  wrongwayCords         Json?
   AnprLogs              AnprLogs[]
   CrowdCount            CrowdCount[]
   DetectionLog          DetectionLog[]
