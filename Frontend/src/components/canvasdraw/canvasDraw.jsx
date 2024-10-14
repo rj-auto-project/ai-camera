@@ -13,7 +13,6 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [lineCoordinates, setLineCoordinates] = useState([[], [], [], []]);
-  const [polygonVertices, setPolygonVertices] = useState([]);
   const [drawMode, setDrawMode] = useState(
     modelType === "illegalParking" ? "line" : "polygon"
   );
@@ -22,6 +21,9 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
   const [currentLine, setCurrentLine] = useState(null);
   const [okEnabled, setOkEnabled] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [polygonCoordinates, setPolygonCoordinates] = useState([]);
+  const [polygonSaveEnabled, setPolygonSaveEnabled] = useState(false);
+  const [currentPolygon, setCurrentPolygon] = useState([]);
 
   const lineColors = ["red", "green", "blue", "purple"];
 
@@ -64,11 +66,10 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
       setIsDrawing(true);
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     } else if (drawMode === "polygon") {
-      setPolygonVertices((prevVertices) => {
-        const newVertices = [...prevVertices, { x, y }];
-        redrawCanvas(newVertices);
-        return newVertices;
-      });
+      const newVertices = [...currentPolygon, { x, y }];
+      setCurrentPolygon(newVertices);
+      setPolygonSaveEnabled(newVertices.length > 2); // Enable save button when 3 or more vertices exist
+      redrawCanvas(newVertices);
     }
   };
 
@@ -130,6 +131,18 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
     }
   };
 
+  const handlePolygonSave = () => {
+    if (currentPolygon.length > 2) {
+      setPolygonCoordinates((prevCoords) => [
+        ...prevCoords,
+        currentPolygon.map((vertex) => [vertex.x, vertex.y]),
+      ]);
+      setCurrentPolygon([]);
+      setPolygonSaveEnabled(false);
+      
+    }
+  };
+
   const handleOkClick = () => {
     if (currentLine) {
       setLines((prevLines) => {
@@ -162,21 +175,27 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
       setCurrentLine(null);
       setOkEnabled(false);
     } else if (drawMode === "polygon") {
-      setPolygonVertices((prevVertices) => {
+      setCurrentPolygon((prevVertices) => {
         const newVertices = prevVertices.slice(0, -1);
         redrawCanvas(newVertices);
         return newVertices;
       });
+      setPolygonSaveEnabled(currentPolygon.length > 3);
     }
   };
 
-  const redrawCanvas = (vertices = polygonVertices) => {
+  const redrawCanvas = (vertices = polygonCoordinates) => {
     clearCanvas();
     if (image) {
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
     }
+
+    polygonCoordinates.forEach((polygon) => {
+      drawPolygon(polygon.map(([x, y]) => ({ x, y })));
+    });
+
     if (drawMode === "line") {
       drawLines();
     } else if (drawMode === "polygon") {
@@ -185,9 +204,7 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
   };
 
   const drawPolygon = (vertices) => {
-    clearCanvas();
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+    const context = canvasRef.current.getContext("2d");
 
     if (vertices.length > 0) {
       context.beginPath();
@@ -201,6 +218,7 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
         context.closePath();
       }
       context.strokeStyle = "blue";
+      context.lineWidth = 1;
       context.stroke();
 
       vertices.forEach((vertex) => {
@@ -214,25 +232,9 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
     const context = canvas.getContext("2d");
 
     context.beginPath();
-    context.arc(x, y, 5, 0, 2 * Math.PI);
+    context.arc(x, y, 4, 0, 2 * Math.PI);
     context.fillStyle = color;
     context.fill();
-  };
-
-  const handleModeChange = (e) => {
-    const newMode = e.target.value;
-    setDrawMode(newMode);
-    clearCanvas();
-    if (newMode === "line") {
-      setPolygonVertices([]);
-      setLines([]);
-      setCurrentLine(null);
-      setOkEnabled(false);
-    } else if (newMode === "polygon") {
-      setLines([]);
-      setCurrentLine(null);
-      setPolygonVertices([]);
-    }
   };
 
   const handleImageUpload = (e) => {
@@ -244,8 +246,9 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
     img.onload = () => {
       setImage(img);
       setLines([]);
-      setPolygonVertices([]);
+      setPolygonCoordinates([]);
       setCurrentLine(null);
+      setCurrentPolygon([]);
       setOkEnabled(false);
       clearCanvas();
     };
@@ -271,10 +274,10 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
     } else if (drawMode === "polygon") {
       console.log(
         "Polygon Coordinates:",
-        polygonVertices.map((vertex) => [vertex.x, vertex.y])
+        polygonCoordinates
       );
     }
-  }, [lineCoordinates, polygonVertices, drawMode]);
+  }, [lineCoordinates, polygonCoordinates]);
 
   return (
     <Box sx={{ p: 1 }}>
@@ -289,7 +292,7 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
             disabled={
               drawMode === "line"
                 ? lines.length === 0
-                : polygonVertices.length === 0
+                : currentPolygon.length === 0
             }
           >
             <Undo />
@@ -342,10 +345,28 @@ const CanvasDraw = ({ modelType, closeModal, setImageCordinates }) => {
               SAVE
             </Button>
           )}
+
+          {drawMode === "polygon" && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePolygonSave}
+              disabled={!polygonSaveEnabled}
+              sx={{
+                backgroundColor: "green",
+                "&:hover": {
+                  backgroundColor: "darkgreen",
+                },
+                color: "white",
+              }}
+            >
+              Save Polygon
+            </Button>
+          )}
           <Button
             onClick={() => {
               setImageCordinates(
-                drawMode === "line" ? lineCoordinates : polygonVertices
+                drawMode === "line" ? lineCoordinates : polygonCoordinates
               );
               closeModal();
             }}
