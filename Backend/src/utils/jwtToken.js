@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export async function generateToken(user) {
+  console.log(user, "user");
   const { employee_Id, name, access_level } = user;
 
   const token = jwt.sign(

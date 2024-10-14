@@ -5,7 +5,6 @@ import { generateToken } from "../../utils/index.js";
 import { ACCESSLEVEL } from "@prisma/client";
 
 const register = async (userData) => {
-  console.log(userData)
   const { password, name, employeeId, accessLevel } = userData;
 
   const alreadyExists = await prisma.user.findFirst({
@@ -31,7 +30,7 @@ const register = async (userData) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       employee_Id: employeeId,
       name,
@@ -40,11 +39,11 @@ const register = async (userData) => {
     },
   });
 
-  const { token, refreshToken } = await generateToken(user);
+  const { password: _, ...userdata } = newUser;
+  const { token, refreshToken } = await generateToken(userdata);
 
   return {
-    employeeId: user.employee_Id,
-    name: user.name,
+    ...userdata,
     token,
     refreshToken,
   };
@@ -69,9 +68,14 @@ const login = async (userData) => {
     throw new Error("Invalid password");
   }
 
-  const { token, refreshToken } = await generateToken(existingUser);
+  const { password: __, ...user } = existingUser;
+  const { token, refreshToken } = await generateToken(user);
 
-  return token;
+  return {
+    ...user,
+    token,
+    refreshToken,
+  };
 };
 
 export { register, login };
