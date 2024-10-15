@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { Container, Box, Typography, Card, CardMedia } from "@mui/material";
+import { Box, Typography, Card } from "@mui/material";
 import { useVideo } from "../context/videoContext";
 import BackButton from "../components/buttons/backbutton";
 
@@ -9,30 +9,64 @@ const CameraPage = ({ camId }) => {
   const queryParams = new URLSearchParams(location.search);
   const page = queryParams.get("page");
   const { videoSrc } = useVideo();
+  const containerRef = useRef(null);
+  const [containerHeight, setContainerHeight] = useState(0);
 
-  // Mock data or fetch the actual stream URL based on `cameraId`
-  const streamSrc = videoSrc;
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        const newHeight = window.innerHeight - containerRef.current.offsetTop;
+        setContainerHeight(newHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   return (
-    <Container>
-      <Box mt={1}>
+    <Box
+      ref={containerRef}
+      width="100%"
+      height={`${containerHeight}px`}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      <Box p={2}>
         <Typography variant="h5">
-          <BackButton style={{}} />
+          <BackButton />
           Camera ID: {camId}
         </Typography>
-        <Card>
+      </Box>
+      <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', margin:3}}>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: 'hidden',
+          }}
+        >
           <video
-            src={streamSrc}
+            src={videoSrc}
             autoPlay
             muted
             loop
-            width="100%"
-            height="90%"
-            style={{ objectFit: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
           />
-        </Card>
-      </Box>
-    </Container>
+        </Box>
+      </Card>
+    </Box>
   );
 };
 
