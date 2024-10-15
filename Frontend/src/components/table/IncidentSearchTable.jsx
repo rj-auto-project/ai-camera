@@ -83,6 +83,7 @@ const IncidentSearchTable = () => {
           alignItems: "center",
           height: "96vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
         <CircularProgress color="inherit" />

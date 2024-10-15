@@ -11,7 +11,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import { useSelector } from "react-redux";
 
@@ -42,9 +42,10 @@ const Map = () => {
           alignItems: "center",
           height: "100vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color="white" />
       </div>
     );
   }
@@ -118,7 +119,7 @@ const Map = () => {
   console.log(eventData, "eventData");
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <Box style={{ height: "100vh", width: "100vw",}}>
       <Stack
         direction="row"
         spacing={2}
@@ -223,7 +224,7 @@ const Map = () => {
           </Marker>
         ))}
       </MapView>
-    </div>
+    </Box>
   );
 };
 
