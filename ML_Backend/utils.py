@@ -1,4 +1,5 @@
 import os
+import cv2
 
 def update_env_var(key, value, env_file='C:/project/ai-camera/ML_Backend/.env'):
     lines = []
@@ -25,3 +26,14 @@ def update_env_var(key, value, env_file='C:/project/ai-camera/ML_Backend/.env'):
         file.writelines(lines)
 
     print(f"Updated {key} in {env_file} to {value}")
+
+
+def get_frame_dimensions(rtsp_link):
+    cap = cv2.VideoCapture(rtsp_link)
+    if not cap.isOpened():
+        print("Error: Unable to open video stream.")
+        return None, None
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap.release()
+    return width, height

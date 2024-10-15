@@ -20,6 +20,8 @@ import numpy as np
 import supervision as sv
 from sort.sort import Sort
 from datetime import datetime
+from utils import get_frame_dimensions
+
 label_annotator = sv.LabelAnnotator()
 box_annotator = sv.BoundingBoxAnnotator()
 var = ViolationDetector()
@@ -32,31 +34,21 @@ parent_dir = os.getenv("PARENT_DIR")
 camera_ip = os.getenv("CAM_IP")
 camera_id = os.getenv("CAM_ID")
 processed_rtsp_url = os.getenv("PROCESSED_RTSP_URL")
-cam_rtsp_url = os.getenv("CAM_RSTP")
+cam_rtsp_url = os.getenv("CAM_RTSP")
 fps = 30
-
+print(cam_rtsp_url)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# model = YOLO(f"{parent_dir}/models/obj_seg_02.pt")
-# model.to(device)
 print(f"{device} as Computation Device initiated")
 tracker = Sort()
 
-orig_w, orig_h, resized_w, resized_h = (
-    1280,
-    920,
+orig_w, orig_h = get_frame_dimensions(cam_rtsp_url)
+resized_w, resized_h = (
     int(os.getenv("RESIZED_RESOLUTION_WIDTH")),
     int(os.getenv("RESIZED_RESOLUTION_HEIGHT")),
 )
-previous_positions = defaultdict(lambda: {"x": 0, "y": 0, "time": 0})
-null_mask = np.zeros((resized_h, resized_w), dtype=np.uint8)
 
-
-track_ids_inframe = {}
 custom_track_ids = {}
-tracks_left_frame = []
-known_track_ids = []
-
-class_list = ['auto','bicycle','bicycle-rider','bus', 'car', 'child','hatchback', 'helmet','license_plate','lorry','man','motorbike','motorbike-rider', 'no_helmet', 'person','scooty','scooty-rider','sedan','suv','tractor','truck','van','vendor','woman']
+class_list = ['auto','bicycle','bicycle-rider','bus', 'car', 'child','hatchback', 'license_plate','helmet','lorry','man','motorbike','motorbike-rider', 'no_helmet', 'person','scooty','scooty-rider','sedan','suv','tractor','truck','van','vendor','woman']
 vehicle_class_list = ['auto','bus', 'car', 'hatchback', 
               'motorbike-rider', 'scooty-rider', 'motorbike','scooty','sedan'
               'suv', 'tractor', 'truck', 'van']
@@ -65,6 +57,8 @@ out = cv2.VideoWriter("/home/annone/ai/data/output.mp4", fourcc, 30, (1280,960))
 
 def generate_custom_track_id(label, confidence):
     return f"{label}_{confidence}_{uuid.uuid4()}"
+
+scale_x, scale_y = orig_w / resized_w, orig_h / resized_h
 
 def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     detections = predictions["predictions"]
@@ -88,8 +82,13 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         y1 = int(y_center - (height / 2))
         x2 = int(x_center + (width / 2))
         y2 = int(y_center + (height / 2))
+        x1, y1, x2, y2 = (
+            int(x1 * scale_x),
+            int(y1 * scale_y),
+            int(x2 * scale_x),
+            int(y2 * scale_y),
+        )
         track_detections.append([x1, y1, x2, y2, confidence, class_id])
-        # cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     track_detections = np.array(track_detections)
     tracks = tracker.update(track_detections)
@@ -98,6 +97,8 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         frame_time = time.time()
         x1, y1, x2, y2, track_id, class_id = map(int, track)
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+        # cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        # cv2.circle(image,(cx,cy),1,(0,0,225),2)
         bbox = f"{x1}, {y1}, {x2}, {y2}"
 
         if class_id == 8:
@@ -203,13 +204,14 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                 var.logged_parking.add(track_id)
                 cv2.imwrite(f"{parent_dir}/data/illegal_parking/{file_name}.jpeg",image)
         # cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    image = cv2.resize(image,(640,480))
     var.draw_lines_for_traffic_violation(image)
     out.write(image)
     cv2.imshow("Predictions", image)
     cv2.waitKey(1)
 pipeline = InferencePipeline.init(
     model_id="vehicles-pnvsh/1",
-    confidence=0.10,
+    confidence=0.30,
     video_reference=f"{cam_rtsp_url}",
     on_prediction=my_custom_sink,
     api_key="o9xQlct9Wr77cZXqyV17"

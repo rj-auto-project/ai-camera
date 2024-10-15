@@ -8,10 +8,13 @@ import cv2
 from lp_util import read_license_plate
 from db import Database
 import ast
+from dotenv import load_dotenv
 
 class ViolationDetector:
     def __init__(self):
         self.offset = 3
+        self.static_obj_offset = 5
+        self.red_light_line_offset = 10
         self.total_parking_violations = 0
         self.wrong_way_violation_count = 0
         self.traffic_violation_count = 0
@@ -23,7 +26,7 @@ class ViolationDetector:
         self.violated_objects = set()
         self.logged_traffic = set() 
         self.static_objects = {}
-        self.stationary_frame_threshold = 5
+        self.stationary_frame_threshold = 50
         self.cam_ip = '127.0.0.1'
         self.cam_id = "1"
         self.INCIDENT_TYPES = {
@@ -31,10 +34,10 @@ class ViolationDetector:
                         "ILLEGAL_PARKING": "ILLEGAL_PARKING",
                         "WRONG_WAY": "WRONG_WAY_DRIVING"
                         }
-        
+        load_dotenv()
         #  illegal parking area coords
         self.roi_area = ast.literal_eval(os.getenv("ILLEGAL_PARKING_ZONE_COORDS"))
-
+        print(self.roi_area)
         # wrong way red lines
         self.ww_line_pair = ast.literal_eval(os.getenv("WW_LINE_PAIR"))
         self.ww_red_line = []
@@ -84,26 +87,27 @@ class ViolationDetector:
         return cv2.pointPolygonTest(polygon, point, False) >= 0
     
     def check_illegal_parking(self, track_id, cx, cy, label):
-        for roi_points in self.roi_area:
-            if not self.is_point_in_polygon((cx, cy), np.array(roi_points,dtype=np.int32)):
-                return
-        # if not self.is_point_in_polygon((cx, cy), np.array(self.roi_points,dtype=np.int32)):
-        #         return
-        
-        if track_id not in self.static_objects:
-            self.static_objects[track_id] = {"position": (cx, cy), "frames": 0, "violated": False, "label": label}
-        else:
-            last_position = self.static_objects[track_id]["position"]
-            if abs(cx - last_position[0]) <= self.offset and abs(cy - last_position[1]) <= self.offset:
-                self.static_objects[track_id]["frames"] += 1
-                if self.static_objects[track_id]["frames"] > self.stationary_frame_threshold and not self.static_objects[track_id]["violated"]:
-                    self.static_objects[track_id]["violated"] = True
-                    self.total_parking_violations += 1
-                    print(f"Object {track_id} marked as parking violation. Total Violations: {self.total_parking_violations}")
+        inside_roi = False
+        for roi_points in self.roi_area: 
+            if self.is_point_in_polygon((cx, cy), np.array(roi_points,dtype=np.int32)):
+                inside_roi = True
+                break
+        if inside_roi:
+            if track_id not in self.static_objects:
+                self.static_objects[track_id] = {"position": (cx, cy), "frames": 0, "violated": False, "label": label}
             else:
-                self.static_objects[track_id]["position"] = (cx, cy)
-                self.static_objects[track_id]["frames"] = 0
-                self.static_objects[track_id]["violated"] = False
+                last_position = self.static_objects[track_id]["position"]
+                print(self.static_objects[track_id]["frames"])
+                if abs(cx - last_position[0]) <= self.static_obj_offset and abs(cy - last_position[1]) <= self.static_obj_offset:
+                    self.static_objects[track_id]["frames"] += 1
+                    if self.static_objects[track_id]["frames"] > self.stationary_frame_threshold and not self.static_objects[track_id]["violated"]:
+                        self.static_objects[track_id]["violated"] = True
+                        self.total_parking_violations += 1
+                        print(f"Object {track_id} marked as parking violation. Total Violations: {self.total_parking_violations}")
+                else:
+                    self.static_objects[track_id]["position"] = (cx, cy)
+                    self.static_objects[track_id]["frames"] = 0
+                    self.static_objects[track_id]["violated"] = False
     def detect_wrong_way_violation(self, track_id, cx, cy, label):
         if  track_id not in self.crossed_objects_wrong:
             self.crossed_objects_wrong[track_id] = {'red_crossed': False, 'green': set(), "label": label}
@@ -127,12 +131,12 @@ class ViolationDetector:
             self.crossed_objects[track_id] = {'red': set(), 'green': set(), "label": label}
 
         for i, ((x_start, y_start), (x_end, y_end)) in enumerate(self.tv_red_line):
-            if min(y_start, y_end) - self.offset <= cy <= max(y_start, y_end) + self.offset:
+            if min(y_start, y_end) - self.red_light_line_offset <= cy <= max(y_start, y_end) + self.red_light_line_offset:
                 if min(x_start, x_end) <= cx <= max(x_start, x_end):
                     self.crossed_objects[track_id]['red'].add(f"red_{i}")
 
         for i, ((x_start, y_start), (x_end, y_end)) in enumerate(self.tv_green_line):
-            if min(y_start, y_end) - self.offset <= cy <= max(y_start, y_end) + self.offset:
+            if min(y_start, y_end) - self.red_light_line_offset <= cy <= max(y_start, y_end) + self.red_light_line_offset:
                 if min(x_start, x_end) <= cx <= max(x_start, x_end):
                     if any(f"red_{j}" in self.crossed_objects[track_id]['red'] for j in range(len(self.tv_red_line))) and track_id not in self.violated_objects:
                         self.traffic_violation_count += 1

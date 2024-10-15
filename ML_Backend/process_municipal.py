@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import os
 from db import Database
 from datetime import datetime
+import cv2
+
 load_dotenv()
 
 project_id = "garbage-fivsq"
@@ -20,7 +22,7 @@ img_batch_size = 100
 parent_dir = os.getenv("PARENT_DIR")
 camera_ip = os.getenv("CAM_IP")
 camera_id = os.getenv("CAM_ID")
-threshold = 10
+threshold = 20
 class_list = ["GARBAGE","POTHOLE","WATERLOGGING"]
 
 conn = Database.get_connection()
@@ -60,8 +62,8 @@ while True:
         json=infer_payload,
     )
     pred_resps = res.json()
-    print(len(pred_resps), pred_resps)
-    print(len(img_list))
+    # print(len(pred_resps), pred_resps)
+    # print(len(img_list))
     t2 =  time.time()
     # print(t2-t1)
     o = 0
@@ -73,13 +75,21 @@ while True:
             predictions = row["predictions"]
             # ttt = datetime.now()
             track_id = 0
+            thumbnail = img_list[i]
             # timestamp = ttt.strftime("%Y-%m-%d %H:%M:%S.%f")
             for prediction in predictions:
                 label = class_list[prediction["class_id"]]
-                x,y,w,h = prediction["x"],prediction["y"],prediction["width"],prediction["height"]
+                x,y,w,h = int(prediction["x"]),int(prediction["y"]),int(prediction["width"]),int(prediction["height"])
                 x_center = x + (w / 2)
                 y_center = y + (h / 2)
                 bbox = f"[{x},{y},{w},{h}]"
+                img = cv2.imread(f"C:/project/ai-camera/ML_Backend/data/municipal/{thumbnail}")
+                print(x_center,y_center)
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,225,0),2)
+                cv2.putText(img,label,(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.9,(225,0,0),2)
+                img = cv2.resize(img,(640,480))
+                cv2.imshow("test",img)
+                cv2.waitKey(0)
                 cursor = conn.cursor()
                 # Define your SQL queries separately
                 update_query = """
@@ -94,8 +104,8 @@ while True:
                 """
 
                 insert_query = """
-                    INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "trackId", "camera_ip", "boxCoords", "incidentType", "metaCoords", "alerts")
-                    SELECT %s, %s, %s, %s, %s, %s, ARRAY[%s, %s], 1
+                    INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "trackId", "camera_ip", "boxCoords", "incidentType", "metaCoords","thumbnail", "alerts")
+                    SELECT %s, %s, %s, %s, %s, %s, ARRAY[%s, %s], %s, 1
                     WHERE NOT EXISTS (
                         SELECT 1 FROM "IncidentLogs"
                         WHERE SQRT(POWER("metaCoords"[1] - %s, 2) + POWER("metaCoords"[2] - %s, 2)) <= %s
@@ -105,7 +115,7 @@ while True:
                 cursor.execute(update_query, (x_center, y_center, threshold))
 
                 # Execute the insert query
-                cursor.execute(insert_query, (timestamp, camera_id, track_id, camera_ip, bbox, label, x_center, y_center, x_center, y_center, threshold))
+                cursor.execute(insert_query, (timestamp, camera_id, track_id, camera_ip, bbox, label, x_center, y_center,thumbnail, x_center, y_center, threshold))
 
                 # cursor.execute(sql_query, (x_center, y_center,threshold, timestamp,camera_id,track_id,camera_ip,bbox, label, x_center,y_center))
                 conn.commit()
