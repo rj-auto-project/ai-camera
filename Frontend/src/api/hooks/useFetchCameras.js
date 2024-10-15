@@ -16,16 +16,18 @@ export const useFetchCameras = () => {
     queryKey: ["cameras"],
     queryFn: async () => {
       dispatch(fetchCamerasStart());
-      const response = await axios.get(`${BASE_URL}/map/cameras`, config());
-      return response.data;
+      try {
+        const response = await axios.get(`${BASE_URL}/map/cameras`, config());
+        dispatch(fetchCamerasSuccess(response.data));
+        return response.data;
+      } catch (error) {
+        dispatch(
+          fetchCamerasFailure(error.response?.data?.message || error.message)
+        );
+        throw error;
+      }
     },
-    onSuccess: (data) => {
-      dispatch(fetchCamerasSuccess(data));
-    },
-    onError: (error) => {
-      dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message),
-      );
-    },
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 };

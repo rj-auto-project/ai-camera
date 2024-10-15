@@ -7,7 +7,7 @@ const incidentSearchSlice = createSlice({
     data: {
       status: "",
       message: "",
-      results: [],
+      data: [],
     },
     error: null,
   },
