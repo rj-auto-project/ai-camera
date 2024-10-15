@@ -6,34 +6,50 @@ import {
   getSpecificIncidentService,
 } from "../services/incidents.service.js";
 
-const { Client } = pg;
+const { Pool } = pg; // Use Pool for connection management
 let clients = [];
 let notificationCount = 0;
 let clientCounter = 0;
 
-
-const client = new Client({
+// Create a connection pool for efficient reuse of connections
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   idleTimeoutMillis: 30000,
   ssl: {
-    rejectUnauthorized: false, 
-  }, 
+    rejectUnauthorized: false,
+  },
 });
 
+// Listen for new incidents using LISTEN/NOTIFY
+const listenForNotifications = async () => {
+  try {
+    const client = await pool.connect();
+    console.log("Connected to PostgreSQL, listening for notifications...");
 
-client
-  .connect()
-  .then(() => {
-    console.log("Connected to PostgreSQL");
-    return client.query("LISTEN new_incident");
-  })
-  .catch((err) => {
-    console.error("Connection error:", err.stack);
-  });
+    client.query("LISTEN new_incident");
+
+    client.on("notification", (msg) => {
+      if (msg.channel === "new_incident") {
+        notificationCount++;
+        notifyClients(); // Notify all connected clients of new data
+      }
+    });
+
+    client.on("error", (err) => {
+      console.error("Database error:", err);
+      client.release();
+      // Reconnect if the client encounters an error
+      setTimeout(listenForNotifications, 5000); // Retry after 5 seconds
+    });
+  } catch (err) {
+    console.error("Connection error:", err);
+    setTimeout(listenForNotifications, 5000); // Retry after 5 seconds
+  }
+};
 
 // Notify all connected clients
 const notifyClients = () => {
-  console.log("Notification count",notificationCount)
+  console.log("Notification count:", notificationCount);
   clients.forEach((client) => {
     client.res.write(
       `data: ${JSON.stringify({ count: notificationCount })}\n\n`
@@ -41,34 +57,25 @@ const notifyClients = () => {
   });
 };
 
-// Handle notifications
-client.on("notification", (msg) => {
-  
-  if (msg.channel === "new_incident") {
-    notificationCount++;
-    notifyClients(); // Notify all connected clients of new data
-  }
-});
-
+// SSE endpoint
 const incidentNotificationSSE = (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  
   const clientId = ++clientCounter;
   const clientObj = { id: clientId, res };
   clients.push(clientObj);
-  res.write( `data: ${JSON.stringify({ count: notificationCount })}\n\n`);
-
+  res.write(`data: ${JSON.stringify({ count: notificationCount })}\n\n`);
 
   // Clean up when the client disconnects
   req.on("close", () => {
     clients = clients.filter((c) => c.id !== clientId);
+    res.end();
   });
 };
 
-// Your other functions (getIncidents, getSpecificIncident, etc.) remain unchanged
+// Garbage detection
 const garbageDetection = async (req, res) => {
   try {
     const results = await detectGarbageService();
@@ -77,18 +84,18 @@ const garbageDetection = async (req, res) => {
     }
     return res.status(200).send({ message: "Garbage detected", data: results });
   } catch (error) {
-    console.log(error);
+    console.error("Garbage detection error:", error);
     res.status(500).send({ message: "Error in detecting garbage" });
   }
 };
 
+// Get incidents
 const getIncidents = async (req, res) => {
   try {
     const { timeframe } = req.params;
     let startDate, endDate;
     if (timeframe) {
-      startDate = getDateRange(timeframe).startDate;
-      endDate = getDateRange(timeframe).endDate;
+      ({ startDate, endDate } = getDateRange(timeframe)); // Destructure date range
     }
 
     const incidents = await getIncidentsService(startDate, endDate);
@@ -101,19 +108,19 @@ const getIncidents = async (req, res) => {
       .status(200)
       .send({ message: "Incidents found", data: incidents });
   } catch (error) {
-    console.log(error);
+    console.error("Error getting incidents:", error);
     res.status(500).send({ message: "Error in getting incidents" });
   }
 };
 
+// Get specific incident
 const getSpecificIncident = async (req, res) => {
   try {
     let { incidentType, timeframe } = req.params;
     incidentType = incidentType.toUpperCase();
     let startDate, endDate;
     if (timeframe) {
-      startDate = getDateRange(timeframe).startDate;
-      endDate = getDateRange(timeframe).endDate;
+      ({ startDate, endDate } = getDateRange(timeframe)); // Destructure date range
     }
 
     const incidents = await getSpecificIncidentService(
@@ -132,10 +139,13 @@ const getSpecificIncident = async (req, res) => {
       .status(200)
       .send({ message: `${incidentType} incidents found`, data: incidents });
   } catch (error) {
-    console.log(error);
+    console.error("Error getting specific incident:", error);
     res.status(500).send({ message: "Error in getting incidents" });
   }
 };
+
+// Start listening for notifications immediately
+listenForNotifications();
 
 export {
   garbageDetection,
