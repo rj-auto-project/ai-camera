@@ -21,6 +21,7 @@ import supervision as sv
 from sort.sort import Sort
 from datetime import datetime
 from utils import get_frame_dimensions
+from module import save_count
 
 label_annotator = sv.LabelAnnotator()
 box_annotator = sv.BoundingBoxAnnotator()
@@ -62,11 +63,11 @@ scale_x, scale_y = orig_w / resized_w, orig_h / resized_h
 
 def my_custom_sink(predictions: dict, video_frame: VideoFrame):
     detections = predictions["predictions"]
-    tracked_frames = []
     current_track_ids = []
     track_detections = []
     image = video_frame.image.copy()
-    # image = cv2.resize(image,(1280,960))
+    vehicle_count = 0
+    crowd_count = 0
     now = datetime.now()
     file_name = now.strftime('%Y-%m-%d %H-%M-%S')
     if now.minute==00:
@@ -98,7 +99,7 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
         x1, y1, x2, y2, track_id, class_id = map(int, track)
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         # cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        # cv2.circle(image,(cx,cy),1,(0,0,225),2)
+        cv2.circle(image,(cx,cy),1,(0,0,225),2)
         bbox = f"{x1}, {y1}, {x2}, {y2}"
 
         if class_id == 8:
@@ -113,12 +114,14 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                         f"{parent_dir}/data/human/{track_id}_{file_name}.jpg",
                         cropped_plate,
                     )
+            crowd_count += 1
         label = class_list[class_id]
 
         if label in vehicle_class_list:
                 var.check_illegal_parking(track_id, cx, cy, label)
                 var.detect_traffic_violation(track_id, cx, cy, label)
                 var.detect_wrong_way_violation(track_id, cx, cy, label)
+                vehicle_count += 1
 
         if track_id not in custom_track_ids:
             custom_id = generate_custom_track_id(label,f"{cx}_{cy}")
@@ -203,8 +206,11 @@ def my_custom_sink(predictions: dict, video_frame: VideoFrame):
                     )
                 var.logged_parking.add(track_id)
                 cv2.imwrite(f"{parent_dir}/data/illegal_parking/{file_name}.jpeg",image)
-        # cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.putText(image, f"{label} {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    if now.second % 5 == 0:
+        save_count(vehicle_count,crowd_count,now)
     image = cv2.resize(image,(640,480))
+    cv2.putText(image, f"{vehicle_count} {crowd_count}", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     var.draw_lines_for_traffic_violation(image)
     out.write(image)
     cv2.imshow("Predictions", image)
