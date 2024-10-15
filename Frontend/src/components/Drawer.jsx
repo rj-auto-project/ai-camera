@@ -25,17 +25,17 @@ import {
 } from "@mui/icons-material";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux"; // Removed useSelector since it's not used
+import { useDispatch, useSelector } from "react-redux";
 import { openLogoutDialog } from "../features/auth/authSlice";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { BASE_URL } from "../api/url";
+import { addNotificationCount } from "../features/notification/notification";
+
 
 const drawerWidth = 190;
 
 export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [incidentNotificationCount, setIncidentNotificationCount] =
-    React.useState(0);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
@@ -47,15 +47,22 @@ export default function CustomDrawer() {
   const dispatch = useDispatch();
   const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
 
+  const notificationCount = useSelector(
+    (state) => state.notifications.notificationCount
+  );
+
+  console.log("notificationCount", notificationCount)
+
   React.useEffect(() => {
     const eventSource = new EventSource(
       `${BASE_URL}/incidents/notifications/sse`
     );
-
     eventSource.onmessage = (event) => {
+     
       try {
         const data = JSON.parse(event.data);
-        setIncidentNotificationCount(data?.count);
+        console.log("ssenotificationCount", data?.count)
+        dispatch(addNotificationCount(data?.count));
       } catch (error) {
         console.error("Error parsing SSE data:", error);
       }
@@ -122,9 +129,9 @@ export default function CustomDrawer() {
               <ListItemIcon>
                 {item.text === "Incidents" ? (
                   <Badge
-                    badgeContent={incidentNotificationCount}
+                    badgeContent={notificationCount}
                     color="error"
-                    invisible={incidentNotificationCount === 0}
+                    invisible={notificationCount === 0}
                   >
                     {item.icon}
                   </Badge>

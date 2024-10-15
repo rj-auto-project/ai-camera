@@ -20,6 +20,8 @@ import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
 import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 import { useNavigate } from "react-router-dom";
+import { RefreshRounded } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -44,13 +46,17 @@ const IncidentSearchTable = () => {
     setPage(newPage);
   };
 
-  let { mutate, data, isLoading, isError } = useGabageSearch();
+  const { isLoading, data, error } = useSelector(
+    (state) => state.incidentSearch
+  );
+
+  let { mutate, isError } = useGabageSearch();
 
   useEffect(() => {
-    mutate();
+    if (!data?.data.length) mutate();
   }, [mutate]);
 
-  console.log("garbage data", data);
+  console.log("garbage data", isError, isLoading, data);
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -64,7 +70,11 @@ const IncidentSearchTable = () => {
     setOpen(true);
   };
 
-  if (isLoading || !data) {
+  const handleRefresh = () => {
+    mutate();
+  };
+
+  if (isLoading && !data?.data.length) {
     return (
       <div
         style={{
@@ -73,6 +83,7 @@ const IncidentSearchTable = () => {
           alignItems: "center",
           height: "96vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
         <CircularProgress color="inherit" />
@@ -161,6 +172,7 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Time Stamp</BoldTableCell>
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
+              <BoldTableCell>Alerts</BoldTableCell>
               <BoldTableCell>Action</BoldTableCell>
             </TableRow>
           </StickyTableHead>
@@ -212,6 +224,7 @@ const IncidentSearchTable = () => {
                   <TableCell>
                     {item?.detectionClass || item?.incidentType}
                   </TableCell>
+                  <TableCell>{item?.alerts}</TableCell>
                   <TableCell>
                     {item?.incidentType === "PEEING" ||
                     item?.incidentType === "SPITTING" ? (
@@ -270,12 +283,33 @@ const IncidentSearchTable = () => {
             padding: "10px",
           }}
         >
-          <CSVButton
-            csvData={csvData}
-            headers={headers}
-            filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
-            key={`vehicle_search_data_${new Date().toLocaleString()}`}
-          />
+          <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <CSVButton
+              csvData={csvData}
+              headers={headers}
+              filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
+              key={`vehicle_search_data_${new Date().toLocaleString()}`}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              style={{
+                margin: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+              }}
+              onClick={handleRefresh}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <CircularProgress size={24} style={{ color: "white" }} />
+              ) : (
+                <RefreshRounded />
+              )}
+            </Button>
+          </Box>
           <TablePagination
             rowsPerPageOptions={[10, 25, 50]}
             component="div"

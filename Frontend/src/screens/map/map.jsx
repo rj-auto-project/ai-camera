@@ -11,16 +11,20 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
+import { useSelector } from "react-redux";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
-  const { data, isLoading, isError, error } = useFetchCameras();
   const { eventData } = useFetchHeatmap(activeCategory);
   const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
+
+  const { isError } = useFetchCameras();
+  const { data, isLoading, error } = useSelector((state) => state.mapcamera);
+  console.log("DATA", data, isLoading, error);
 
   useEffect(() => {
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
@@ -29,7 +33,7 @@ const Map = () => {
     }
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !data.length) {
     return (
       <div
         style={{
@@ -38,9 +42,10 @@ const Map = () => {
           alignItems: "center",
           height: "100vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color="white" />
       </div>
     );
   }
@@ -114,7 +119,7 @@ const Map = () => {
   console.log(eventData, "eventData");
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <Box style={{ height: "100vh", width: "100vw",}}>
       <Stack
         direction="row"
         spacing={2}
@@ -135,7 +140,10 @@ const Map = () => {
             key={index}
             icon={chip.icon}
             label={
-              <Typography variant="body1" sx={{ fontWeight: "500", fontSize:13 }}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "500", fontSize: 13 }}
+              >
                 {chip.label}
               </Typography>
             }
@@ -216,7 +224,7 @@ const Map = () => {
           </Marker>
         ))}
       </MapView>
-    </div>
+    </Box>
   );
 };
 

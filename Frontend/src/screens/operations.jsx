@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFetchOperations } from "../api/hooks/useFetchOperations.js";
 import OperationsTable from "../components/table/OperationsTable.jsx";
 import {
@@ -23,10 +23,16 @@ const Operations = () => {
 
   console.log(opTypes, "opTypes");
 
-  const { operations, isLoading, isError, error } = useFetchOperations({
-    type,
-    opTypes,
-  });
+  const { operations, isLoading, isError, error, refetch } = useFetchOperations(
+    {
+      type,
+      opTypes,
+    }
+  );
+
+  useEffect(() => {
+     refetch();
+  }, [opTypes, type]);
 
   if (isLoading) {
     return (
@@ -37,6 +43,7 @@ const Operations = () => {
           alignItems: "center",
           height: "100vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
         <CircularProgress color="inherit" />
