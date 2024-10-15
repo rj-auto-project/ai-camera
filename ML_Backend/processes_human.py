@@ -55,9 +55,7 @@ def get_file():
             infer_payload["image"].append(obj)
     return img_list
 
-a =1
-while a == 1 :
-    a = 2
+while True:
     img_list = get_file()
     print(img_list)
     t1 = time.time()
@@ -66,10 +64,10 @@ while a == 1 :
         json=infer_payload,
     )
     pred_resps = res.json()
-    print(pred_resps,"-----")
+    # print(pred_resps,"-----")
     t2 =  time.time()
     print(t2-t1)
-    o = datetime.now()
+    o = 0
     label = []
     conf = []
     metaData = {}
@@ -77,14 +75,16 @@ while a == 1 :
     thumbnail = ""
     track_id = 0
     for i,row in enumerate(pred_resps):
-        new_track_id,timestamp , _ = img_list[i].split("_")
-        print(row)
+        new_track_id,timestamp = img_list[i].split("_")
+        # print(row)
         track_id = new_track_id
         predicted_class = row["predicted_classes"]
         if o == 0 and predicted_class[0] != "normal":
             o = timestamp
             thumbnail = img_list[i]
-            shutil.move(f"{parent_dir}/data/human/{img_list[i]}",f"{parent_dir}/data/{predicted_class[0].lower()}/{img_list[i]}")
+            shutil.move(f"{parent_dir}/data/human/{img_list[i]}",f"{parent_dir}/data/{predicted_class[0]}/{img_list[i]}")
+        if predicted_class[0] == "normal":
+            os.remove(f"{parent_dir}/data/human/{img_list[i]}")
         conf.append(row["predictions"][predicted_class[0]]["confidence"])
         label.append(predicted_class[0])
     l = [el for el in label if el != "normal"]
@@ -99,15 +99,19 @@ while a == 1 :
 
     metaData["labels"] = label
     metaData["confs"] = conf
+    print(incident)
     if incident != "NORMAL":
         conn = Database.get_connection()
         cursor = conn.cursor()
         insert_query = """
             INSERT INTO "IncidentLogs" ("timestamp", "cameraId", "metadata", "trackId", "camera_ip", "incidentType", "thumbnail")
-            VALUES (%s, %s, %s::json, %s, %s, %s);
+            VALUES (%s, %s, %s::json, %s, %s, %s, %s);
             """
+        o = " ".join([part.replace("-", ":") if idx == 1 else part for idx, part in enumerate(o.split(" "))]).split(".")[0]
+        print(o)
         data_to_insert = (o, camera_id, json.dumps(metaData), track_id, camera_ip, incident,thumbnail)
-        print(metaData)
+        # print(metaData)
+        o= 0
         print(data_to_insert)
         cursor.execute(insert_query, data_to_insert)
         conn.commit()
