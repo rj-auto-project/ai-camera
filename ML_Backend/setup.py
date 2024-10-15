@@ -10,7 +10,7 @@ def fetch_camera_data(cam_id :str):
         conn = Database.get_connection()
         cursor = conn.cursor()
         print(cam_id)
-        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "imageCoordinates" FROM "Camera" WHERE "cameraId"= %s'''
+        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "illegalParkingCords" FROM "Camera" WHERE "cameraId"= %s'''
         cursor.execute(query,(cam_id,))
         rows = cursor.fetchone()
         cursor.close()
