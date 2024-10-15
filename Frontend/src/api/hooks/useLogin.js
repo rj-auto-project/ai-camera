@@ -19,7 +19,7 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       dispatch(loginSuccess(data));
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.userData.token);
     },
     onError: (error) => {
       dispatch(loginFailure(error.response?.data?.message || error.message));

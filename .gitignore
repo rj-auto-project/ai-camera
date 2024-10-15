@@ -71,3 +71,6 @@ desktop.ini
 # Windows
 Thumbs.db
 ehthumbs.db
+
+#prisma migrations
+Backend/prisma/migrations/
