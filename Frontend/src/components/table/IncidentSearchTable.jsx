@@ -224,7 +224,7 @@ const IncidentSearchTable = () => {
                   <TableCell>
                     {item?.detectionClass || item?.incidentType}
                   </TableCell>
-                  <TableCell>{item?.alerts}</TableCell>
+                  <TableCell>{item?.alerts || 0}</TableCell>
                   <TableCell>
                     {item?.incidentType === "PEEING" ||
                     item?.incidentType === "SPITTING" ? (
