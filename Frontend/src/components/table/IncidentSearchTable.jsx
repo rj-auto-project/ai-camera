@@ -20,6 +20,7 @@ import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
 import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 import { useNavigate } from "react-router-dom";
+import { RefreshRounded } from "@mui/icons-material";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -62,6 +63,10 @@ const IncidentSearchTable = () => {
     setIndex(index);
     setIncidentType(item?.detectionClass || item?.incidentType);
     setOpen(true);
+  };
+
+  const handleRefresh = () => {
+    mutate();
   };
 
   if (isLoading || !data) {
@@ -274,12 +279,33 @@ const IncidentSearchTable = () => {
             padding: "10px",
           }}
         >
-          <CSVButton
-            csvData={csvData}
-            headers={headers}
-            filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
-            key={`vehicle_search_data_${new Date().toLocaleString()}`}
-          />
+          <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <CSVButton
+              csvData={csvData}
+              headers={headers}
+              filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
+              key={`vehicle_search_data_${new Date().toLocaleString()}`}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              style={{
+                margin: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+              }}
+              onClick={handleRefresh}
+              disabled={isLoading} 
+            >
+              {isLoading ? (
+                <CircularProgress size={24} style={{ color: "white" }} /> 
+              ) : (
+                <RefreshRounded />
+              )}
+            </Button>
+          </Box>
           <TablePagination
             rowsPerPageOptions={[10, 25, 50]}
             component="div"

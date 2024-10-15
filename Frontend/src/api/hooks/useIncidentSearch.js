@@ -8,6 +8,7 @@ import {
 } from "../../features/incidentSearch/incidentSearch";
 import { BASE_URL } from "../url";
 import { config } from "../getConfig";
+import { clearNotifications } from "../../features/notification/notification";
 
 export const useGabageSearch = () => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ export const useGabageSearch = () => {
     },
     onSuccess: (data) => {
       dispatch(incidentSearchSucess(data));
+      dispatch(clearNotifications())
     },
     onError: (error) => {
       dispatch(
