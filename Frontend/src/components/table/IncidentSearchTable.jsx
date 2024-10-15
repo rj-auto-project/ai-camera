@@ -161,6 +161,7 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Time Stamp</BoldTableCell>
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
+              <BoldTableCell>Alerts</BoldTableCell>
               <BoldTableCell>Action</BoldTableCell>
             </TableRow>
           </StickyTableHead>
@@ -211,6 +212,9 @@ const IncidentSearchTable = () => {
                   </TableCell>
                   <TableCell>
                     {item?.detectionClass || item?.incidentType}
+                  </TableCell>
+                  <TableCell>
+                    {item?.alerts}
                   </TableCell>
                   <TableCell>
                     {item?.incidentType === "PEEING" ||
