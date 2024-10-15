@@ -42,7 +42,7 @@ def init_setup(cam_id):
     try:
         cam_id,cam_ip, cam_loc, cam_name, cam_rtsp_link, illegal_parking_coords = fetch_camera_data(cam_id)
         try:
-            update_env_var("CAM_RSTP",cam_rtsp_link)
+            update_env_var("CAM_RTSP",cam_rtsp_link)
             update_env_var("CAM_NAME", cam_name)
             update_env_var("CAM_ID", cam_id)
             update_env_var("CAM_IP", cam_ip)
@@ -53,4 +53,4 @@ def init_setup(cam_id):
     except:
         print("No Cameras registery found")
 if __name__ == "__main__":
-    init_setup("CAM9")
+    init_setup("CAM3")
