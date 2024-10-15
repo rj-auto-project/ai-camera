@@ -6,24 +6,6 @@ import { HeatmapLayerFactory } from "@vgrid/react-leaflet-heatmap-layer";
 
 const HeatmapLayer = HeatmapLayerFactory<[number, number, number]>();
 
-// Explicitly type crowddata and trafficdata as arrays of tuples
-const crowddata: [number, number, number][] = [
-  [26.90670113368316, 75.80778836071738, 100], // Kanak Ghati, Amer Road
-  [26.89916069239448, 75.81197805506888, 70], // Kheri Gate, Amer Road
-  [26.89868338332008, 75.80100773627117, 40], // Intersection of Sikar Road and Amer Road
-  [26.89665459752491, 75.8050294212182, 0], // Near Sanganeri Gate
-  [26.9056678517506, 75.80452679452807, 30], // Near Jal Mahal, Amer Road
-];
-
-const trafficdata: [number, number, number][] = [
-  [26.90670113368316, 75.80778836071738, 20], // Kanak Ghati, Amer Road
-  [26.89916069239448, 75.81197805506888, 90], // Kheri Gate, Amer Road
-  [26.89868338332008, 75.80100773627117, 50], // Intersection of Sikar Road and Amer Road
-  [26.89665459752491, 75.8050294212182, 0], // Near Sanganeri Gate
-  [26.9056678517506, 75.80452679452807, 150], // Near Jal Mahal, Amer Road
-];
-
-
 const MapView = ({
   center,
   DEFAULT_ZOOM,

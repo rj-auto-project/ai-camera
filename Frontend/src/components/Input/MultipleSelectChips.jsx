@@ -13,7 +13,7 @@ export default function MultipleSelectChips({
         : [...prevSelected, chipValue]
     );
   };
-
+  console.log("selected",selectedChips)
   return (
     <Box>
       {chipsData.map((chipData, index) => (

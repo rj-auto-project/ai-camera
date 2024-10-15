@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchOperationsStart,
@@ -8,6 +8,7 @@ import {
 import { BASE_URL } from "../url";
 import { config } from "../getConfig";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchOperations = ({ type, opTypes = [] }) => {
   console.log(type, opTypes, "types");
@@ -24,7 +25,7 @@ export const useFetchOperations = ({ type, opTypes = [] }) => {
     };
     try {
       const response = await axios.post(url, data, config());
-      console.log("response", response.data.operations);
+      console.log("response", response.data);
       dispatch(fetchOperationsSuccess(response.data.operations));
     } catch (error) {
       console.log("error", error);
@@ -32,14 +33,17 @@ export const useFetchOperations = ({ type, opTypes = [] }) => {
     }
   };
 
-  useEffect(() => {
-    getOperations(url);
-  }, [type, opTypes]);
+  const { refetch } = useQuery({
+    queryKey: ["operations", { type, opTypes }],
+    queryFn: () => getOperations(url),
+    enabled: false,
+  });
 
   return {
     operations,
     isLoading,
     isError: !!error,
     error,
+    refetch,
   };
 };

@@ -21,6 +21,7 @@ import CSVButton from "../buttons/CSVButton";
 import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 import { useNavigate } from "react-router-dom";
 import { RefreshRounded } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -45,13 +46,17 @@ const IncidentSearchTable = () => {
     setPage(newPage);
   };
 
-  let { mutate, data, isLoading, isError } = useGabageSearch();
+  const { isLoading, data, error } = useSelector(
+    (state) => state.incidentSearch
+  );
+
+  let { mutate, isError } = useGabageSearch();
 
   useEffect(() => {
-    mutate();
+    if (!data?.data.length) mutate();
   }, [mutate]);
 
-  console.log("garbage data", data);
+  console.log("garbage data", isError, isLoading, data);
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -69,7 +74,7 @@ const IncidentSearchTable = () => {
     mutate();
   };
 
-  if (isLoading || !data) {
+  if (isLoading && !data?.data.length) {
     return (
       <div
         style={{
@@ -78,6 +83,7 @@ const IncidentSearchTable = () => {
           alignItems: "center",
           height: "96vh",
           width: "100%",
+          backgroundColor:'transparent'
         }}
       >
         <CircularProgress color="inherit" />
@@ -218,9 +224,7 @@ const IncidentSearchTable = () => {
                   <TableCell>
                     {item?.detectionClass || item?.incidentType}
                   </TableCell>
-                  <TableCell>
-                    {item?.alerts}
-                  </TableCell>
+                  <TableCell>{item?.alerts}</TableCell>
                   <TableCell>
                     {item?.incidentType === "PEEING" ||
                     item?.incidentType === "SPITTING" ? (
@@ -297,10 +301,10 @@ const IncidentSearchTable = () => {
                 color: "white",
               }}
               onClick={handleRefresh}
-              disabled={isLoading} 
+              disabled={isLoading}
             >
               {isLoading ? (
-                <CircularProgress size={24} style={{ color: "white" }} /> 
+                <CircularProgress size={24} style={{ color: "white" }} />
               ) : (
                 <RefreshRounded />
               )}
