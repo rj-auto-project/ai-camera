@@ -42,8 +42,9 @@ const authSlice = createSlice({
     loginSuccess(state, action) {
       state.isLoading = false;
       state.token = action.payload.token;
-      state.employeeId = action.payload.employeeId;
+      state.employeeId = action.payload.employee_Id;
       state.name = action.payload.name;
+      state.accessLevel = action.payload.access_level;
       state.error = null;
 
       // Save auth data to local storage
@@ -51,6 +52,7 @@ const authSlice = createSlice({
         token: state.token,
         employeeId: state.employeeId,
         name: state.name,
+        accessLevel: state.accessLevel,
       });
     },
     loginFailure(state, action) {

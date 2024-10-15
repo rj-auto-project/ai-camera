@@ -30,12 +30,15 @@ import { openLogoutDialog } from "../features/auth/authSlice";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { BASE_URL } from "../api/url";
 import { addNotificationCount } from "../features/notification/notification";
-
+import getAccessLevel from "../utils/accesslevel.js";
 
 const drawerWidth = 190;
 
 export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  const isAdmin = getAccessLevel("ADMIN");
+  console.log("isAdmin", isAdmin);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
@@ -51,17 +54,16 @@ export default function CustomDrawer() {
     (state) => state.notifications.notificationCount
   );
 
-  console.log("notificationCount", notificationCount)
+  console.log("notificationCount", notificationCount);
 
   React.useEffect(() => {
     const eventSource = new EventSource(
       `${BASE_URL}/incidents/notifications/sse`
     );
     eventSource.onmessage = (event) => {
-     
       try {
         const data = JSON.parse(event.data);
-        console.log("ssenotificationCount", data?.count)
+        console.log("ssenotificationCount", data?.count);
         dispatch(addNotificationCount(data?.count));
       } catch (error) {
         console.error("Error parsing SSE data:", error);
@@ -153,28 +155,30 @@ export default function CustomDrawer() {
       <div>
         <List sx={{ margin: 0 }}>
           <Divider />
-          <ListItem
-            button
-            component={Link}
-            to={`/dashboard/settings`}
-            sx={{
-              backgroundColor:
-                currentPath === "settings"
-                  ? "rgba(255, 255, 255, 0.1)"
-                  : "transparent",
-            }}
-          >
-            <ListItemIcon>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Typography variant="body1" component="span" fontWeight="500">
-                  Settings
-                </Typography>
-              }
-            />
-          </ListItem>
+          {isAdmin && (
+            <ListItem
+              button
+              component={Link}
+              to={`/dashboard/settings`}
+              sx={{
+                backgroundColor:
+                  currentPath === "settings"
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent",
+              }}
+            >
+              <ListItemIcon>
+                <Settings />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography variant="body1" component="span" fontWeight="500">
+                    Settings
+                  </Typography>
+                }
+              />
+            </ListItem>
+          )}
           <ListItem button onClick={handleOpenLogoutDialog}>
             <ListItemIcon>
               <Logout />
