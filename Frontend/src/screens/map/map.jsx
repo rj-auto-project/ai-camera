@@ -13,14 +13,18 @@ import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
 import { CircularProgress, Typography } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
+import { useSelector } from "react-redux";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
-  const { data, isLoading, isError, error } = useFetchCameras();
   const { eventData } = useFetchHeatmap(activeCategory);
   const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
+
+  const { isError } = useFetchCameras();
+  const { data, isLoading, error } = useSelector((state) => state.mapcamera);
+  console.log("DATA", data, isLoading, error);
 
   useEffect(() => {
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
@@ -29,7 +33,7 @@ const Map = () => {
     }
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !data.length) {
     return (
       <div
         style={{
@@ -135,7 +139,10 @@ const Map = () => {
             key={index}
             icon={chip.icon}
             label={
-              <Typography variant="body1" sx={{ fontWeight: "500", fontSize:13 }}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "500", fontSize: 13 }}
+              >
                 {chip.label}
               </Typography>
             }
