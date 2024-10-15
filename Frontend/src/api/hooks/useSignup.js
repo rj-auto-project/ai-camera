@@ -21,7 +21,7 @@ export const useSignup = () => {
       dispatch(signupSuccess(data));
       console.log("signup success", data);
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.userData.token);
       }
     },
     onError: (error) => {
