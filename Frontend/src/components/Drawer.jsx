@@ -31,6 +31,7 @@ import { FaExclamationTriangle } from "react-icons/fa";
 import { BASE_URL } from "../api/url";
 import { addNotificationCount } from "../features/notification/notification";
 import getAccessLevel from "../utils/accesslevel.js";
+import addNotification from "react-push-notification";
 
 const drawerWidth = 190;
 
@@ -55,6 +56,16 @@ export default function CustomDrawer() {
   );
 
   console.log("notificationCount", notificationCount);
+
+  if (notificationCount>0 && notificationCount % 10 === 0) {
+    addNotification({
+      title: "New Incident Notification",
+      subtitle: "You have new updates",
+      message: `There are ${notificationCount} new incidents.`,
+      theme: "darkblue",
+      native: true,
+    });
+  }
 
   React.useEffect(() => {
     const eventSource = new EventSource(

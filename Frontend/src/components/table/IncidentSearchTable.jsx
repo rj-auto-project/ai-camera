@@ -22,6 +22,7 @@ import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 import { useNavigate } from "react-router-dom";
 import { RefreshRounded } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import LazyImage from "../image/LazyloadImage";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -29,8 +30,6 @@ const IncidentSearchTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [index, setIndex] = useState(null);
-  const [incidentType, setIncidentType] = useState("");
 
   // Track status for each item by its id
   const [statusMap, setStatusMap] = useState({});
@@ -56,18 +55,22 @@ const IncidentSearchTable = () => {
     if (!data?.data.length) mutate();
   }, [mutate]);
 
- 
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const handleOpen = (item, index) => {
-    setSelectedItem(item);
-    setIndex(index);
-    setIncidentType(item?.detectionClass || item?.incidentType);
-    setOpen(true);
+    const imageUrl = `http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`;
+    const img = new Image();
+    img.onload = () => {
+      setSelectedItem(item);
+      setOpen(true);
+    };
+    img.onerror = () => {
+      console.log("Image not found or invalid. Modal will not open.");
+    };
+    img.src = imageUrl;
   };
 
   const handleRefresh = () => {
@@ -83,7 +86,7 @@ const IncidentSearchTable = () => {
           alignItems: "center",
           height: "96vh",
           width: "100%",
-          backgroundColor:'transparent'
+          backgroundColor: "transparent",
         }}
       >
         <CircularProgress color="inherit" />
@@ -113,12 +116,14 @@ const IncidentSearchTable = () => {
   const headers = [
     { label: "Thumbnail", key: "thumbnail" },
     { label: "Time Stamp", key: "timestamp" },
-    { label: "Camera IP", key: "camera_ip" },
-    { label: "Confidence", key: "classConfidence" },
+    { label: "Camera", key: "camera" },
+    { label: "Incident", key: "classConfidence" },
+    { label: "Alerts", key: "alerts" },
+    { label: "Action", key: "action" },
   ];
 
   const csvData = data?.data?.map((item, index) => ({
-    thumbnail: `/assets/garbage/garbage${index + 1}.png`,
+    thumbnail: `http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`,
     timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
     camera_ip: item?.camera_ip || item?.camera?.cameraIp,
     detectionClass: item?.detectionClass,
@@ -179,72 +184,75 @@ const IncidentSearchTable = () => {
           <TableBody>
             {data?.data
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell
-                    onClick={() => handleOpen(item, index)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <img
-                      src={`http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`}
-                      alt={item.licenseNumber || "No License Number"}
-                      style={{ width: 100, height: 60, objectFit: "cover" }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(
-                      item?.timestamp || item?.time_stamp
-                    ).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <strong>Camera ID:</strong> {item?.camera?.cameraId}
-                    </div>
-                    <div>
-                      <strong>Camera Name:</strong> {item?.camera?.cameraName}
-                    </div>
-                    <div>
-                      <strong>Location:</strong> {item?.camera?.location}
-                    </div>
-                    <div>
-                      <strong>Type:</strong> {item?.camera?.cameraType}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {item?.detectionClass || item?.incidentType}
-                  </TableCell>
-                  <TableCell>{item?.alerts || 0}</TableCell>
-                  <TableCell>
-                    {item?.incidentType === "PEEING" ||
-                    item?.incidentType === "SPITTING" ? (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => navigate(`/dashboard/trackagent`)}
-                      >
-                        Track
-                      </Button>
-                    ) : (
-                      <Select
-                        value={statusMap[item.id] || "unresolved"}
-                        onChange={(e) => handleStatusChange(e, item.id)}
-                        sx={{ color: "white" }}
-                        MenuProps={{
-                          sx: {
-                            color: "white",
-                          },
-                        }}
-                      >
-                        <MenuItem value="resolved">Resolved</MenuItem>
-                        <MenuItem value="unresolved">Unresolved</MenuItem>
-                      </Select>
+              .map((item, index) => {
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell
+                      onClick={() => handleOpen(item, index)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <LazyImage
+                        src={`http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`}
+                        alt={item.licenseNumber || "No License Number"}
+                        width={100}
+                        height={60}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(
+                        item?.timestamp || item?.time_stamp
+                      ).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <strong>Camera ID:</strong> {item?.camera?.cameraId}
+                      </div>
+                      <div>
+                        <strong>Camera Name:</strong> {item?.camera?.cameraName}
+                      </div>
+                      <div>
+                        <strong>Location:</strong> {item?.camera?.location}
+                      </div>
+                      <div>
+                        <strong>Type:</strong> {item?.camera?.cameraType}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {item?.detectionClass || item?.incidentType}
+                    </TableCell>
+                    <TableCell>{item?.alerts || 0}</TableCell>
+                    <TableCell>
+                      {item?.incidentType === "PEEING" ||
+                      item?.incidentType === "SPITTING" ? (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => navigate(`/dashboard/trackagent`)}
+                        >
+                          Track
+                        </Button>
+                      ) : (
+                        <Select
+                          value={statusMap[item.id] || "unresolved"}
+                          onChange={(e) => handleStatusChange(e, item.id)}
+                          sx={{ color: "white" }}
+                          MenuProps={{
+                            sx: {
+                              color: "white",
+                            },
+                          }}
+                        >
+                          <MenuItem value="resolved">Resolved</MenuItem>
+                          <MenuItem value="unresolved">Unresolved</MenuItem>
+                        </Select>
+                      )}
+                    </TableCell>
+                    {item?.license_number && (
+                      <TableCell>{item?.license_number || "N/A"}</TableCell>
                     )}
-                  </TableCell>
-                  {item?.license_number && (
-                    <TableCell>{item?.license_number || "N/A"}</TableCell>
-                  )}
-                </TableRow>
-              ))}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
         {!data?.data?.length && !isError && (
@@ -312,12 +320,10 @@ const IncidentSearchTable = () => {
       )}
       {selectedItem && (
         <ImageModel
-          index={index}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
           isOpen={isOpen}
           setOpen={setOpen}
-          incident={incidentType}
         />
       )}
     </Paper>

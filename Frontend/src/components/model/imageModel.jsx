@@ -8,8 +8,6 @@ const ImageModel = ({
   setSelectedItem,
   isOpen,
   setOpen,
-  index,
-  incident = "",
 }) => {
   const handleClose = () => {
     setOpen(false);
