@@ -29,6 +29,7 @@ import CameraIncidentBarChart from "../components/charts/CameraIncidentBarChart"
 import BubbleChart from "../components/charts/BubbleChart";
 import TimeAreaChart from "../components/charts/TimeAreaChart";
 import TopLocationIssueChart from "../components/charts/TopIssueLocationGraph";
+import AlertsWidget from "../components/charts/AlertsWidget";
 
 const COLORS = [
   "#0088FE",
@@ -59,6 +60,7 @@ export default function Analytics() {
     useState("allIncidents");
 
   const { data: incidentData, isLoading } = useFetchIncidents(dateRange);
+  console.log("incidentData", incidentData);
 
   const {
     totalIncidents,
@@ -318,6 +320,28 @@ export default function Analytics() {
                   xAxisTitle="Date"
                   yAxisTitle="Number of Incidents"
                 />
+              ) : (
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  No trend data available for the selected period.
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ height: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TrendingUpIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" component="div" color="textPrimary">
+                  Alerts Analytics
+                </Typography>
+              </Box>
+              {isLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={350} />
+              ) : incidentData?.data?.length > 0 ? (
+                <AlertsWidget alertsData={incidentData?.data} />
               ) : (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   No trend data available for the selected period.
