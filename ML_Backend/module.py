@@ -39,7 +39,7 @@ class ViolationDetector:
         self.roi_area = ast.literal_eval(os.getenv("ILLEGAL_PARKING_ZONE_COORDS"))
         print(self.roi_area)
         # wrong way red lines
-        self.ww_line_pair = ast.literal_eval(os.getenv("WW_LINE_PAIR"))
+        self.ww_line_pair = ast.literal_eval(os.getenv("WRONG_WAY_LINE_PAIR"))
         self.ww_red_line = []
         # wrong way green lines
         self.ww_green_line = []
@@ -50,8 +50,8 @@ class ViolationDetector:
         self.tv_green_line = [[(88, 780), (1050, 780)],[(88, 780), (1050, 780)]]
         
         for lines in self.ww_line_pair:
-            self.ww_green_line.append(lines[0])
-            self.ww_red_line.append(lines[1])
+            self.ww_green_line.append(lines[1])
+            self.ww_red_line.append(lines[0])
         print(self.ww_green_line)
         print(self.ww_red_line)
         # Database connection setup
@@ -117,12 +117,13 @@ class ViolationDetector:
                 if min(x_start, x_end) <= cx <= max(x_start, x_end):
                     self.crossed_objects_wrong[track_id]['red_crossed'] = True
         if self.crossed_objects_wrong[track_id]['red_crossed']:
+            print("-------------------------------------------------------------")
             for i, ((x_start, y_start), (x_end, y_end)) in enumerate(self.ww_green_line):
                 if min(y_start, y_end) - self.offset <= cy <= max(y_start, y_end) + self.offset:
                     if min(x_start, x_end) <= cx <= max(x_start, x_end):
                         self.crossed_objects_wrong[track_id]['green'].add(i)
 
-        if track_id not in self.violated_objects_wrong and self.crossed_objects_wrong[track_id]['green']:
+        if track_id not in self.violated_objects_wrong and self.crossed_objects_wrong[track_id]['green'] and self.crossed_objects_wrong[track_id]['red_crossed']:
             self.wrong_way_violation_count += 1
             self.violated_objects_wrong.add(track_id)
 
@@ -202,8 +203,9 @@ def save_count(vehicle_count :int, crowd_count :int, timestamp):
     conn = Database.get_connection()
     cur = conn.cursor()
     insert_query = """
-        INSERT INTO "CrowdCount" (count, timestamp, confidence, vehicleCount, cameraId)
+        INSERT INTO "CrowdCount" (count, timestamp, confidence, "vehicleCount", "cameraId")
         VALUES (%s, %s, %s, %s, %s)
         """
-    cur.execute(insert_query, (crowd_count, timestamp, vehicle_count, os.getenv("CAM_ID")))
+    cur.execute(insert_query, (crowd_count, timestamp,1, vehicle_count, os.getenv("CAM_ID")))
     conn.commit()
+    Database.return_connection(connection=conn)

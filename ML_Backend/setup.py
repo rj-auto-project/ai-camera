@@ -10,7 +10,7 @@ def fetch_camera_data(cam_id :str):
         conn = Database.get_connection()
         cursor = conn.cursor()
         print(cam_id)
-        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "illegalParkingCords" FROM "Camera" WHERE "cameraId"= %s'''
+        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "illegalParkingCords", "redlightCrossingCords", "wrongwayCords" FROM "Camera" WHERE "cameraId"= %s'''
         cursor.execute(query,(cam_id,))
         rows = cursor.fetchone()
         cursor.close()
@@ -40,7 +40,7 @@ def init_setup(cam_id):
     except:
         print("Permission denied for Constants Overwritting")
     try:
-        cam_id,cam_ip, cam_loc, cam_name, cam_rtsp_link, illegal_parking_coords = fetch_camera_data(cam_id)
+        cam_id,cam_ip, cam_loc, cam_name, cam_rtsp_link, illegal_parking_coords,redlightCrossingCords, wrongwayCords = fetch_camera_data(cam_id)
         try:
             update_env_var("CAM_RTSP",cam_rtsp_link)
             update_env_var("CAM_NAME", cam_name)
@@ -48,6 +48,22 @@ def init_setup(cam_id):
             update_env_var("CAM_IP", cam_ip)
             update_env_var("CAM_LOCATION",cam_loc)
             update_env_var("ILLEGAL_PARKING_ZONE_COORDS",illegal_parking_coords)
+            update_env_var("RED_LIGHT_LINE_PAIR",redlightCrossingCords)
+            if wrongwayCords:
+                pairs = []
+                for pair in wrongwayCords:
+                    red_line = pair["red"][0]
+                    green_line = pair["green"][0]
+                    pairs.append([[(int(red_line["startX"]),int(red_line["startY"])),(int(red_line["endX"]),int(red_line["endY"]))],[(int(green_line["startX"]),int(green_line["startY"])),(int(green_line["endX"]),int(green_line["endY"]))]])
+                update_env_var("WRONG_WAY_LINE_PAIR",pairs)
+            # if redlightCrossingCords:
+            #     pairs = []
+            #     for pair in wrongwayCords:
+            #         [[(200,185),(640,178)],[(254,200),(640,192)]]
+            #         red_line = pair["red"][0]
+            #         green_line = pair["green"][0]
+            #         pairs.append([[(int(red_line["startX"]),int(red_line["startY"])),(int(red_line["endX"]),int(red_line["endY"]))],[(int(green_line["startX"]),int(green_line["startY"])),(int(green_line["endX"]),int(green_line["endY"]))]])
+            #     update_env_var("WRONG_WAY_LINE_PAIR",pair)
         except:
             print("Permission denied for Constants Overwritting")
     except:
