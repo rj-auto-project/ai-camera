@@ -56,7 +56,7 @@ const IncidentSearchTable = () => {
     if (!data?.data.length) mutate();
   }, [mutate]);
 
-  console.log("garbage data", isError, isLoading, data);
+ 
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -186,18 +186,7 @@ const IncidentSearchTable = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <img
-                      src={
-                        (item?.incidentType &&
-                          ((item?.incidentType === "GARBAGE" &&
-                            `/assets/garbage/garbage1.png`) ||
-                            (item?.incidentType === "POTHOLE" &&
-                              `/assets/garbage/garbage3.png`) ||
-                            (item?.incidentType === "SPITTING" &&
-                              `/assets/garbage/garbage5.png`) ||
-                            (item?.incidentType === "PEEING" &&
-                              `/assets/garbage/garbage6.png`))) ||
-                        `/assets/cctv.jpeg`
-                      }
+                      src={`http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`}
                       alt={item.licenseNumber || "No License Number"}
                       style={{ width: 100, height: 60, objectFit: "cover" }}
                     />

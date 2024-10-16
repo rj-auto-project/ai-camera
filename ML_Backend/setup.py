@@ -56,14 +56,13 @@ def init_setup(cam_id):
                     green_line = pair["green"][0]
                     pairs.append([[(int(red_line["startX"]),int(red_line["startY"])),(int(red_line["endX"]),int(red_line["endY"]))],[(int(green_line["startX"]),int(green_line["startY"])),(int(green_line["endX"]),int(green_line["endY"]))]])
                 update_env_var("WRONG_WAY_LINE_PAIR",pairs)
-            # if redlightCrossingCords:
-            #     pairs = []
-            #     for pair in wrongwayCords:
-            #         [[(200,185),(640,178)],[(254,200),(640,192)]]
-            #         red_line = pair["red"][0]
-            #         green_line = pair["green"][0]
-            #         pairs.append([[(int(red_line["startX"]),int(red_line["startY"])),(int(red_line["endX"]),int(red_line["endY"]))],[(int(green_line["startX"]),int(green_line["startY"])),(int(green_line["endX"]),int(green_line["endY"]))]])
-            #     update_env_var("WRONG_WAY_LINE_PAIR",pair)
+            if redlightCrossingCords:
+                pairs = []
+                for pair in redlightCrossingCords:
+                    red_line = pair["red"][0]
+                    green_line = pair["green"][0]
+                    pairs.append([[(int(red_line["startX"]),int(red_line["startY"])),(int(red_line["endX"]),int(red_line["endY"]))],[(int(green_line["startX"]),int(green_line["startY"])),(int(green_line["endX"]),int(green_line["endY"]))]])
+                update_env_var("RED_LIGHT_LINE_PAIR",pairs)
         except:
             print("Permission denied for Constants Overwritting")
     except:
