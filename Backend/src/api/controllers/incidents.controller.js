@@ -3,6 +3,7 @@ import { getDateRange } from "../../utils/helperFunctions.js";
 import {
   detectGarbageService,
   getIncidentsService,
+  getPaginatedIncidentsService,
   getSpecificIncidentService,
 } from "../services/incidents.service.js";
 
@@ -90,6 +91,32 @@ const garbageDetection = async (req, res) => {
 };
 
 // Get incidents
+
+const paginatedIncidents = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const offset = pageNumber * limitNumber;
+
+    const { incidents, totalIncidents } = await getPaginatedIncidentsService(
+      offset,
+      limitNumber
+    );
+
+    res.status(200).send({
+      message: "Incidents found",
+      data: incidents,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalIncidents / limitNumber),
+      totalIncidents,
+    });
+  } catch (error) {
+    console.error("Error getting incidents:", error);
+    res.status(500).send({ message: "Error in getting incidents" });
+  }
+};
+
 const getIncidents = async (req, res) => {
   try {
     const { timeframe } = req.params;
@@ -152,4 +179,5 @@ export {
   getIncidents,
   getSpecificIncident,
   incidentNotificationSSE,
+  paginatedIncidents,
 };

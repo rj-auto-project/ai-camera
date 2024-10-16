@@ -41,6 +41,23 @@ const getIncidentsService = async (startTime = "", endTime = "") => {
   return incidents || [];
 };
 
+const getPaginatedIncidentsService = async (offset, limit) => {
+  const incidents = await prisma.incidentLogs.findMany({
+    skip: offset,
+    take: limit,
+    include: {
+      camera: true,
+    },
+    orderBy: {
+      timestamp: "desc",
+    },
+    distinct: ["trackId"],
+  });
+  const totalIncidents = await prisma.incidentLogs.count();
+
+  return { incidents, totalIncidents } || { incidents: [], totalIncidents: 0 };
+};
+
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
@@ -68,4 +85,5 @@ export {
   detectGarbageService,
   getIncidentsService,
   getSpecificIncidentService,
+  getPaginatedIncidentsService,
 };
