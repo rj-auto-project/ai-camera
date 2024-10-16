@@ -119,7 +119,7 @@ const Map = () => {
   console.log(eventData, "eventData");
 
   return (
-    <Box style={{ height: "100vh", width: "100vw",}}>
+    <Box style={{ height: "100vh", width: "100%",}}>
       <Stack
         direction="row"
         spacing={2}
