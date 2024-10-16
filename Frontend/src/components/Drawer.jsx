@@ -39,7 +39,6 @@ export default function CustomDrawer() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const isAdmin = getAccessLevel("ADMIN");
-  console.log("isAdmin", isAdmin);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
@@ -55,7 +54,6 @@ export default function CustomDrawer() {
     (state) => state.notifications.notificationCount
   );
 
-  console.log("notificationCount", notificationCount);
 
   if (notificationCount>0 && notificationCount % 10 === 0) {
     addNotification({
