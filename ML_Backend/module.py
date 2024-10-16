@@ -9,7 +9,7 @@ from lp_util import read_license_plate
 from db import Database
 import ast
 from dotenv import load_dotenv
-
+import time
 class ViolationDetector:
     def __init__(self):
         self.offset = 3
@@ -38,22 +38,23 @@ class ViolationDetector:
         #  illegal parking area coords
         self.roi_area = ast.literal_eval(os.getenv("ILLEGAL_PARKING_ZONE_COORDS"))
         print(self.roi_area)
-        # wrong way red lines
+        # wrong way lines pair
         self.ww_line_pair = ast.literal_eval(os.getenv("WRONG_WAY_LINE_PAIR"))
         self.ww_red_line = []
-        # wrong way green lines
         self.ww_green_line = []
 
-        # traffic violation red lines
-        self.tv_red_line = [[(266, 502), (876, 502)]]
-        # traffic violation red lines
-        self.tv_green_line = [[(88, 780), (1050, 780)],[(88, 780), (1050, 780)]]
+        # traffic violation line pair
+        self.tv_line_pair = ast.literal_eval(os.getenv("RED_LIGHT_LINE_PAIR"))
+        self.tv_red_line = []
+        self.tv_green_line = []
         
         for lines in self.ww_line_pair:
             self.ww_green_line.append(lines[1])
             self.ww_red_line.append(lines[0])
-        print(self.ww_green_line)
-        print(self.ww_red_line)
+
+        for lines in self.tv_line_pair:
+            self.tv_green_line.append(lines[1])
+            self.tv_red_line.append(lines[0])
         # Database connection setup
         self.db_connection = psycopg2.connect(
             host='34.47.148.81',
@@ -117,7 +118,6 @@ class ViolationDetector:
                 if min(x_start, x_end) <= cx <= max(x_start, x_end):
                     self.crossed_objects_wrong[track_id]['red_crossed'] = True
         if self.crossed_objects_wrong[track_id]['red_crossed']:
-            print("-------------------------------------------------------------")
             for i, ((x_start, y_start), (x_end, y_end)) in enumerate(self.ww_green_line):
                 if min(y_start, y_end) - self.offset <= cy <= max(y_start, y_end) + self.offset:
                     if min(x_start, x_end) <= cx <= max(x_start, x_end):
@@ -126,6 +126,7 @@ class ViolationDetector:
         if track_id not in self.violated_objects_wrong and self.crossed_objects_wrong[track_id]['green'] and self.crossed_objects_wrong[track_id]['red_crossed']:
             self.wrong_way_violation_count += 1
             self.violated_objects_wrong.add(track_id)
+
 
     def detect_traffic_violation(self, track_id, cx, cy, label):
         if track_id not in self.crossed_objects:
