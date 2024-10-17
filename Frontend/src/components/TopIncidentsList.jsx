@@ -52,8 +52,9 @@ const TopIncidentsList = ({ data, isLoading }) => {
                         </Typography>
                         <Chip
                           label={`${item.count} incidents`}
-                          color="primary"
+                          color="white"
                           size="small"
+                          sx={{fontWeight: "bold"}}
                         />
                       </Box>
                     }
@@ -61,7 +62,7 @@ const TopIncidentsList = ({ data, isLoading }) => {
                       <>
                         <Typography
                           component="span"
-                          variant="body2"
+                          variant="body1"
                           color="text.primary"
                         >
                           Last Occurrence:
@@ -70,7 +71,7 @@ const TopIncidentsList = ({ data, isLoading }) => {
                         <br />
                         <Typography
                           component="span"
-                          variant="body2"
+                          variant="body1"
                           color="text.primary"
                         >
                           Camera ID:

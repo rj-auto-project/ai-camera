@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import {
   Box,
-  Flex,
-  Text,
+  Typography,
   Button,
   Collapse,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatGroup,
+  Grid,
   Icon,
-  Progress,
-} from "@chakra-ui/react";
+  LinearProgress,
+  CircularProgress,
+} from "@mui/material";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -45,7 +42,7 @@ const AlertsWidget = ({ alertsData }) => {
 
   const mostFrequentIncidentType = Object.entries(incidentCounts).reduce(
     (max, entry) => (entry[1] > max[1] ? entry : max),
-    ["None", 0],
+    ["None", 0]
   );
 
   const solvedRatio = totalAlerts
@@ -55,105 +52,87 @@ const AlertsWidget = ({ alertsData }) => {
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
-    <Box p="6" boxShadow="lg" bg="gray.800" color="gray.100">
-      <Flex justifyContent="space-between" alignItems="center" mb="4">
-        <Text fontSize="2xl" fontWeight="bold" color="teal.400">
+    <Box p={3} boxShadow={3}  >
+      <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5" fontWeight="bold" color="teal">
           Alerts Analytics
-        </Text>
+        </Typography>
         <Button
           onClick={toggleExpand}
-          rightIcon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-          variant="solid"
-          size="md"
-          colorScheme="teal"
-          bg="teal.600"
-          _hover={{ bg: "teal.700" }}
+          endIcon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+          variant="contained"
+          size="medium"
+          color="primary"
+          sx={{ bgcolor: "teal" }}
         >
           {isExpanded ? "Collapse" : "Expand"}
         </Button>
-      </Flex>
+      </Grid>
 
       {/* Summary Stats */}
-      <StatGroup>
-        <Stat>
-          <StatLabel fontSize="lg" color="gray.400">
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" color="grey.400">
             Total Incidents
-          </StatLabel>
-          <StatNumber fontSize="2xl" color="teal.300">
-            <Flex alignItems="center" gap={2}>
-              <Icon as={FaExclamationCircle} mr="2" />
-              {totalIncidents}
-            </Flex>
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel fontSize="lg" color="gray.400">
+          </Typography>
+          <Typography variant="h6" color="teal">
+            <Icon component={FaExclamationCircle} /> {totalIncidents}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" color="grey.400">
             Total Alerts
-          </StatLabel>
-          <StatNumber fontSize="2xl" color="teal.300">
-            <Flex alignItems="center" gap={2}>
-              <Icon as={FaExclamationCircle} mr="2" />
-              {totalAlerts}
-            </Flex>
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel fontSize="lg" color="gray.400">
+          </Typography>
+          <Typography variant="h6" color="teal">
+            <Icon component={FaExclamationCircle} /> {totalAlerts}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" color="grey.400">
             Solved to Unsolved Ratio
-          </StatLabel>
-          <StatNumber fontSize="2xl" color="green.400">
-            <Flex alignItems="center" gap={2}>
-              <Icon as={FaCheckCircle} mr="2" />
-              {`${solvedRatio}%`}
-            </Flex>
-            <Progress
-              mt={2}
-              value={solvedRatio}
-              size="sm"
-              colorScheme="green"
-            />
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel fontSize="lg" color="gray.400">
+          </Typography>
+          <Typography variant="h6" color="green">
+            <Icon component={FaCheckCircle} /> {`${solvedRatio}%`}
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={solvedRatio}
+            color="success"
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Typography variant="subtitle1" color="grey.400">
             Most Frequent Incident Type
-          </StatLabel>
-          <StatNumber fontSize="2xl" color="red.400">
+          </Typography>
+          <Typography variant="h6" color="error">
             {mostFrequentIncidentType[0]} ({mostFrequentIncidentType[1]} alerts)
-          </StatNumber>
-        </Stat>
-      </StatGroup>
+          </Typography>
+        </Grid>
+      </Grid>
 
       {/* Incident-wise Breakdown */}
-      <Collapse in={isExpanded} animateOpacity>
-        <Box
-          mt="6"
-          p="4"
-          borderWidth="1px"
-          borderRadius="md"
-          bg="gray.700"
-          boxShadow="md"
-        >
-          <Text fontWeight="bold" mb="2" fontSize="lg" color="teal.400">
+      <Collapse in={isExpanded}>
+        <Box mt={4} p={2} border={1} borderColor="grey.700" borderRadius={1}>
+          <Typography fontWeight="bold" mb={2} color="teal">
             Incident-wise Alerts Breakdown
-          </Text>
+          </Typography>
           {Object.entries(incidentCounts).map(([incidentType, count]) => (
-            <Flex key={incidentType} justifyContent="space-between" py="1">
-              <Text>{incidentType}</Text>
-              <Text>{count}</Text>
-            </Flex>
+            <Grid container justifyContent="space-between" key={incidentType}>
+              <Typography>{incidentType}</Typography>
+              <Typography>{count}</Typography>
+            </Grid>
           ))}
 
           {/* Location-Based Breakdown */}
-          <Box mt="4">
-            <Text fontWeight="bold" mb="2" fontSize="lg" color="teal.400">
+          <Box mt={4}>
+            <Typography fontWeight="bold" mb={2} color="teal">
               Location-Based Alerts
-            </Text>
+            </Typography>
             {Object.entries(locationCounts).map(([location, count]) => (
-              <Flex key={location} justifyContent="space-between" py="1">
-                <Text>{location}</Text>
-                <Text>{count}</Text>
-              </Flex>
+              <Grid container justifyContent="space-between" key={location}>
+                <Typography>{location}</Typography>
+                <Typography>{count}</Typography>
+              </Grid>
             ))}
           </Box>
         </Box>
