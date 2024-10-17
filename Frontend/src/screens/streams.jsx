@@ -13,6 +13,7 @@ import { useVideo } from "../context/videoContext";
 import { useSelector } from "react-redux";
 import { useFetchCameras } from "../api/hooks/useFetchCameras";
 import video1 from "/assets/videos/output1.mp4";
+import LazyVideo from "../components/video/LazyVideo";
 
 const Streams = React.memo(() => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -187,24 +188,14 @@ const Streams = React.memo(() => {
                       position: "relative",
                       width: "100%",
                       height: "100%",
-                      overflow: "hidden", // Hide scrollbars
+                      overflow: "hidden",
                     }}
                   >
-                    <iframe
+                    <LazyVideo
                       src={`http://localhost/${stream.cameraId}`}
-                      autoPlay
-                      muted
-                      loop
                       width="100%"
                       height="100%"
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        border: "none",
-                        borderRadius: "4px", // Optional: rounded corners for aesthetics
-                        overflow: "hidden", // Prevent iframe scrollbars
-                      }}
+                      style={{ borderRadius: "10px" }}
                     />
                   </Box>
                 </Box>
