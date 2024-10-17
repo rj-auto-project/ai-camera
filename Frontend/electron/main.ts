@@ -29,7 +29,7 @@ function createWindow() {
     },
   });
 
-  win.setMinimumSize(800, 600);
+  win.setMinimumSize(850, 620);
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());

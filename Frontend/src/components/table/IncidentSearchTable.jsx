@@ -40,6 +40,7 @@ const IncidentSearchTable = () => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
+    refreshing
   } = useFetchIncidentsData();
 
   const handleStatusChange = (e, id) => {
@@ -68,7 +69,7 @@ const IncidentSearchTable = () => {
     { label: "Camera", key: "camera" },
     { label: "Incident", key: "classConfidence" },
     { label: "Alerts", key: "alerts" },
-    { label: "Action", key: "action" },
+    { label: "Status", key: "status" },
   ];
 
   const csvData = incidents?.map((item) => ({
@@ -160,7 +161,7 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
               <BoldTableCell>Alerts</BoldTableCell>
-              <BoldTableCell>Action</BoldTableCell>
+              <BoldTableCell>Status</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -251,9 +252,14 @@ const IncidentSearchTable = () => {
           variant="contained"
           color="primary"
           onClick={refreshData}
-          endIcon={<RefreshRounded />}
+          disabled={refreshing}
+          sx={{width:100}}
         >
-          Refresh Data
+          {refreshing ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Refresh"
+          )}
         </Button>
         <TablePagination
           component="div"

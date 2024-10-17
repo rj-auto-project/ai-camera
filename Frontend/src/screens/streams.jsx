@@ -192,7 +192,7 @@ const Streams = React.memo(() => {
       </Stack>
 
       <Box sx={{ px: "8%", mt: 8, pb: "4%" }}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} height={"85vh"}>
           {currentStreams.map((stream) => (
             <Grid item xs={12} sm={6} md={4} key={stream.id}>
               <Card
@@ -204,7 +204,7 @@ const Streams = React.memo(() => {
                   height: "100%",
                 }}
               >
-                <Box position="relative" sx={{ height: "100%" }}>
+                <Box position="relative" sx={{ height: "100%",}}>
                   {/* Information Overlay */}
                   <Box
                     position="absolute"
@@ -235,7 +235,7 @@ const Streams = React.memo(() => {
                     </Box>
                   </Box>
                   {/* Video Stream */}
-                  <video
+                  <iframe
                     src={stream.src}
                     autoPlay
                     muted
