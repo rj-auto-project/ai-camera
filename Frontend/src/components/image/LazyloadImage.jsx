@@ -17,7 +17,7 @@ const LazyImage = ({ src, alt, width, height, ...props }) => {
       {
         rootMargin: "50px",
         threshold: 0.1,
-      }
+      },
     );
 
     if (imgRef.current) {

@@ -45,7 +45,7 @@ const AlertsWidget = ({ alertsData }) => {
 
   const mostFrequentIncidentType = Object.entries(incidentCounts).reduce(
     (max, entry) => (entry[1] > max[1] ? entry : max),
-    ["None", 0]
+    ["None", 0],
   );
 
   const solvedRatio = totalAlerts

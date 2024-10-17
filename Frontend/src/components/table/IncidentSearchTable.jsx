@@ -39,7 +39,7 @@ const IncidentSearchTable = () => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
-    refreshing
+    refreshing,
   } = useFetchIncidentsData();
 
   const handleStatusChange = (e, id) => {
@@ -182,7 +182,7 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>
                   {new Date(
-                    item?.timestamp || item?.time_stamp
+                    item?.timestamp || item?.time_stamp,
                   ).toLocaleString()}
                 </TableCell>
                 <TableCell>
@@ -252,7 +252,7 @@ const IncidentSearchTable = () => {
           color="primary"
           onClick={refreshData}
           disabled={refreshing}
-          sx={{width:100}}
+          sx={{ width: 100 }}
         >
           {refreshing ? (
             <CircularProgress size={24} color="inherit" />
