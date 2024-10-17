@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, useMap } from "react-leaflet";
 import MapView from "./mapview";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
@@ -11,9 +11,45 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography, Fab } from "@mui/material";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import { useSelector } from "react-redux";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
+
+const RecenterAutomatically = ({ lat, lng }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView([lat, lng]);
+    map.zoomIn(18);
+  }, [lat, lng]);
+
+  return null;
+};
+
+const CenterButton = ({ center }) => {
+  const map = useMap();
+
+  const handleCenterClick = () => {
+    map.setView(center, 16);
+  };
+
+  return (
+    <Fab
+      color="primary"
+      aria-label="center"
+      style={{
+        position: "absolute",
+        bottom: "20px",
+        right: "20px",
+        zIndex: 1000,
+      }}
+      onClick={handleCenterClick}
+    >
+      <MyLocationIcon />
+    </Fab>
+  );
+};
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -42,7 +78,7 @@ const Map = () => {
           alignItems: "center",
           height: "100vh",
           width: "100%",
-          backgroundColor:'transparent'
+          backgroundColor: "transparent",
         }}
       >
         <CircularProgress color="white" />
@@ -55,7 +91,6 @@ const Map = () => {
   }
 
   const center = calculateCenter(data);
-
   const handleMarkerClick = (camera) => {
     if (!cameraList.find((item) => item.cameraId === camera.cameraId)) {
       setCameraList((prevList) => [...prevList, camera]);
@@ -81,7 +116,7 @@ const Map = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     sessionStorage.removeItem("selectedCameraList");
     toast.success(`CAM-${cameraId} successfully removed`, {
@@ -119,7 +154,7 @@ const Map = () => {
   console.log(eventData, "eventData");
 
   return (
-    <Box style={{ height: "100vh", width: "100%",}}>
+    <Box style={{ height: "100vh", width: "100%" }}>
       <Stack
         direction="row"
         spacing={2}
@@ -184,6 +219,8 @@ const Map = () => {
         DEFAULT_ZOOM={16}
         heatmapData={eventData}
       >
+        <RecenterAutomatically lat={10} lng={10} />
+        <CenterButton center={center} />
         {filteredCameras.map((camera) => (
           <Marker
             key={camera.cameraId}

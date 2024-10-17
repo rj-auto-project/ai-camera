@@ -61,7 +61,7 @@ const getPaginatedIncidentsService = async (offset, limit) => {
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
-  endTime = ""
+  endTime = "",
 ) => {
   const whereClause = {
     incidentType: incidentType,

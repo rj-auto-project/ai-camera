@@ -61,7 +61,7 @@ const CameraSettings = ({ openModal, closeModal, openAnnotationModal }) => {
     } catch (err) {
       toast.error(
         error?.response?.data?.message ||
-          "An error occurred while adding the camera."
+          "An error occurred while adding the camera.",
       );
     }
   };

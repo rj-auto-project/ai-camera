@@ -37,7 +37,7 @@ const UserSettings = () => {
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
-          "An error occurred while updating the settings."
+          "An error occurred while updating the settings.",
       );
     }
   };

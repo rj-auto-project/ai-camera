@@ -9,7 +9,10 @@ import settingRoutes from "./settings.routes.js";
 
 import authMiddleware from "../../middleware/authMiddleware.js";
 import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
-import { garbageDetection, paginatedIncidents } from "../controllers/incidents.controller.js";
+import {
+  garbageDetection,
+  paginatedIncidents,
+} from "../controllers/incidents.controller.js";
 import { getEventNotifications } from "../controllers/events.controller.js";
 
 const router = express.Router();

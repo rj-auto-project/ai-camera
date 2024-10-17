@@ -43,7 +43,7 @@ const Streams = React.memo(() => {
       setCurrentPage(value);
       navigate(`?page=${value}`);
     },
-    [navigate]
+    [navigate],
   );
 
   const handleStreamClick = useCallback(
@@ -51,7 +51,7 @@ const Streams = React.memo(() => {
       setVideoSrc(src);
       navigate(`?page=${currentPage}&cameraId=${id}`);
     },
-    [navigate, currentPage]
+    [navigate, currentPage],
   );
 
   const handleChipClick = (category) => {
@@ -63,12 +63,12 @@ const Streams = React.memo(() => {
     (stream) =>
       activeCategory === "ALL" ||
       (activeCategory === "ACTIVE" && stream.status === "ACTIVE") ||
-      (activeCategory === "INACTIVE" && stream.status === "INACTIVE")
+      (activeCategory === "INACTIVE" && stream.status === "INACTIVE"),
   );
 
   const currentStreams = filteredStreams.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (

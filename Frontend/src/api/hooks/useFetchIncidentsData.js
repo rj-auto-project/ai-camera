@@ -38,7 +38,7 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
       setData(response?.data?.data || []);
       setTotal(response?.data?.totalIncidents || 0);
       if (page === 0) dispatch(clearNotifications());
-      console.log("notification cleared", page)
+      console.log("notification cleared", page);
     } catch (err) {
       setError(err);
     } finally {
@@ -69,7 +69,7 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
-    refreshing
+    refreshing,
   };
 };
 

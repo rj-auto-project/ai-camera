@@ -16,7 +16,7 @@ const notificationSlice = createSlice({
     },
     clearNotifications(state) {
       state.notifications = [];
-      state.notificationCount=0
+      state.notificationCount = 0;
     },
     notificationError(state, action) {
       state.error = action.payload;

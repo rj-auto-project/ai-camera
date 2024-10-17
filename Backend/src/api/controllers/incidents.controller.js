@@ -53,7 +53,7 @@ const notifyClients = () => {
   console.log("Notification count:", notificationCount);
   clients.forEach((client) => {
     client.res.write(
-      `data: ${JSON.stringify({ count: notificationCount })}\n\n`
+      `data: ${JSON.stringify({ count: notificationCount })}\n\n`,
     );
   });
 };
@@ -101,7 +101,7 @@ const paginatedIncidents = async (req, res) => {
 
     const { incidents, totalIncidents } = await getPaginatedIncidentsService(
       offset,
-      limitNumber
+      limitNumber,
     );
 
     res.status(200).send({
@@ -153,7 +153,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate
+      endDate,
     );
 
     if (!incidents || incidents.length === 0) {
