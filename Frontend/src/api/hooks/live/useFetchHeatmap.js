@@ -5,7 +5,6 @@ import { useDispatch } from "react-redux";
 const token = localStorage.getItem("token");
 
 const useFetchHeatmap = (type) => {
-  console.log(type, "type");
   const [eventData, setEventData] = useState({ results: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -32,9 +31,8 @@ const useFetchHeatmap = (type) => {
 
       eventSource.onmessage = (e) => {
         let data = JSON.parse(e.data);
-        console.log(data, "data");
         if (opType === "Crowd") {
-          data = data.map((item) => {
+          data = data?.map((item) => {
             return [
               item.camera.coordinates[0],
               item.camera.coordinates[1],
