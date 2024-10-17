@@ -40,7 +40,7 @@ const heatmap = (req, res) => {
     } catch (error) {
       console.error("Error fetching heatmap data:", error);
       res.write(
-        `data: ${JSON.stringify({ message: "Error fetching data" })}\n\n`
+        `data: ${JSON.stringify({ message: "Error fetching data" })}\n\n`,
       );
     }
   };

@@ -53,7 +53,7 @@ const notifyClients = () => {
   console.log("Notification count:", notificationCount);
   clients.forEach((client) => {
     client.res.write(
-      `data: ${JSON.stringify({ count: notificationCount })}\n\n`
+      `data: ${JSON.stringify({ count: notificationCount })}\n\n`,
     );
   });
 };
@@ -194,7 +194,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate
+      endDate,
     );
 
     if (!incidents || incidents.length === 0) {

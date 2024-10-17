@@ -21,7 +21,7 @@ export const useGabageSearch = () => {
     },
     onSuccess: (data) => {
       dispatch(incidentSearchSucess(data));
-      dispatch(clearNotifications())
+      dispatch(clearNotifications());
     },
     onError: (error) => {
       dispatch(

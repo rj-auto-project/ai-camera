@@ -4,7 +4,7 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 const CSVButton = ({ csvData, headers, filename }) => {
   if (!csvData || !Array.isArray(csvData)) {
-    return null; 
+    return null;
   }
   return (
     <Tooltip title={"Download CSV"} placement="top">

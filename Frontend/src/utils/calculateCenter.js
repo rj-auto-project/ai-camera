@@ -1,5 +1,5 @@
 export const calculateCenter = (cameras) => {
-  if (cameras?.length === 0) return [51.505, -0.09]; 
+  if (cameras?.length === 0) return [51.505, -0.09];
 
   const latSum = cameras.reduce(
     (sum, camera) => sum + camera.coordinates[0],

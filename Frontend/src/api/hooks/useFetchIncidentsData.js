@@ -55,6 +55,7 @@ const useFetchIncidentsData = (
       setIncidentsTypes(response?.data?.incidentsTypes || []);
       setCameras(response?.data?.cameras || []);
       if (page === 0) dispatch(clearNotifications());
+      console.log("notification cleared", page);
     } catch (err) {
       setError(err);
     } finally {

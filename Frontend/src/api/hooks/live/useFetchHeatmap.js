@@ -60,7 +60,7 @@ const useFetchHeatmap = (type) => {
           const retryDelay = Math.pow(2, retryCountRef.current) * 1000; // Exponential backoff
           retryCountRef.current += 1;
           console.warn(
-            `Retrying connection in ${retryDelay / 1000} seconds...`
+            `Retrying connection in ${retryDelay / 1000} seconds...`,
           );
           setTimeout(() => {
             getLiveData();
