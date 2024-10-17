@@ -94,15 +94,54 @@ const garbageDetection = async (req, res) => {
 
 const paginatedIncidents = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "timestamp",
+      sortOrder = "desc",
+      incidentType,
+      cameraId,
+      modelResolved,
+      userResolved,
+      resolved,
+      startDate,
+      endDate,
+      alerts,
+    } = req.query;
+
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
-    const offset = pageNumber * limitNumber;
+    const offset = (pageNumber - 1) * limitNumber;
 
-    const { incidents, totalIncidents } = await getPaginatedIncidentsService(
-      offset,
-      limitNumber,
-    );
+    // Filter conditions
+    const filters = {};
+    if (incidentType) filters.incidentType = incidentType;
+    if (cameraId) filters.cameraId = cameraId;
+    if (modelResolved !== undefined)
+      filters.modelResolved = modelResolved === "true";
+    if (userResolved !== undefined)
+      filters.userResolved = userResolved === "true";
+    if (resolved !== undefined) filters.resolved = resolved === "true";
+    if (alerts) filters.alerts = parseInt(alerts);
+
+    // Time range filter (startDate and endDate)
+    if (startDate || endDate) {
+      filters.timestamp = {};
+      if (startDate) filters.timestamp.gte = new Date(startDate);
+      if (endDate) filters.timestamp.lte = new Date(endDate);
+    }
+
+    // Sorting condition
+    const sortCondition = {};
+    sortCondition[sortBy] = sortOrder === "asc" ? "asc" : "desc";
+
+    const { incidents, totalIncidents, incidentsTypes, cameras } =
+      await getPaginatedIncidentsService(
+        offset,
+        limitNumber,
+        filters, // Pass the filters
+        sortCondition // Pass the sorting condition
+      );
 
     res.status(200).send({
       message: "Incidents found",
@@ -110,6 +149,8 @@ const paginatedIncidents = async (req, res) => {
       currentPage: pageNumber,
       totalPages: Math.ceil(totalIncidents / limitNumber),
       totalIncidents,
+      incidentsTypes,
+      cameras,
     });
   } catch (error) {
     console.error("Error getting incidents:", error);
