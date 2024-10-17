@@ -18,7 +18,6 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
-import { RefreshRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";

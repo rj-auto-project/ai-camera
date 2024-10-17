@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Grid,
   Card,
-  Container,
   Box,
   Typography,
   Pagination,
@@ -10,87 +9,26 @@ import {
   Chip,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
-import ReactPlayer from "react-player";
 import { useVideo } from "../context/videoContext";
+import { useSelector } from "react-redux";
+import { useFetchCameras } from "../api/hooks/useFetchCameras";
 import video1 from "/assets/videos/output1.mp4";
-import video2 from "/assets/videos/output2.mp4";
-import VideoStream from "../components/Videotest";
 
 const Streams = React.memo(() => {
-  const [streams, setStreams] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const { isError } = useFetchCameras();
+  const [activeCategory, setActiveCategory] = useState("ALL");
   const itemsPerPage = 9;
   const navigate = useNavigate();
   const location = useLocation();
   const { setVideoSrc } = useVideo();
+  const { data } = useSelector((state) => state.mapcamera);
 
   const chipData = [
-    { label: "All" },
-    { label: "Active" },
-    { label: "Inactive" },
+    { label: "ALL" },
+    { label: "ACTIVE" },
+    { label: "INACTIVE" },
   ];
-
-  useEffect(() => {
-    const fetchedStreams = [
-      {
-        id: 1,
-        src: video1,
-        status: "Active",
-      },
-      {
-        id: 2,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 3,
-        src: video2,
-        status: "Active",
-      },
-      {
-        id: 4,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_4mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 5,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 6,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_6mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 7,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_7mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 8,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_8mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 9,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_9mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 10,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4",
-        status: "Inactive",
-      },
-      {
-        id: 11,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_11mb.mp4",
-        status: "Inactive",
-      },
-    ];
-    setStreams(fetchedStreams);
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -108,8 +46,8 @@ const Streams = React.memo(() => {
   );
 
   const handleStreamClick = useCallback(
-    (id, scr) => {
-      setVideoSrc(scr);
+    (id, src) => {
+      setVideoSrc(src);
       navigate(`?page=${currentPage}&cameraId=${id}`);
     },
     [navigate, currentPage]
@@ -120,11 +58,11 @@ const Streams = React.memo(() => {
     setCurrentPage(1);
   };
 
-  const filteredStreams = streams.filter(
+  const filteredStreams = data?.filter(
     (stream) =>
-      activeCategory === "All" ||
-      (activeCategory === "Active" && stream.status === "Active") ||
-      (activeCategory === "Inactive" && stream.status === "Inactive")
+      activeCategory === "ALL" ||
+      (activeCategory === "ACTIVE" && stream.status === "ACTIVE") ||
+      (activeCategory === "INACTIVE" && stream.status === "INACTIVE")
   );
 
   const currentStreams = filteredStreams.slice(
@@ -132,24 +70,13 @@ const Streams = React.memo(() => {
     currentPage * itemsPerPage
   );
 
-  console.log("current streams", currentStreams);
-
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100vh",
         overflow: "hidden",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
       }}
     >
-      <style>
-        {`
-        ::-webkit-scrollbar {
-          display: none;
-        }
-      `}
-      </style>
       <Stack
         direction="row"
         spacing={2}
@@ -191,10 +118,29 @@ const Streams = React.memo(() => {
         ))}
       </Stack>
 
-      <Box sx={{ px: "8%", mt: 8, pb: "4%" }}>
-        <Grid container spacing={2} height={"85vh"}>
-          {currentStreams.map((stream) => (
-            <Grid item xs={12} sm={6} md={4} key={stream.id}>
+      <Box
+        sx={{
+          mt: 8,
+          px: 10,
+          height: "85vh",
+          overflowY: "scroll",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        <Grid container spacing={2} height="100%">
+          {currentStreams.map((stream, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={stream.cameraId}
+              sx={{ height: "29vh" }}
+            >
               <Card
                 onClick={() => handleStreamClick(stream.id, stream.src)}
                 sx={{
@@ -204,7 +150,7 @@ const Streams = React.memo(() => {
                   height: "100%",
                 }}
               >
-                <Box position="relative" sx={{ height: "100%",}}>
+                <Box position="relative" sx={{ height: "100%" }}>
                   {/* Information Overlay */}
                   <Box
                     position="absolute"
@@ -217,33 +163,50 @@ const Streams = React.memo(() => {
                     alignItems="center"
                   >
                     <Typography variant="body2" color="white">
-                      CamId: {stream.id}
+                      CamId: {stream.cameraId}
                     </Typography>
                     <Box display="flex" alignItems="center">
                       <Box
                         sx={{
                           width: 10,
                           height: 10,
-                          bgcolor: stream.status === "Active" ? "red" : "gray",
+                          bgcolor: stream.status === "ACTIVE" ? "red" : "gray",
                           borderRadius: "50%",
                           mr: 0.5,
                         }}
                       />
                       <Typography variant="body2" color="white">
-                        {stream.status === "Active" ? "Live" : "Inactive"}
+                        {stream.status === "ACTIVE" ? "Live" : "Inactive"}
                       </Typography>
                     </Box>
                   </Box>
-                  {/* Video Stream */}
-                  <iframe
-                    src={stream.src}
-                    autoPlay
-                    muted
-                    loop
-                    width="100%"
-                    height="100%"
-                    style={{ objectFit: "cover" }}
-                  />
+
+                  {/* Video Stream Container */}
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                      overflow: "hidden", // Hide scrollbars
+                    }}
+                  >
+                    <iframe
+                      src={`http://localhost/${stream.cameraId}`}
+                      autoPlay
+                      muted
+                      loop
+                      width="100%"
+                      height="100%"
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        border: "none",
+                        borderRadius: "4px", // Optional: rounded corners for aesthetics
+                        overflow: "hidden", // Prevent iframe scrollbars
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Card>
             </Grid>
