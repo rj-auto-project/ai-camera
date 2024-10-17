@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../url";
 import { config } from "../getConfig";
+import { useDispatch } from "react-redux";
+import { clearNotifications } from "../../features/notification/notification";
 
 const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
   const [page, setPage] = useState(initialPage);
@@ -10,6 +12,16 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    fetchIncidents();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  };
 
   const fetchIncidents = async () => {
     setIsLoading(true);
@@ -25,6 +37,8 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
       });
       setData(response?.data?.data || []);
       setTotal(response?.data?.totalIncidents || 0);
+      if (page === 0) dispatch(clearNotifications());
+      console.log("notification cleared", page)
     } catch (err) {
       setError(err);
     } finally {
@@ -45,10 +59,6 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
     setPage(0);
   };
 
-  const refreshData = () => {
-    fetchIncidents(); // Manually trigger data refresh
-  };
-
   return {
     data,
     total,
@@ -59,6 +69,7 @@ const useFetchIncidentsData = (initialPage = 0, initialRowsPerPage = 10) => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
+    refreshing
   };
 };
 

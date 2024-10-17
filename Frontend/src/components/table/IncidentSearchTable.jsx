@@ -18,7 +18,6 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
-import { RefreshRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
@@ -40,6 +39,7 @@ const IncidentSearchTable = () => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
+    refreshing
   } = useFetchIncidentsData();
 
   const handleStatusChange = (e, id) => {
@@ -68,7 +68,7 @@ const IncidentSearchTable = () => {
     { label: "Camera", key: "camera" },
     { label: "Incident", key: "classConfidence" },
     { label: "Alerts", key: "alerts" },
-    { label: "Action", key: "action" },
+    { label: "Status", key: "status" },
   ];
 
   const csvData = incidents?.map((item) => ({
@@ -160,7 +160,7 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
               <BoldTableCell>Alerts</BoldTableCell>
-              <BoldTableCell>Action</BoldTableCell>
+              <BoldTableCell>Status</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -251,9 +251,14 @@ const IncidentSearchTable = () => {
           variant="contained"
           color="primary"
           onClick={refreshData}
-          endIcon={<RefreshRounded />}
+          disabled={refreshing}
+          sx={{width:100}}
         >
-          Refresh Data
+          {refreshing ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Refresh"
+          )}
         </Button>
         <TablePagination
           component="div"
