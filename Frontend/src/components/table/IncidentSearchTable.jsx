@@ -14,6 +14,7 @@ import {
   Select,
   MenuItem,
   Button,
+  OutlinedInput,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
@@ -28,7 +29,6 @@ const IncidentSearchTable = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [statusMap, setStatusMap] = useState({});
 
-  // Use the custom hook to fetch incidents
   const {
     data: incidents,
     total,
@@ -39,14 +39,116 @@ const IncidentSearchTable = () => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
-    refreshing
+    refreshing,
+    incidentsTypes,
+    updateFilters,
+    updateSort,
+    sort,
+    cameras,
+    filters,
   } = useFetchIncidentsData();
 
+  console.log(filters);
   const handleStatusChange = (e, id) => {
     setStatusMap((prev) => ({
       ...prev,
       [id]: e.target.value,
     }));
+  };
+
+  const FilterAndSort = () => {
+    const [selectedIncidentType, setSelectedIncidentType] = useState("");
+    const [selectedCameraId, setSelectedCameraId] = useState("");
+    const [status, setStatus] = useState("");
+
+    const handleIncidentTypeChange = (event) => {
+      console.log("event.target.value", event.target.value);
+      setSelectedIncidentType(event.target.value);
+      updateFilters({ incidentType: event.target.value });
+    };
+    const handleCameraIdChange = (event) => {
+      setSelectedCameraId(event.target.value);
+      updateFilters({ cameraId: event.target.value });
+    };
+
+    const handleStatusChange = (event) => {
+      setStatus(event.target.value);
+      updateFilters({ resolved: event.target.value });
+    };
+
+    const handleSortChange = () => {
+      const newSortOrder = sort === "asc" ? "desc" : "asc";
+      updateSort(newSortOrder);
+    };
+
+    return (
+      <Box display="flex" gap={1} alignItems="center" padding={1}>
+        {/* Incident Type Filter */}
+        <Select
+          value={filters?.incidentType || selectedIncidentType}
+          onChange={handleIncidentTypeChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected.length === 0 ? "Incident Type" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Types</em>
+          </MenuItem>
+          {incidentsTypes?.map((type) => (
+            <MenuItem key={type?.incidentType} value={type?.incidentType}>
+              {type?.incidentType}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Camera Filter */}
+        <Select
+          value={filters?.cameraId || selectedCameraId}
+          onChange={handleCameraIdChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected.length === 0 ? "Camera ID" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Cameras</em>
+          </MenuItem>
+          {cameras?.map((cameraId) => (
+            <MenuItem key={cameraId} value={cameraId}>
+              {cameraId}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Status Filter */}
+        <Select
+          value={filters?.resolved ? "Resolved" : "Unresolved" || status}
+          onChange={handleStatusChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected.length === 0 ? "Status" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Statuses</em>
+          </MenuItem>
+          <MenuItem value="true">Resolved</MenuItem>
+          <MenuItem value="false">Unresolved</MenuItem>
+        </Select>
+
+        {/* Sort by Timestamp */}
+        <Button onClick={() => handleSortChange()} style={{ height: 40 }}>
+          Sort by Time ({sort === "asc" ? "Latest First" : "Oldest First"})
+        </Button>
+      </Box>
+    );
   };
 
   const handleOpen = (item) => {
@@ -161,6 +263,7 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Incident</BoldTableCell>
               <BoldTableCell>Alerts</BoldTableCell>
               <BoldTableCell>Status</BoldTableCell>
+              <BoldTableCell>Actions</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -223,6 +326,30 @@ const IncidentSearchTable = () => {
                     </Select>
                   )}
                 </TableCell>
+                <TableCell>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="white"
+                      onClick={() => handleOpen(item)}
+                    >
+                      Notify Traffic Officer
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="white"
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
+                        )
+                      }
+                    >
+                      View Camera
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -249,10 +376,10 @@ const IncidentSearchTable = () => {
         <CSVButton data={csvData} headers={headers} filename="incidents.csv" />
         <Button
           variant="contained"
-          color="primary"
+          color="white"
           onClick={refreshData}
           disabled={refreshing}
-          sx={{width:100}}
+          sx={{ width: 100 }}
         >
           {refreshing ? (
             <CircularProgress size={24} color="inherit" />
@@ -260,6 +387,7 @@ const IncidentSearchTable = () => {
             "Refresh"
           )}
         </Button>
+        <FilterAndSort />
         <TablePagination
           component="div"
           count={total}
@@ -284,7 +412,6 @@ const IncidentSearchTable = () => {
 
 export default IncidentSearchTable;
 
-// Styled Components
 const StickyTableHead = styled(TableHead)({
   position: "sticky",
   top: 0,
