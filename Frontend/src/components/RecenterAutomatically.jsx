@@ -1,14 +1,15 @@
 import React, { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
-const RecenterAutomatically = ({ lat, lng }) => {
+const RecenterAutomatically = ({ center, activeCategory }) => {
   const map = useMap();
 
   useEffect(() => {
-    map.setView([lat, lng]);
-  }, [lat, lng]);
+    map.flyTo(center, 15, { animate: true, duration: 1.5 });
+  }, [center, map, activeCategory]);
 
   return null;
 };
+
 
 export default RecenterAutomatically;
