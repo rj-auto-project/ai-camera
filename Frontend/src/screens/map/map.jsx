@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { Marker, Popup, useMap } from "react-leaflet";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +19,25 @@ import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import CenterButton from "../../components/buttons/CenterButton";
-import RecenterAutomatically from "../../components/RecenterAutomatically";
+
+const AnimatedMapView = ({ center, zoom, children, data }) => {
+  const map = useMap();
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      map.setView(data?.length ? center : [0, 0], 14);
+      isInitialMount.current = false;
+    } else if (center) {
+      map.flyTo(center, zoom, {
+        duration: 2,
+        easeLinearity: 0.25,
+      });
+    }
+  }, [ center, zoom]);
+
+  return children;
+};
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -25,6 +49,7 @@ const Map = () => {
   const { data, isLoading, error } = useSelector((state) => state.mapcamera);
 
   useEffect(() => {
+    
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
     if (storedCameraList) {
       setCameraList(JSON.parse(storedCameraList));
@@ -107,8 +132,7 @@ const Map = () => {
     [coordinates]
   );
 
-
-  console.log("Center",center);
+  console.log("Center", center);
 
   if (isLoading || !data.length) {
     return (
@@ -130,7 +154,6 @@ const Map = () => {
   if (isError) {
     return <Box>Error: {error.message}</Box>;
   }
-
   return (
     <Box sx={{ height: "100vh", width: "100%" }}>
       <Stack
@@ -191,62 +214,60 @@ const Map = () => {
         </DraggablePanel>
       )}
       <MapView
-        center={center}
+        center={[0, 0]} // Initial center, will be overridden by AnimatedMapView
+        zoom={2} // Initial zoom, will be overridden by AnimatedMapView
         activeCategory={activeCategory}
-        DEFAULT_ZOOM={16}
         heatmapData={eventData}
       >
-        <RecenterAutomatically
-          center={center}
-          activeCategory={activeCategory}
-        />
-        <CenterButton center={center} />
-        <Marker position={center} />
-        {filteredCameras.map((camera) => (
-          <Marker
-            key={camera.cameraId}
-            position={camera.coordinates}
-            icon={camera.status === "ACTIVE" ? activeCam : inActiveCam}
-            eventHandlers={{
-              click: (e) => {
-                e.target._map.setView(
-                  e.target.getLatLng(),
-                  e.target._map.getZoom()
-                );
-                handleMarkerClick(camera);
-              },
-            }}
-          >
-            <Popup>
-              <div className="flex flex-col">
-                <strong>{camera.cameraName}</strong>
-                <span>
-                  <b>Camera Id:</b> {camera.cameraId}
-                </span>
-                <span>
-                  <b>Location:</b> {camera.location}
-                </span>
-                <span>
-                  <b>Status:</b> {camera.status}
-                </span>
-                <span>
-                  <b>Installed:</b>{" "}
-                  {new Date(camera.installed).toLocaleDateString()}
-                </span>
-                <span>
-                  <b>Last Online:</b>{" "}
-                  {new Date(camera.lastOnline).toLocaleDateString()}
-                </span>
-                <span>
-                  <b>Type:</b> {camera.cameraType}
-                </span>
-                <span>
-                  <b>Connection:</b> {camera.connectionType}
-                </span>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        <AnimatedMapView data={data} center={center} zoom={16}>
+          <CenterButton center={center} />
+          <Marker position={center} />
+          {filteredCameras.map((camera) => (
+            <Marker
+              key={camera.cameraId}
+              position={camera.coordinates}
+              icon={camera.status === "ACTIVE" ? activeCam : inActiveCam}
+              eventHandlers={{
+                click: (e) => {
+                  e.target._map.setView(
+                    e.target.getLatLng(),
+                    e.target._map.getZoom()
+                  );
+                  handleMarkerClick(camera);
+                },
+              }}
+            >
+              <Popup>
+                <div className="flex flex-col">
+                  <strong>{camera.cameraName}</strong>
+                  <span>
+                    <b>Camera Id:</b> {camera.cameraId}
+                  </span>
+                  <span>
+                    <b>Location:</b> {camera.location}
+                  </span>
+                  <span>
+                    <b>Status:</b> {camera.status}
+                  </span>
+                  <span>
+                    <b>Installed:</b>{" "}
+                    {new Date(camera.installed).toLocaleDateString()}
+                  </span>
+                  <span>
+                    <b>Last Online:</b>{" "}
+                    {new Date(camera.lastOnline).toLocaleDateString()}
+                  </span>
+                  <span>
+                    <b>Type:</b> {camera.cameraType}
+                  </span>
+                  <span>
+                    <b>Connection:</b> {camera.connectionType}
+                  </span>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </AnimatedMapView>
       </MapView>
     </Box>
   );
