@@ -21,7 +21,6 @@ import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import CenterButton from "../../components/buttons/CenterButton";
 import AnimatedMapView from "../../components/AnimatedMapView";
 
-
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
