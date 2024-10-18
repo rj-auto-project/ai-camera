@@ -19,25 +19,8 @@ import { chipData } from "../../data/data";
 import { activeCam, inActiveCam } from "../../icons/icon";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import CenterButton from "../../components/buttons/CenterButton";
+import AnimatedMapView from "../../components/AnimatedMapView";
 
-const AnimatedMapView = ({ center, zoom, children, data }) => {
-  const map = useMap();
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      map.setView(data?.length ? center : [0, 0], 14);
-      isInitialMount.current = false;
-    } else if (center) {
-      map.flyTo(center, zoom, {
-        duration: 2,
-        easeLinearity: 0.25,
-      });
-    }
-  }, [ center, zoom]);
-
-  return children;
-};
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
@@ -214,8 +197,8 @@ const Map = () => {
         </DraggablePanel>
       )}
       <MapView
-        center={[0, 0]} // Initial center, will be overridden by AnimatedMapView
-        zoom={2} // Initial zoom, will be overridden by AnimatedMapView
+        center={[0, 0]}
+        zoom={2} 
         activeCategory={activeCategory}
         heatmapData={eventData}
       >

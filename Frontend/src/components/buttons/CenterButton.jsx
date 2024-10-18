@@ -16,8 +16,8 @@ const CenterButton = ({ center }) => {
       size="small"
       style={{
         position: "absolute",
-        bottom: "30px",
-        right: "10px",
+        bottom: "40px",
+        right: "40px",
         zIndex: 1000,
         cursor: "pointer",
       }}
