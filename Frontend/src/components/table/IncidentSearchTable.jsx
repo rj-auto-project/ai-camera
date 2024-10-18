@@ -328,18 +328,20 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    style={{ display: "flex", flexDirection: "column", gap: 10 }}
                   >
                     <Button
                       variant="contained"
                       color="white"
                       onClick={() => handleOpen(item)}
+                      sx={{width:200}}
                     >
                       Notify Traffic Officer
                     </Button>
                     <Button
                       variant="contained"
                       color="white"
+                      sx={{width:200}}
                       onClick={() =>
                         navigate(
                           `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
