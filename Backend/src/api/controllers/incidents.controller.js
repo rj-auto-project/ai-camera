@@ -53,7 +53,7 @@ const notifyClients = () => {
   console.log("Notification count:", notificationCount);
   clients.forEach((client) => {
     client.res.write(
-      `data: ${JSON.stringify({ count: notificationCount })}\n\n`,
+      `data: ${JSON.stringify({ count: notificationCount })}\n\n`
     );
   });
 };
@@ -114,6 +114,7 @@ const paginatedIncidents = async (req, res) => {
     const offset = (pageNumber - 1) * limitNumber;
 
     // Filter conditions
+    console.log("incidentType", resolved);
     const filters = {};
     if (incidentType) filters.incidentType = incidentType;
     if (cameraId) filters.cameraId = cameraId;
@@ -123,7 +124,9 @@ const paginatedIncidents = async (req, res) => {
       filters.userResolved = userResolved === "true";
     if (resolved !== undefined) filters.resolved = resolved === "true";
     if (alerts) filters.alerts = parseInt(alerts);
+    if (resolved === "" || resolved === undefined) delete filters.resolved;
 
+    console.log("filters", filters);
     // Time range filter (startDate and endDate)
     if (startDate || endDate) {
       filters.timestamp = {};
@@ -194,7 +197,7 @@ const getSpecificIncident = async (req, res) => {
     const incidents = await getSpecificIncidentService(
       incidentType,
       startDate,
-      endDate,
+      endDate
     );
 
     if (!incidents || incidents.length === 0) {
