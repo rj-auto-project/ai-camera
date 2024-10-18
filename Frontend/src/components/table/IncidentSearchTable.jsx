@@ -57,22 +57,15 @@ const IncidentSearchTable = () => {
   };
 
   const FilterAndSort = () => {
-    const [selectedIncidentType, setSelectedIncidentType] = useState("");
-    const [selectedCameraId, setSelectedCameraId] = useState("");
-    const [status, setStatus] = useState("");
-
     const handleIncidentTypeChange = (event) => {
       console.log("event.target.value", event.target.value);
-      setSelectedIncidentType(event.target.value);
       updateFilters({ incidentType: event.target.value });
     };
     const handleCameraIdChange = (event) => {
-      setSelectedCameraId(event.target.value);
       updateFilters({ cameraId: event.target.value });
     };
 
     const handleStatusChange = (event) => {
-      setStatus(event.target.value);
       updateFilters({ resolved: event.target.value });
     };
 
@@ -85,12 +78,12 @@ const IncidentSearchTable = () => {
       <Box display="flex" gap={1} alignItems="center" padding={1}>
         {/* Incident Type Filter */}
         <Select
-          value={filters?.incidentType || selectedIncidentType}
+          value={filters?.incidentType || "Select Incident Type"}
           onChange={handleIncidentTypeChange}
           displayEmpty
           input={<OutlinedInput />}
           renderValue={(selected) =>
-            selected.length === 0 ? "Incident Type" : selected
+            selected?.length === 0 ? "Incident Type" : selected
           }
           style={{ width: 150, height: 40 }}
         >
@@ -106,12 +99,12 @@ const IncidentSearchTable = () => {
 
         {/* Camera Filter */}
         <Select
-          value={filters?.cameraId || selectedCameraId}
+          value={filters?.cameraId || "Select Camera ID"}
           onChange={handleCameraIdChange}
           displayEmpty
           input={<OutlinedInput />}
           renderValue={(selected) =>
-            selected.length === 0 ? "Camera ID" : selected
+            selected?.length === 0 ? "Camera ID" : selected
           }
           style={{ width: 150, height: 40 }}
         >
@@ -127,17 +120,25 @@ const IncidentSearchTable = () => {
 
         {/* Status Filter */}
         <Select
-          value={filters?.resolved ? "Resolved" : "Unresolved" || status}
+          value={
+            filters?.resolved === undefined || filters?.resolved === ""
+              ? "Select Status"
+              : filters?.resolved.toString()
+          }
           onChange={handleStatusChange}
           displayEmpty
           input={<OutlinedInput />}
           renderValue={(selected) =>
-            selected.length === 0 ? "Status" : selected
+            selected === ""
+              ? "Select Status"
+              : selected === "true"
+                ? "Resolved"
+                : "Unresolved"
           }
           style={{ width: 150, height: 40 }}
         >
           <MenuItem value="">
-            <em>All Statuses</em>
+            <em>Select Status</em>
           </MenuItem>
           <MenuItem value="true">Resolved</MenuItem>
           <MenuItem value="false">Unresolved</MenuItem>
@@ -285,7 +286,7 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>
                   {new Date(
-                    item?.timestamp || item?.time_stamp,
+                    item?.timestamp || item?.time_stamp
                   ).toLocaleString()}
                 </TableCell>
                 <TableCell>
