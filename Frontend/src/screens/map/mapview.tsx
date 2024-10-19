@@ -15,6 +15,27 @@ const MapView = ({
   activeCategory,
   camStatus,
 }) => {
+  console.log("heatmapData", heatmapData.results);
+
+  if(!heatmapData?.results || heatmapData?.results?.length === 0) {
+    return (
+      <MapContainer
+        center={center}
+        zoom={DEFAULT_ZOOM}
+        maxZoom={18}
+        style={{ width: "100%", height: "100%" }}
+        ref={mapRef}
+        zoomControl={false}
+      >
+        <TileLayer
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution={osm.maptiler.attributions}
+        />
+        {children}
+      </MapContainer>
+    );
+  }
+
   return (
     <MapContainer
       center={center}
@@ -33,7 +54,7 @@ const MapView = ({
         <HeatmapLayer
           fitBoundsOnLoad
           fitBoundsOnUpdate
-          points={heatmapData}
+          points={heatmapData?.results}
           radius={20}
           longitudeExtractor={(m) => m[1]}
           latitudeExtractor={(m) => m[0]}
@@ -47,7 +68,7 @@ const MapView = ({
         <HeatmapLayer
           fitBoundsOnLoad
           fitBoundsOnUpdate
-          points={heatmapData}
+          points={heatmapData?.results}
           radius={20}
           longitudeExtractor={(m) => m[1]}
           latitudeExtractor={(m) => m[0]}

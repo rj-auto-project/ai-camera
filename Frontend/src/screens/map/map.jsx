@@ -106,7 +106,7 @@ const Map = () => {
   const coordinates = useMemo(() => {
     return activeCategory === "Crowd" || activeCategory === "Traffic"
       ? eventData
-      : filteredCameras.map((camera) => camera?.coordinates);
+      : filteredCameras?.map((camera) => camera?.coordinates);
   }, [activeCategory, eventData, filteredCameras]);
 
   const center = useMemo(
