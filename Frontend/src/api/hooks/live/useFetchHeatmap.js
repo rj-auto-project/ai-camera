@@ -34,21 +34,21 @@ const useFetchHeatmap = (type) => {
         if (opType === "Crowd") {
           data = data?.map((item) => {
             return [
-              item.camera.coordinates[0],
-              item.camera.coordinates[1],
-              item.count,
+              item?.camera?.coordinates[0],
+              item?.camera?.coordinates[1],
+              item?.count,
             ];
           });
         } else {
-          data = data.map((item) => {
+          data = data?.map((item) => {
             return [
-              item.camera.coordinates[0],
-              item.camera.coordinates[1],
-              item.vehicleCount,
+              item?.camera?.coordinates[0],
+              item?.camera?.coordinates[1],
+              item?.vehicleCount,
             ];
           });
         }
-        setEventData(data);
+        setEventData(data || []);
         setIsLoading(false);
       };
 

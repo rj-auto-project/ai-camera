@@ -22,6 +22,7 @@ import CSVButton from "../buttons/CSVButton";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
+import toast from "react-hot-toast";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const IncidentSearchTable = () => {
     sort,
     cameras,
     filters,
+    handleMarkWrongDetection,
   } = useFetchIncidentsData();
 
   console.log(filters);
@@ -56,6 +58,7 @@ const IncidentSearchTable = () => {
     }));
   };
 
+  console.log(cameras, "cameras");
   const FilterAndSort = () => {
     const handleIncidentTypeChange = (event) => {
       console.log("event.target.value", event.target.value);
@@ -99,7 +102,10 @@ const IncidentSearchTable = () => {
 
         {/* Camera Filter */}
         <Select
-          value={filters?.cameraId || "Select Camera ID"}
+          value={
+            cameras?.find((camera) => camera?.cameraId === filters?.cameraId)
+              ?.cameraName || "All Cameras"
+          }
           onChange={handleCameraIdChange}
           displayEmpty
           input={<OutlinedInput />}
@@ -111,9 +117,9 @@ const IncidentSearchTable = () => {
           <MenuItem value="">
             <em>All Cameras</em>
           </MenuItem>
-          {cameras?.map((cameraId) => (
-            <MenuItem key={cameraId} value={cameraId}>
-              {cameraId}
+          {cameras?.map((camera) => (
+            <MenuItem key={camera?.cameraId} value={camera?.cameraId}>
+              {camera?.cameraName}
             </MenuItem>
           ))}
         </Select>
@@ -329,20 +335,24 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
                   >
                     <Button
                       variant="contained"
                       color="white"
                       onClick={() => handleOpen(item)}
-                      sx={{width:200}}
+                      sx={{ width: 200 }}
                     >
                       Notify Traffic Officer
                     </Button>
                     <Button
                       variant="contained"
                       color="white"
-                      sx={{width:200}}
+                      sx={{ width: 200 }}
                       onClick={() =>
                         navigate(
                           `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
@@ -350,6 +360,16 @@ const IncidentSearchTable = () => {
                       }
                     >
                       View Camera
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="white"
+                      sx={{ width: 200 }}
+                      onClick={async () =>
+                        await handleMarkWrongDetection(item?.id, true)
+                      }
+                    >
+                      Wrong detection
                     </Button>
                   </div>
                 </TableCell>

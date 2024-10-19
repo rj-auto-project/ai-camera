@@ -52,6 +52,7 @@ const getPaginatedIncidentsService = async (
     skip: offset,
     take: limit,
     where: {
+      wrongDetection: false,
       ...filters, // Apply the filters (incidentType, cameraId, modelResolved, etc.)
     },
     include: {
@@ -64,6 +65,7 @@ const getPaginatedIncidentsService = async (
   // Count total incidents matching the filters
   const totalIncidents = await prisma.incidentLogs.count({
     where: {
+      wrongDetection: false,
       ...filters, // Apply the filters to the count query as well
     },
   });
@@ -75,9 +77,9 @@ const getPaginatedIncidentsService = async (
     distinct: ["incidentType"],
   });
 
-  const cameras = [
-    ...new Set(incidents.map((incident) => incident?.camera?.cameraId)),
-  ];
+  const cameras = await prisma.camera.findMany({
+    distinct: ["cameraId"],
+  });
 
   return (
     { incidents, totalIncidents, incidentsTypes, cameras } || {
@@ -89,10 +91,22 @@ const getPaginatedIncidentsService = async (
   );
 };
 
+const markWrongOrRight = async (id, mark) => {
+  const incident = await prisma.incidentLogs.update({
+    where: {
+      id: id,
+    },
+    data: {
+      wrongDetection: mark,
+    },
+  });
+  return true || false;
+};
+
 const getSpecificIncidentService = async (
   incidentType,
   startTime = "",
-  endTime = "",
+  endTime = ""
 ) => {
   const whereClause = {
     incidentType: incidentType,
@@ -117,4 +131,5 @@ export {
   getIncidentsService,
   getSpecificIncidentService,
   getPaginatedIncidentsService,
+  markWrongOrRight,
 };

@@ -5,6 +5,7 @@ import {
   getIncidentsService,
   getPaginatedIncidentsService,
   getSpecificIncidentService,
+  markWrongOrRight,
 } from "../services/incidents.service.js";
 
 const { Pool } = pg; // Use Pool for connection management
@@ -91,6 +92,30 @@ const garbageDetection = async (req, res) => {
 };
 
 // Get incidents
+
+const markIncidentsWrongOrRight = async (req, res) => {
+  try {
+    let { id, markWrong } = req.query;
+    console.log("id", id, "markWrong", markWrong);
+    id = parseInt(id);
+
+    if (!id) {
+      return res.status(400).send({ message: "Incident ID is required" });
+    } else if (markWrong === undefined) {
+      return res.status(400).send({ message: "Mark wrong is required" });
+    }
+
+    const result = await markWrongOrRight(id, markWrong === "true");
+    if (result) {
+      return res.status(200).send({ message: "Incident marked successfully" });
+    } else {
+      return res.status(400).send({ message: "Error in marking incident" });
+    }
+  } catch (error) {
+    console.error("Error marking incident:", error);
+    res.status(500).send({ message: "Error in marking incident" });
+  }
+};
 
 const paginatedIncidents = async (req, res) => {
   try {
@@ -224,4 +249,5 @@ export {
   getSpecificIncident,
   incidentNotificationSSE,
   paginatedIncidents,
+  markIncidentsWrongOrRight,
 };

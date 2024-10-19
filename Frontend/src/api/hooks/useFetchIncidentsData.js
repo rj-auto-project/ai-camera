@@ -4,6 +4,7 @@ import { BASE_URL } from "../url";
 import { config } from "../getConfig";
 import { useDispatch } from "react-redux";
 import { clearNotifications } from "../../features/notification/notification";
+import toast from "react-hot-toast";
 
 const useFetchIncidentsData = (
   initialPage = 0,
@@ -80,6 +81,32 @@ const useFetchIncidentsData = (
     setSort(sortOrder);
   };
 
+  const handleMarkWrongDetection = async (id, markWrong) => {
+    try {
+      console.log("markWrong", markWrong, id);
+      const response = await axios.put(
+        `${BASE_URL}/incidents/mark-incidents`,
+        {},
+        {
+          ...config(),
+          params: {
+            markWrong,
+            id,
+          },
+        }
+      );
+      await fetchIncidents();
+      toast.success(response?.data?.message || "Something went wrong", {
+        duration: 2000,
+        style: {
+          color: "black",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const updateFilters = (newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -105,6 +132,7 @@ const useFetchIncidentsData = (
     sort,
     cameras,
     filters,
+    handleMarkWrongDetection,
   };
 };
 

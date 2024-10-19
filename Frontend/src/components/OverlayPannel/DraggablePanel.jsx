@@ -136,7 +136,7 @@ const DraggablePanel = ({
         )}
         {isMaximized && (
           <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-            <Button variant="contained" onClick={onFooterButtonClick} fullWidth>
+            <Button variant="contained" color="white" onClick={onFooterButtonClick} fullWidth>
               {footerButtonLabel}
             </Button>
           </Box>
