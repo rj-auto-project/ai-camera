@@ -11,7 +11,7 @@ const AnimatedMapView = ({ center, zoom, children, data }) => {
       isInitialMount.current = false;
     } else if (center) {
       map.flyTo(center, zoom, {
-        duration: 2,
+        duration: 1,
         easeLinearity: 0.25,
       });
     }
