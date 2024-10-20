@@ -16,7 +16,7 @@ import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
 import CameraCard from "../../components/card/CameraCard";
 import { chipData } from "../../data/data";
-import { activeCam, inActiveCam } from "../../icons/icon";
+import { activeCam, compass, inActiveCam } from "../../icons/icon";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
 import CenterButton from "../../components/buttons/CenterButton";
 import AnimatedMapView from "../../components/AnimatedMapView";
@@ -31,7 +31,6 @@ const Map = () => {
   const { data, isLoading, error } = useSelector((state) => state.mapcamera);
 
   useEffect(() => {
-    
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
     if (storedCameraList) {
       setCameraList(JSON.parse(storedCameraList));
@@ -109,12 +108,12 @@ const Map = () => {
       : filteredCameras?.map((camera) => camera?.coordinates);
   }, [activeCategory, eventData, filteredCameras]);
 
-  const center = useMemo(
-    () => calculateCenter(coordinates) || [2, 7],
-    [coordinates]
-  );
+  const center = useMemo(() => {
+    if (coordinates?.length === 1) return coordinates[0];
+    else return calculateCenter(coordinates);
+  }, [coordinates]) || [26.9124, 75.7873];
 
-  console.log("Center", center);
+  console.log("Center", coordinates[0]);
 
   if (isLoading || !data.length) {
     return (
@@ -197,13 +196,13 @@ const Map = () => {
       )}
       <MapView
         center={[0, 0]}
-        zoom={2} 
+        zoom={3}
         activeCategory={activeCategory}
         heatmapData={eventData}
       >
-        <AnimatedMapView data={data} center={center} zoom={16}>
+        <AnimatedMapView data={data} center={center} zoom={13}>
           <CenterButton center={center} />
-          <Marker position={center} />
+          <Marker position={center} icon={compass}/>
           {filteredCameras.map((camera) => (
             <Marker
               key={camera.cameraId}
