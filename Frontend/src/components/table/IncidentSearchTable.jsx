@@ -201,6 +201,8 @@ const IncidentSearchTable = () => {
     );
   }
 
+  console.log("incidents",incidents)
+
   if (error) {
     return (
       <Typography

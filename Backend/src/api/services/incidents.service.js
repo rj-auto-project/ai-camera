@@ -1,4 +1,5 @@
 import prisma from "../../config/prismaClient.js";
+import { formatIncidentData } from "../../utils/helperFunctions.js";
 
 const detectGarbageService = async () => {
   const classes = ["garbage", "pothole"];
@@ -126,10 +127,41 @@ const getSpecificIncidentService = async (
   return incidents || [];
 };
 
+const getGraphIncidents = async (timeframe) => {
+  try {
+    const now = new Date();
+    let startDate;
+    if (timeframe === 'today') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (timeframe === 'weekly') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()); 
+    } else if (timeframe === 'monthly') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else {
+      throw new Error("Invalid timeframe specified.");
+    }
+    const incidents = await prisma.incidentLogs.findMany({
+      where: {
+        timestamp: {
+          gte: startDate,
+        },
+      },
+      include: {
+        camera: true,
+      },
+    });
+
+    return formatIncidentData(incidents);
+  } catch (error) {
+    throw new Error("Failed to fetch incidents from database: " + error.message);
+  }
+};
+
 export {
   detectGarbageService,
   getIncidentsService,
   getSpecificIncidentService,
   getPaginatedIncidentsService,
   markWrongOrRight,
+  getGraphIncidents
 };

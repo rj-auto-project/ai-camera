@@ -2,6 +2,7 @@ import pg from "pg"; // Import the default export from pg
 import { getDateRange } from "../../utils/helperFunctions.js";
 import {
   detectGarbageService,
+  getGraphIncidents,
   getIncidentsService,
   getPaginatedIncidentsService,
   getSpecificIncidentService,
@@ -240,6 +241,17 @@ const getSpecificIncident = async (req, res) => {
   }
 };
 
+const getDetectedVsSolved = async (req, res) => {
+  const { timeframe } = req.params;
+  try {
+    const formattedData = await getGraphIncidents(timeframe);
+    res.json(formattedData);
+  } catch (error) {
+    console.error("Error in getDetectedVsSolved controller:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Start listening for notifications immediately
 listenForNotifications();
 
@@ -250,4 +262,5 @@ export {
   incidentNotificationSSE,
   paginatedIncidents,
   markIncidentsWrongOrRight,
+  getDetectedVsSolved,
 };
