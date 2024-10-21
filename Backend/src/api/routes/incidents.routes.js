@@ -1,6 +1,7 @@
 import express from "express";
 import authMiddleware from "../../middleware/authMiddleware.js";
 import {
+  getDetectedVsSolved,
   getIncidents,
   getSpecificIncident,
   incidentNotificationSSE,
@@ -9,6 +10,9 @@ import {
 
 const router = express.Router();
 
+// Define the more specific routes first
+router.get("/detectedvssolved/:timeframe", authMiddleware, getDetectedVsSolved);
+router.get("/notifications/sse", incidentNotificationSSE);
 router.get("/:timeframe?", authMiddleware, getIncidents);
 router.get(
   "/specific/:incidentType/:timeframe?",
@@ -16,7 +20,7 @@ router.get(
   getSpecificIncident
 );
 router.put("/mark-incidents", authMiddleware, markIncidentsWrongOrRight);
-router.get("/notifications/sse", incidentNotificationSSE);
+
 // Get the status of map route
 router.get("/status", (req, res) => {
   res.json({ status: "ok" });

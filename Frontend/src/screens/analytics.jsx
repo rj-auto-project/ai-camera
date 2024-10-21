@@ -526,7 +526,7 @@ export default function Analytics() {
                 </Typography>
               </Box>
               <CameraIncidentBarChart
-                time={dateRange}
+                timeRange={dateRange}
                 incidentType={selectedIncidentType}
               />
             </CardContent>
