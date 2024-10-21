@@ -134,6 +134,8 @@ model Camera {
   illegalParkingCords   Json?
   redlightCrossingCords Json?
   wrongwayCords         Json?
+  illegalParkingTimer   Int?
+
   AnprLogs              AnprLogs[]
   CrowdCount            CrowdCount[]
   DetectionLog          DetectionLog[]
