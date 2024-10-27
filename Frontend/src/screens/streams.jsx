@@ -12,7 +12,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import { useVideo } from "../context/videoContext";
-import video1 from "/assets/videos/output1.mp4";
+import video1 from "../video/output1.mp4";
 import video2 from "/assets/videos/output2.mp4";
 import VideoStream from "../components/Videotest";
 
@@ -37,11 +37,12 @@ const Streams = React.memo(() => {
         id: 1,
         src: video1,
         status: "Active",
+        // "https://www.youtube.com/watch?v=fmwThvi4VKs"
       },
       {
         id: 2,
-        src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4",
-        status: "Inactive",
+        src: video1,
+        status: "Active",
       },
       {
         id: 3,
@@ -235,7 +236,7 @@ const Streams = React.memo(() => {
                     </Box>
                   </Box>
                   {/* Video Stream */}
-                  <video
+                  {/* <video
                     src={stream.src}
                     autoPlay
                     muted
@@ -243,7 +244,16 @@ const Streams = React.memo(() => {
                     width="100%"
                     height="100%"
                     style={{ objectFit: "cover" }}
-                  />
+                  /> */}
+                  <ReactPlayer 
+                    url={stream.src} 
+                    playing={stream.status === "Active"} 
+                    controls 
+                    loop 
+                    width="100%" 
+                    height="100%" 
+                    style={{ objectFit: "cover" }} 
+      />
                 </Box>
               </Card>
             </Grid>
