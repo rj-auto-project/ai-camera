@@ -181,9 +181,27 @@ const Streams = React.memo(() => {
                       </Typography>
                     </Box>
                   </Box>
-
+                  {/* Video Stream */}
+                  {/* <video
+                    src={stream.src}
+                    autoPlay
+                    muted
+                    loop
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  /> */}
+                  <ReactPlayer 
+                    url={stream.src} 
+                    playing={stream.status === "Active"} 
+                    controls 
+                    loop 
+                    width="100%" 
+                    height="100%" 
+                    style={{ objectFit: "cover" }}
+                  />
                   {/* Video Stream Container */}
-                  <Box
+                  {/* <Box
                     sx={{
                       position: "relative",
                       width: "100%",
@@ -197,7 +215,7 @@ const Streams = React.memo(() => {
                       height="100%"
                       style={{ borderRadius: "10px" }}
                     />
-                  </Box>
+                  </Box> */}
                 </Box>
               </Card>
             </Grid>
