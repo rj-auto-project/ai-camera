@@ -6,7 +6,9 @@ import dotenv from "dotenv";
 import routes from "./api/routes/index.js";
 import { errorHandler } from "./middleware/index.js";
 
-dotenv.config();
+const envFile = process.env.NODE_ENV === "prod" ? `.env.prod` : ".env.dev";
+dotenv.config({ path: envFile });
+console.log(`Environment: ${envFile}`);
 
 const app = express();
 const port = process.env.PORT || 4000;

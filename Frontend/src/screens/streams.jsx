@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { useFetchCameras } from "../api/hooks/useFetchCameras";
 import video1 from "/assets/videos/output1.mp4";
 import LazyVideo from "../components/video/LazyVideo";
+import ReactPlayer from "react-player";
 
 const Streams = React.memo(() => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -191,7 +192,7 @@ const Streams = React.memo(() => {
                     height="100%"
                     style={{ objectFit: "cover" }}
                   /> */}
-                  <ReactPlayer 
+                  <ReactPlayer
                     url={stream.src} 
                     playing={stream.status === "Active"} 
                     controls 
