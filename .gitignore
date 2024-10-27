@@ -17,6 +17,8 @@ dist/
 build/
 out/
 /data
+/Backend\bun.lockb
+/Frontend\bun.lockb
 
 # Temporary files and folders
 temp/
@@ -71,6 +73,3 @@ desktop.ini
 # Windows
 Thumbs.db
 ehthumbs.db
-
-#prisma migrations
-Backend/prisma/migrations/

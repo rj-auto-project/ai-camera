@@ -13,12 +13,15 @@ import {
   OutlinedInput,
   Box,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import toast from "react-hot-toast";
-import UserCard from "../card/UserCard";
+import { useSignup } from "../../api/hooks/useSignup";
 
 const UserSettings = () => {
+  const { mutate: signup, isPending, isError, error } = useSignup();
+
   const {
     register,
     handleSubmit,
@@ -31,15 +34,19 @@ const UserSettings = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = async (data) => {
-    try {
-      toast.success("User settings updated successfully!");
-    } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-          "An error occurred while updating the settings."
-      );
-    }
+  console.log(error?.response?.data);
+
+  const onSubmit = (data) => {
+    signup(data, {
+      onSuccess: () => {
+        toast.success("User created successfully");
+      },
+      onError: (err) => {
+        toast.error(
+          err?.response?.data?.error || "An error occurred while creating user"
+        );
+      },
+    });
   };
 
   return (
@@ -94,13 +101,13 @@ const UserSettings = () => {
             <TextField
               fullWidth
               label="Employee ID"
-              {...register("employee_Id", {
+              {...register("employeeId", {
                 required: "Employee ID is required",
               })}
               helperText={
-                errors.employee_Id ? (
+                errors.employeeId ? (
                   <span style={{ color: "red" }}>
-                    {errors.employee_Id.message}
+                    {errors.employeeId.message}
                   </span>
                 ) : (
                   ""
@@ -115,7 +122,7 @@ const UserSettings = () => {
               <Select
                 labelId="access_level_label"
                 label="Access Level"
-                {...register("access_level", {
+                {...register("accessLevel", {
                   required: "Access Level is required",
                 })}
                 defaultValue="VIEW"
@@ -125,17 +132,27 @@ const UserSettings = () => {
                 <MenuItem value="VIEW">View</MenuItem>
                 <MenuItem value="SERVER">Server</MenuItem>
               </Select>
-              {errors.access_level && (
+              {errors.accessLevel && (
                 <span style={{ color: "red" }}>
-                  {errors.access_level.message}
+                  {errors.accessLevel.message}
                 </span>
               )}
             </FormControl>
           </Grid>
 
           <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary">
-              Save Settings
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: "16px", color: "white", width: 150 }}
+              startIcon={
+                isPending ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : null
+              }
+            >
+              {isPending ? "creating..." : "Create"}
             </Button>
           </Grid>
         </Grid>

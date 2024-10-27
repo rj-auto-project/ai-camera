@@ -234,6 +234,32 @@ export default function Analytics() {
         paddingLeft: 2,
         paddingRight: 2,
         backgroundColor: theme.palette.background.default,
+        "&::-webkit-scrollbar": {
+          width: "6px",
+          height: "6px",
+          backgroundColor: "transparent",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#333",
+          borderRadius: "10px",
+          border: "1px solid #f9f9f9",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: "#222",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "transparent",
+          borderRadius: "10px",
+        },
+        "&::-webkit-scrollbar-track-piece": {
+          backgroundColor: "transparent",
+        },
+        "&::-webkit-scrollbar-corner": {
+          backgroundColor: "transparent",
+        },
+        "&::-webkit-resizer": {
+          backgroundColor: "transparent",
+        },
       }}
     >
       {/* Sticky Header */}
@@ -500,7 +526,7 @@ export default function Analytics() {
                 </Typography>
               </Box>
               <CameraIncidentBarChart
-                time={dateRange}
+                timeRange={dateRange}
                 incidentType={selectedIncidentType}
               />
             </CardContent>

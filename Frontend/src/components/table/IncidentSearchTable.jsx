@@ -14,14 +14,15 @@ import {
   Select,
   MenuItem,
   Button,
+  OutlinedInput,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
-import { RefreshRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
+import toast from "react-hot-toast";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -29,7 +30,6 @@ const IncidentSearchTable = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [statusMap, setStatusMap] = useState({});
 
-  // Use the custom hook to fetch incidents
   const {
     data: incidents,
     total,
@@ -40,13 +40,122 @@ const IncidentSearchTable = () => {
     handleChangePage,
     handleChangeRowsPerPage,
     refreshData,
+    refreshing,
+    incidentsTypes,
+    updateFilters,
+    updateSort,
+    sort,
+    cameras,
+    filters,
+    handleMarkWrongDetection,
   } = useFetchIncidentsData();
 
+  console.log(filters);
   const handleStatusChange = (e, id) => {
     setStatusMap((prev) => ({
       ...prev,
       [id]: e.target.value,
     }));
+  };
+
+  console.log(cameras, "cameras");
+  const FilterAndSort = () => {
+    const handleIncidentTypeChange = (event) => {
+      console.log("event.target.value", event.target.value);
+      updateFilters({ incidentType: event.target.value });
+    };
+    const handleCameraIdChange = (event) => {
+      updateFilters({ cameraId: event.target.value });
+    };
+
+    const handleStatusChange = (event) => {
+      updateFilters({ resolved: event.target.value });
+    };
+
+    const handleSortChange = () => {
+      const newSortOrder = sort === "asc" ? "desc" : "asc";
+      updateSort(newSortOrder);
+    };
+
+    return (
+      <Box display="flex" gap={1} alignItems="center" padding={1}>
+        {/* Incident Type Filter */}
+        <Select
+          value={filters?.incidentType || "Select Incident Type"}
+          onChange={handleIncidentTypeChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected?.length === 0 ? "Incident Type" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Types</em>
+          </MenuItem>
+          {incidentsTypes?.map((type) => (
+            <MenuItem key={type?.incidentType} value={type?.incidentType}>
+              {type?.incidentType}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Camera Filter */}
+        <Select
+          value={
+            cameras?.find((camera) => camera?.cameraId === filters?.cameraId)
+              ?.cameraName || "All Cameras"
+          }
+          onChange={handleCameraIdChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected?.length === 0 ? "Camera ID" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Cameras</em>
+          </MenuItem>
+          {cameras?.map((camera) => (
+            <MenuItem key={camera?.cameraId} value={camera?.cameraId}>
+              {camera?.cameraName}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Status Filter */}
+        <Select
+          value={
+            filters?.resolved === undefined || filters?.resolved === ""
+              ? "Select Status"
+              : filters?.resolved.toString()
+          }
+          onChange={handleStatusChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected === ""
+              ? "Select Status"
+              : selected === "true"
+                ? "Resolved"
+                : "Unresolved"
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>Select Status</em>
+          </MenuItem>
+          <MenuItem value="true">Resolved</MenuItem>
+          <MenuItem value="false">Unresolved</MenuItem>
+        </Select>
+
+        {/* Sort by Timestamp */}
+        <Button onClick={() => handleSortChange()} style={{ height: 40 }}>
+          Sort by Time ({sort === "asc" ? "Latest First" : "Oldest First"})
+        </Button>
+      </Box>
+    );
   };
 
   const handleOpen = (item) => {
@@ -68,7 +177,7 @@ const IncidentSearchTable = () => {
     { label: "Camera", key: "camera" },
     { label: "Incident", key: "classConfidence" },
     { label: "Alerts", key: "alerts" },
-    { label: "Action", key: "action" },
+    { label: "Status", key: "status" },
   ];
 
   const csvData = incidents?.map((item) => ({
@@ -91,6 +200,8 @@ const IncidentSearchTable = () => {
       </Box>
     );
   }
+
+  console.log("incidents", incidents);
 
   if (error) {
     return (
@@ -160,7 +271,8 @@ const IncidentSearchTable = () => {
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
               <BoldTableCell>Alerts</BoldTableCell>
-              <BoldTableCell>Action</BoldTableCell>
+              <BoldTableCell>Status</BoldTableCell>
+              <BoldTableCell>Actions</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
@@ -204,24 +316,55 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>{item?.alerts || 0}</TableCell>
                 <TableCell>
-                  {item?.incidentType === "PEEING" ||
-                  item?.incidentType === "SPITTING" ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => navigate(`/dashboard/trackagent`)}
-                    >
-                      Track
-                    </Button>
-                  ) : (
+                  <Select
+                    value={statusMap[item.id] || "unresolved"}
+                    onChange={(e) => handleStatusChange(e, item.id)}
+                  >
+                    <MenuItem value="resolved">Resolved</MenuItem>
+                    <MenuItem value="unresolved">Unresolved</MenuItem>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
                     <Select
-                      value={statusMap[item.id] || "unresolved"}
-                      onChange={(e) => handleStatusChange(e, item.id)}
+                      value=""
+                      displayEmpty
+                      sx={{ width: 200 }}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        if (value === "notify") {
+                          handleOpen(item);
+                        } else if (value === "viewCamera") {
+                          navigate(
+                            `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
+                          );
+                        } else if (value === "wrongDetection") {
+                          handleMarkWrongDetection(item?.id, true);
+                        } else if (value === "track") {
+                          navigate(`/dashboard/trackagent`);
+                        }
+                      }}
                     >
-                      <MenuItem value="resolved">Resolved</MenuItem>
-                      <MenuItem value="unresolved">Unresolved</MenuItem>
+                      <MenuItem value="" disabled>
+                        Select Action
+                      </MenuItem>
+                      <MenuItem value="notify">Notify Traffic Officer</MenuItem>
+                      <MenuItem value="viewCamera">View Camera</MenuItem>
+                      <MenuItem value="wrongDetection">
+                        Wrong detection
+                      </MenuItem>
+                      {(item?.incidentType === "PEEING" ||
+                        item?.incidentType === "SPITTING") && (
+                        <MenuItem value="track">Track Agent</MenuItem>
+                      )}
                     </Select>
-                  )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -249,12 +392,18 @@ const IncidentSearchTable = () => {
         <CSVButton data={csvData} headers={headers} filename="incidents.csv" />
         <Button
           variant="contained"
-          color="primary"
+          color="white"
           onClick={refreshData}
-          endIcon={<RefreshRounded />}
+          disabled={refreshing}
+          sx={{ width: 100 }}
         >
-          Refresh Data
+          {refreshing ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Refresh"
+          )}
         </Button>
+        <FilterAndSort />
         <TablePagination
           component="div"
           count={total}
@@ -279,7 +428,6 @@ const IncidentSearchTable = () => {
 
 export default IncidentSearchTable;
 
-// Styled Components
 const StickyTableHead = styled(TableHead)({
   position: "sticky",
   top: 0,

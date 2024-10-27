@@ -1,30 +1,34 @@
-import React, { useEffect, useState } from "react";
-import { Marker, Popup } from "react-leaflet";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import { Marker, Popup, useMap } from "react-leaflet";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Box, CircularProgress, Typography, Chip, Stack } from "@mui/material";
+import toast from "react-hot-toast";
 import MapView from "./mapview";
 import { useFetchCameras } from "../../api/hooks/useFetchCameras";
 import { calculateCenter } from "../../utils/calculateCenter";
 import DraggablePanel from "../../components/OverlayPannel/DraggablePanel";
 import CameraCard from "../../components/card/CameraCard";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 import { chipData } from "../../data/data";
-import { activeCam, inActiveCam } from "../../icons/icon";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { activeCam, compass, inActiveCam } from "../../icons/icon";
 import useFetchHeatmap from "../../api/hooks/live/useFetchHeatmap";
-import { useSelector } from "react-redux";
+import CenterButton from "../../components/buttons/CenterButton";
+import AnimatedMapView from "../../components/AnimatedMapView";
 
 const Map = () => {
   const [cameraList, setCameraList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All Cameras");
   const { eventData } = useFetchHeatmap(activeCategory);
-  const [camStatus, setCamStatus] = useState("INACTIVE");
   const navigate = useNavigate();
 
   const { isError } = useFetchCameras();
   const { data, isLoading, error } = useSelector((state) => state.mapcamera);
-  console.log("DATA", data, isLoading, error);
 
   useEffect(() => {
     const storedCameraList = sessionStorage.getItem("selectedCameraList");
@@ -33,53 +37,33 @@ const Map = () => {
     }
   }, []);
 
-  if (isLoading || !data.length) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-          backgroundColor:'transparent'
-        }}
-      >
-        <CircularProgress color="white" />
-      </div>
-    );
-  }
+  const handleMarkerClick = useCallback(
+    (camera) => {
+      if (!cameraList.find((item) => item.cameraId === camera.cameraId)) {
+        setCameraList((prevList) => [...prevList, camera]);
+        toast.success(`CAM-${camera.cameraId} successfully added`, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+            marginLeft: "4%",
+          },
+        });
+      } else {
+        toast.error(`CAM-${camera.cameraId} Already added`, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+            marginLeft: "4%",
+          },
+        });
+      }
+    },
+    [cameraList]
+  );
 
-  if (isError) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  const center = calculateCenter(data);
-
-  const handleMarkerClick = (camera) => {
-    if (!cameraList.find((item) => item.cameraId === camera.cameraId)) {
-      setCameraList((prevList) => [...prevList, camera]);
-      toast.success(`CAM-${camera.cameraId} successfully added`, {
-        style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-          marginLeft: "4%",
-        },
-      });
-    } else {
-      toast.error(`CAM-${camera.cameraId} Already added`, {
-        style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-          marginLeft: "4%",
-        },
-      });
-    }
-  };
-
-  const handleRemoveCamera = (cameraId) => {
+  const handleRemoveCamera = useCallback((cameraId) => {
     setCameraList((prevList) =>
       prevList.filter((camera) => camera.cameraId !== cameraId)
     );
@@ -92,34 +76,67 @@ const Map = () => {
         marginLeft: "4%",
       },
     });
-  };
+  }, []);
 
-  const onFooterButtonClick = () => {
+  const onFooterButtonClick = useCallback(() => {
     sessionStorage.setItem("selectedCameraList", JSON.stringify(cameraList));
     navigate("/dashboard/map/create-operations", {
       state: { cameras: cameraList },
     });
-  };
+  }, [cameraList, navigate]);
 
-  const handleChipClick = (label) => {
+  const handleChipClick = useCallback((label) => {
     setActiveCategory(label);
-  };
+  }, []);
 
-  const filteredCameras = data.filter((camera) => {
-    if (activeCategory === "All Cameras") return true;
-    if (activeCategory === "Inactive Cameras")
-      return camera.status === "INACTIVE";
-    if (activeCategory === "Active Cameras") return camera.status === "ACTIVE";
-    if (activeCategory === "Crowd") return camera.cameraType === "Crowd";
-    if (activeCategory === "Traffic") return camera.cameraType === "Traffic";
-    return false;
-  });
+  const filteredCameras = useMemo(() => {
+    return data.filter((camera) => {
+      if (activeCategory === "All Cameras") return true;
+      if (activeCategory === "Inactive Cameras")
+        return camera.status === "INACTIVE";
+      if (activeCategory === "Active Cameras")
+        return camera.status === "ACTIVE";
+      if (activeCategory === "Crowd") return camera.cameraType === "Crowd";
+      if (activeCategory === "Traffic") return camera.cameraType === "Traffic";
+      return false;
+    });
+  }, [data, activeCategory]);
 
-  console.log(data);
-  console.log(eventData, "eventData");
+  const coordinates = useMemo(() => {
+    return activeCategory === "Crowd" || activeCategory === "Traffic"
+      ? eventData
+      : filteredCameras?.map((camera) => camera?.coordinates);
+  }, [activeCategory, eventData, filteredCameras]);
 
+  const center = useMemo(() => {
+    if (coordinates?.length === 1) return coordinates[0];
+    else return calculateCenter(coordinates);
+  }, [coordinates]) || [26.9124, 75.7873];
+
+  console.log("Center", coordinates[0]);
+
+  if (isLoading || !data.length) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+          backgroundColor: "transparent",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return <Box>Error: {error.message}</Box>;
+  }
   return (
-    <Box style={{ height: "100vh", width: "100%",}}>
+    <Box sx={{ height: "100vh", width: "100%" }}>
       <Stack
         direction="row"
         spacing={2}
@@ -178,51 +195,60 @@ const Map = () => {
         </DraggablePanel>
       )}
       <MapView
-        center={center}
+        center={[0, 0]}
+        zoom={3}
         activeCategory={activeCategory}
-        camStatus={camStatus}
-        DEFAULT_ZOOM={16}
         heatmapData={eventData}
       >
-        {filteredCameras.map((camera) => (
-          <Marker
-            key={camera.cameraId}
-            position={camera.coordinates}
-            icon={camera.status === "ACTIVE" ? activeCam : inActiveCam}
-            eventHandlers={{
-              click: () => handleMarkerClick(camera),
-            }}
-          >
-            <Popup>
-              <div className="flex flex-col">
-                <strong>{camera.cameraName}</strong>
-                <span>
-                  <b>Camera Id:</b> {camera.cameraId}
-                </span>
-                <span>
-                  <b>Location:</b> {camera.location}
-                </span>
-                <span>
-                  <b>Status:</b> {camera.status}
-                </span>
-                <span>
-                  <b>Installed:</b>{" "}
-                  {new Date(camera.installed).toLocaleDateString()}
-                </span>
-                <span>
-                  <b>Last Online:</b>{" "}
-                  {new Date(camera.lastOnline).toLocaleDateString()}
-                </span>
-                <span>
-                  <b>Type:</b> {camera.cameraType}
-                </span>
-                <span>
-                  <b>Connection:</b> {camera.connectionType}
-                </span>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        <AnimatedMapView data={data} center={center} zoom={13}>
+          <CenterButton center={center} />
+          <Marker position={center} icon={compass}/>
+          {filteredCameras.map((camera) => (
+            <Marker
+              key={camera.cameraId}
+              position={camera.coordinates}
+              icon={camera.status === "ACTIVE" ? activeCam : inActiveCam}
+              eventHandlers={{
+                click: (e) => {
+                  e.target._map.setView(
+                    e.target.getLatLng(),
+                    e.target._map.getZoom()
+                  );
+                  handleMarkerClick(camera);
+                },
+              }}
+            >
+              <Popup>
+                <div className="flex flex-col">
+                  <strong>{camera.cameraName}</strong>
+                  <span>
+                    <b>Camera Id:</b> {camera.cameraId}
+                  </span>
+                  <span>
+                    <b>Location:</b> {camera.location}
+                  </span>
+                  <span>
+                    <b>Status:</b> {camera.status}
+                  </span>
+                  <span>
+                    <b>Installed:</b>{" "}
+                    {new Date(camera.installed).toLocaleDateString()}
+                  </span>
+                  <span>
+                    <b>Last Online:</b>{" "}
+                    {new Date(camera.lastOnline).toLocaleDateString()}
+                  </span>
+                  <span>
+                    <b>Type:</b> {camera.cameraType}
+                  </span>
+                  <span>
+                    <b>Connection:</b> {camera.connectionType}
+                  </span>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </AnimatedMapView>
       </MapView>
     </Box>
   );

@@ -14,7 +14,6 @@ const cameraSlice = createSlice({
     fetchCamerasSuccess(state, action) {
       state.isLoading = false;
       state.data = action.payload;
-      console.log("camera slice", action.payload);
       state.error = null;
     },
     fetchCamerasFailure(state, action) {

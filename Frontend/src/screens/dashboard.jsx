@@ -14,7 +14,9 @@ const Operations = lazy(() => import("./operations"));
 const ModelWindow = lazy(() => import("../window/operationData"));
 const Incidents = lazy(() => import("./incidents"));
 const TrackAgent = lazy(() => import("./trackAgent"));
-const StreamsConditionalRender = lazy(() => import("../components/conditionalrender/streampage"));
+const StreamsConditionalRender = lazy(
+  () => import("../components/conditionalrender/streampage"),
+);
 
 const Dashboard = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -40,7 +42,7 @@ const Dashboard = () => {
     };
 
     checkTokenExpiration();
-    const intervalId = setInterval(checkTokenExpiration, 60000); // Check every minute
+    const intervalId = setInterval(checkTokenExpiration, 60000);
 
     return () => clearInterval(intervalId);
   }, [dispatch, navigate]);
@@ -50,7 +52,12 @@ const Dashboard = () => {
     try {
       const base64Url = token.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(atob(base64).split("").map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join(""));
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(""),
+      );
       const payload = JSON.parse(jsonPayload);
       return Math.floor(Date.now() / 1000) > payload.exp;
     } catch (error) {
@@ -62,11 +69,14 @@ const Dashboard = () => {
     <div style={{ display: "flex" }}>
       <CustomDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <div style={{ flexGrow: 1 }}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div></div>}>
           <Routes>
             <Route path="model" element={<ModelWindow />} />
             <Route path="map" element={<Map />} />
-            <Route path="map/create-operations" element={<CreateOperations />} />
+            <Route
+              path="map/create-operations"
+              element={<CreateOperations />}
+            />
             <Route path="operations" element={<Operations />} />
             <Route path="streams" element={<StreamsConditionalRender />} />
             <Route path="analytics" element={<Analytics />} />

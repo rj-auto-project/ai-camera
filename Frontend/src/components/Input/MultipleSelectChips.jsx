@@ -10,10 +10,10 @@ export default function MultipleSelectChips({
     setSelectedChips((prevSelected) =>
       prevSelected.includes(chipValue)
         ? prevSelected.filter((value) => value !== chipValue)
-        : [...prevSelected, chipValue]
+        : [...prevSelected, chipValue],
     );
   };
-  console.log("selected",selectedChips)
+  console.log("selected", selectedChips);
   return (
     <Box>
       {chipsData.map((chipData, index) => (

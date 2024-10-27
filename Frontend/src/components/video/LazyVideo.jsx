@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CircularProgress } from "@mui/material";
 
-const LazyImage = ({ src, alt, width, height, ...props }) => {
+const LazyVideo = ({ src, width, height, ...props }) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const imgRef = useRef();
+  const videoRef = useRef();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -20,13 +20,13 @@ const LazyImage = ({ src, alt, width, height, ...props }) => {
       },
     );
 
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
     }
 
     return () => {
-      if (imgRef.current) {
-        observer.unobserve(imgRef.current);
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
       }
     };
   }, []);
@@ -36,15 +36,13 @@ const LazyImage = ({ src, alt, width, height, ...props }) => {
   };
 
   const handleError = (e) => {
-    e.target.src = "/assets/no_image.jpg";
-    e.target.alt = "No Image Available";
-    console.log("Image Loading error");
+    console.log("Video loading error");
     setIsLoaded(true);
   };
 
   return (
     <div
-      ref={imgRef}
+      ref={videoRef}
       style={{
         position: "relative",
         width: width,
@@ -52,33 +50,37 @@ const LazyImage = ({ src, alt, width, height, ...props }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        ...props.style,
       }}
     >
+      {/* Show loading indicator until the video is loaded */}
       {!isLoaded && (
         <CircularProgress
           style={{
-            width: 22,
-            height: 22,
+            position: "absolute",
+            zIndex: 1,
           }}
         />
       )}
+
+      {/* Only load the video when it's in view */}
       {isIntersecting && (
-        <img
+        <iframe
           src={src}
-          alt={alt}
+          width={width}
+          height={height}
           onLoad={handleLoad}
           onError={handleError}
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
             display: isLoaded ? "block" : "none",
+            border: "none",
             ...props.style,
           }}
+          title="Lazy loaded video"
         />
       )}
     </div>
   );
 };
 
-export default LazyImage;
+export default LazyVideo;

@@ -90,10 +90,12 @@ model IncidentLogs {
   userResolvedAt  DateTime?
   resolved        Boolean      @default(false)
   resolvedAt      DateTime?    @default(now())
-  alerts          Int?
   metaCoords      Float[]
   thumbnail       String?      @db.VarChar(30)
-  camera          Camera       @relation(fields: [cameraId], references: [cameraId])
+  alerts          Int?
+  wrongDetection  Boolean      @default(false)
+
+  camera Camera @relation(fields: [cameraId], references: [cameraId])
 }
 
 model DetectionTable {
@@ -132,6 +134,8 @@ model Camera {
   illegalParkingCords   Json?
   redlightCrossingCords Json?
   wrongwayCords         Json?
+  illegalParkingTimer   Int?
+
   AnprLogs              AnprLogs[]
   CrowdCount            CrowdCount[]
   DetectionLog          DetectionLog[]

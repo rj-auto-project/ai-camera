@@ -5,7 +5,6 @@ import { useDispatch } from "react-redux";
 const token = localStorage.getItem("token");
 
 const useFetchHeatmap = (type) => {
-  console.log(type, "type");
   const [eventData, setEventData] = useState({ results: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -32,25 +31,24 @@ const useFetchHeatmap = (type) => {
 
       eventSource.onmessage = (e) => {
         let data = JSON.parse(e.data);
-        console.log(data, "data");
         if (opType === "Crowd") {
-          data = data.map((item) => {
+          data = data?.map((item) => {
             return [
-              item.camera.coordinates[0],
-              item.camera.coordinates[1],
-              item.count,
+              item?.camera?.coordinates[0],
+              item?.camera?.coordinates[1],
+              item?.count,
             ];
           });
         } else {
-          data = data.map((item) => {
+          data = data?.map((item) => {
             return [
-              item.camera.coordinates[0],
-              item.camera.coordinates[1],
-              item.vehicleCount,
+              item?.camera?.coordinates[0],
+              item?.camera?.coordinates[1],
+              item?.vehicleCount,
             ];
           });
         }
-        setEventData(data);
+        setEventData(data || []);
         setIsLoading(false);
       };
 
@@ -60,7 +58,7 @@ const useFetchHeatmap = (type) => {
           const retryDelay = Math.pow(2, retryCountRef.current) * 1000; // Exponential backoff
           retryCountRef.current += 1;
           console.warn(
-            `Retrying connection in ${retryDelay / 1000} seconds...`
+            `Retrying connection in ${retryDelay / 1000} seconds...`,
           );
           setTimeout(() => {
             getLiveData();

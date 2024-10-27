@@ -1,4 +1,4 @@
-import postgres from 'postgres';
+import postgres from "postgres";
 
 const sql = postgres(process.env.DATABASE_URL);
 
@@ -11,9 +11,9 @@ const notifyClients = (data) => {
 };
 
 const listenForNewIncidents = async () => {
-  await sql.listen('new_incident', (payload) => {
+  await sql.listen("new_incident", (payload) => {
     const data = JSON.parse(payload);
-    console.log('New incident detected:', data);
+    console.log("New incident detected:", data);
     // Notify all connected SSE clients
     notifyClients(data);
   });
@@ -21,11 +21,10 @@ const listenForNewIncidents = async () => {
 
 listenForNewIncidents();
 
-
 export const addSSEClient = (res) => {
   clients.push(res);
 
-  res.on('close', () => {
+  res.on("close", () => {
     clients.splice(clients.indexOf(res), 1);
   });
 };

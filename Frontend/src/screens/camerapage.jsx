@@ -24,9 +24,9 @@ const CameraPage = ({ camId }) => {
     };
 
     updateHeight();
-    window.addEventListener('resize', updateHeight);
+    window.addEventListener("resize", updateHeight);
 
-    return () => window.removeEventListener('resize', updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
   return (
@@ -46,14 +46,22 @@ const CameraPage = ({ camId }) => {
           Camera ID: {camId}
         </Typography>
       </Box>
-      <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', margin:3}}>
+      <Card
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          margin: 3,
+        }}
+      >
         <Box
           sx={{
             flex: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            overflow: 'hidden',
+            overflow: "hidden",
           }}
         >
           {/* <video

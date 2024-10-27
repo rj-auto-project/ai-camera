@@ -55,8 +55,8 @@ const CreateOperations = () => {
     const newCameras = selectedCameras.filter(
       (camera) =>
         !cameraList.some(
-          (existingCamera) => existingCamera.cameraId === camera.cameraId
-        )
+          (existingCamera) => existingCamera.cameraId === camera.cameraId,
+        ),
     );
 
     if (newCameras.length === 0) {
@@ -75,7 +75,7 @@ const CreateOperations = () => {
     setCameraList(updatedCameraList);
     sessionStorage.setItem(
       "selectedCameraList",
-      JSON.stringify(updatedCameraList)
+      JSON.stringify(updatedCameraList),
     );
     toast.success("Cameras successfully added!", {
       style: {
@@ -104,13 +104,13 @@ const CreateOperations = () => {
 
   const handleRemoveCamera = (cameraId) => {
     setCameraList((prevList) =>
-      prevList.filter((camera) => camera.cameraId !== cameraId)
+      prevList.filter((camera) => camera.cameraId !== cameraId),
     );
     sessionStorage.setItem(
       "selectedCameraList",
       JSON.stringify(
-        cameraList.filter((camera) => camera.cameraId !== cameraId)
-      )
+        cameraList.filter((camera) => camera.cameraId !== cameraId),
+      ),
     );
     toast.success(`CAM-${cameraId} successfully removed`, {
       style: {
