@@ -20,9 +20,11 @@ app.use("/api/v1", routes);
 app.use(errorHandler);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the API");
+  res.status(200).json({ message: "Welcome to the Express API" });
 });
 
 app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+export default app;
