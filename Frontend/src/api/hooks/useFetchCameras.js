@@ -22,7 +22,7 @@ export const useFetchCameras = () => {
         return response.data;
       } catch (error) {
         dispatch(
-          fetchCamerasFailure(error.response?.data?.message || error.message)
+          fetchCamerasFailure(error.response?.data?.message || error.message),
         );
         throw error;
       }

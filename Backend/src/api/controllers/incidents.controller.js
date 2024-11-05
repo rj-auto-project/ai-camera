@@ -2,8 +2,11 @@ import pg from "pg"; // Import the default export from pg
 import { getDateRange } from "../../utils/helperFunctions.js";
 import {
   detectGarbageService,
+  getGraphIncidents,
   getIncidentsService,
+  getPaginatedIncidentsService,
   getSpecificIncidentService,
+  markWrongOrRight,
 } from "../services/incidents.service.js";
 
 const { Pool } = pg; // Use Pool for connection management
@@ -90,6 +93,100 @@ const garbageDetection = async (req, res) => {
 };
 
 // Get incidents
+
+const markIncidentsWrongOrRight = async (req, res) => {
+  try {
+    let { id, markWrong } = req.query;
+    console.log("id", id, "markWrong", markWrong);
+    id = parseInt(id);
+
+    if (!id) {
+      return res.status(400).send({ message: "Incident ID is required" });
+    } else if (markWrong === undefined) {
+      return res.status(400).send({ message: "Mark wrong is required" });
+    }
+
+    const result = await markWrongOrRight(id, markWrong === "true");
+    if (result) {
+      return res.status(200).send({ message: "Incident marked successfully" });
+    } else {
+      return res.status(400).send({ message: "Error in marking incident" });
+    }
+  } catch (error) {
+    console.error("Error marking incident:", error);
+    res.status(500).send({ message: "Error in marking incident" });
+  }
+};
+
+const paginatedIncidents = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "timestamp",
+      sortOrder = "desc",
+      incidentType,
+      cameraId,
+      modelResolved,
+      userResolved,
+      resolved,
+      startDate,
+      endDate,
+      alerts,
+    } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Filter conditions
+    console.log("incidentType", resolved);
+    const filters = {};
+    if (incidentType) filters.incidentType = incidentType;
+    if (cameraId) filters.cameraId = cameraId;
+    if (modelResolved !== undefined)
+      filters.modelResolved = modelResolved === "true";
+    if (userResolved !== undefined)
+      filters.userResolved = userResolved === "true";
+    if (resolved !== undefined) filters.resolved = resolved === "true";
+    if (alerts) filters.alerts = parseInt(alerts);
+    if (resolved === "" || resolved === undefined) delete filters.resolved;
+
+    console.log("filters", filters);
+    // Time range filter (startDate and endDate)
+    if (startDate || endDate) {
+      filters.timestamp = {};
+      if (startDate) filters.timestamp.gte = new Date(startDate);
+      if (endDate) filters.timestamp.lte = new Date(endDate);
+    }
+
+    // Sorting condition
+    const sortCondition = {};
+    sortCondition[sortBy] = sortOrder === "asc" ? "asc" : "desc";
+
+    const { incidents, totalIncidents, incidentsTypes, cameras } =
+      await getPaginatedIncidentsService(
+        offset,
+        limitNumber,
+        filters, // Pass the filters
+        sortCondition // Pass the sorting condition
+      );
+
+    res.status(200).send({
+      message: "Incidents found",
+      data: incidents,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalIncidents / limitNumber),
+      totalIncidents,
+      incidentsTypes,
+      cameras,
+    });
+  } catch (error) {
+    console.error("Error getting incidents:", error);
+    res.status(500).send({ message: "Error in getting incidents" });
+  }
+};
+
 const getIncidents = async (req, res) => {
   try {
     const { timeframe } = req.params;
@@ -144,6 +241,17 @@ const getSpecificIncident = async (req, res) => {
   }
 };
 
+const getDetectedVsSolved = async (req, res) => {
+  const { timeframe } = req.params;
+  try {
+    const formattedData = await getGraphIncidents(timeframe);
+    res.json(formattedData);
+  } catch (error) {
+    console.error("Error in getDetectedVsSolved controller:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Start listening for notifications immediately
 listenForNotifications();
 
@@ -152,4 +260,7 @@ export {
   getIncidents,
   getSpecificIncident,
   incidentNotificationSSE,
+  paginatedIncidents,
+  markIncidentsWrongOrRight,
+  getDetectedVsSolved,
 };

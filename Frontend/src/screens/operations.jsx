@@ -27,11 +27,11 @@ const Operations = () => {
     {
       type,
       opTypes,
-    }
+    },
   );
 
   useEffect(() => {
-     refetch();
+    refetch();
   }, [opTypes, type]);
 
   if (isLoading) {
@@ -43,7 +43,7 @@ const Operations = () => {
           alignItems: "center",
           height: "100vh",
           width: "100%",
-          backgroundColor:'transparent'
+          backgroundColor: "transparent",
         }}
       >
         <CircularProgress color="inherit" />
@@ -61,7 +61,7 @@ const Operations = () => {
     <div
       style={{
         height: "100vh",
-        width: "100vw",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",

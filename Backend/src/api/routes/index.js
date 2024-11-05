@@ -5,11 +5,14 @@ import mapRoutes from "./map.routes.js";
 import operationsRoutes from "./operations.route.js";
 import incidentsRoutes from "./incidents.routes.js";
 import adminRoutes from "./admin.routes.js";
-import settingRoutes from "./settings.routes.js"
+import settingRoutes from "./settings.routes.js";
 
 import authMiddleware from "../../middleware/authMiddleware.js";
 import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
-import { garbageDetection } from "../controllers/incidents.controller.js";
+import {
+  garbageDetection,
+  paginatedIncidents,
+} from "../controllers/incidents.controller.js";
 import { getEventNotifications } from "../controllers/events.controller.js";
 
 const router = express.Router();
@@ -18,6 +21,8 @@ router.use("/auth", authRoutes);
 router.use("/map", mapRoutes);
 router.use("/operations", operationsRoutes);
 router.use("/incidents", incidentsRoutes);
+router.get("/incidentspaginated", authMiddleware, paginatedIncidents);
+
 router.use("/admin", adminRoutes);
 router.use("/settings", settingRoutes);
 

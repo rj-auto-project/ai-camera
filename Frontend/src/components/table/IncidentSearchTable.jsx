@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,27 +14,43 @@ import {
   Select,
   MenuItem,
   Button,
+  OutlinedInput,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
 import CSVButton from "../buttons/CSVButton";
-import { useGabageSearch } from "../../api/hooks/useIncidentSearch";
 import { useNavigate } from "react-router-dom";
-import { RefreshRounded } from "@mui/icons-material";
-import { useSelector } from "react-redux";
+import LazyImage from "../image/LazyloadImage";
+import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
+import toast from "react-hot-toast";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [index, setIndex] = useState(null);
-  const [incidentType, setIncidentType] = useState("");
-
-  // Track status for each item by its id
   const [statusMap, setStatusMap] = useState({});
 
+  const {
+    data: incidents,
+    total,
+    isLoading,
+    error,
+    page,
+    rowsPerPage,
+    handleChangePage,
+    handleChangeRowsPerPage,
+    refreshData,
+    refreshing,
+    incidentsTypes,
+    updateFilters,
+    updateSort,
+    sort,
+    cameras,
+    filters,
+    handleMarkWrongDetection,
+  } = useFetchIncidentsData();
+
+  console.log(filters);
   const handleStatusChange = (e, id) => {
     setStatusMap((prev) => ({
       ...prev,
@@ -42,56 +58,152 @@ const IncidentSearchTable = () => {
     }));
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  console.log(cameras, "cameras");
+  const FilterAndSort = () => {
+    const handleIncidentTypeChange = (event) => {
+      console.log("event.target.value", event.target.value);
+      updateFilters({ incidentType: event.target.value });
+    };
+    const handleCameraIdChange = (event) => {
+      updateFilters({ cameraId: event.target.value });
+    };
 
-  const { isLoading, data, error } = useSelector(
-    (state) => state.incidentSearch
-  );
+    const handleStatusChange = (event) => {
+      updateFilters({ resolved: event.target.value });
+    };
 
-  let { mutate, isError } = useGabageSearch();
+    const handleSortChange = () => {
+      const newSortOrder = sort === "asc" ? "desc" : "asc";
+      updateSort(newSortOrder);
+    };
 
-  useEffect(() => {
-    if (!data?.data.length) mutate();
-  }, [mutate]);
-
- 
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleOpen = (item, index) => {
-    setSelectedItem(item);
-    setIndex(index);
-    setIncidentType(item?.detectionClass || item?.incidentType);
-    setOpen(true);
-  };
-
-  const handleRefresh = () => {
-    mutate();
-  };
-
-  if (isLoading && !data?.data.length) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "96vh",
-          width: "100%",
-          backgroundColor:'transparent'
-        }}
+      <Box display="flex" gap={1} alignItems="center" padding={1}>
+        {/* Incident Type Filter */}
+        <Select
+          value={filters?.incidentType || "Select Incident Type"}
+          onChange={handleIncidentTypeChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected?.length === 0 ? "Incident Type" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Types</em>
+          </MenuItem>
+          {incidentsTypes?.map((type) => (
+            <MenuItem key={type?.incidentType} value={type?.incidentType}>
+              {type?.incidentType}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Camera Filter */}
+        <Select
+          value={
+            cameras?.find((camera) => camera?.cameraId === filters?.cameraId)
+              ?.cameraName || "All Cameras"
+          }
+          onChange={handleCameraIdChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected?.length === 0 ? "Camera ID" : selected
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>All Cameras</em>
+          </MenuItem>
+          {cameras?.map((camera) => (
+            <MenuItem key={camera?.cameraId} value={camera?.cameraId}>
+              {camera?.cameraName}
+            </MenuItem>
+          ))}
+        </Select>
+
+        {/* Status Filter */}
+        <Select
+          value={
+            filters?.resolved === undefined || filters?.resolved === ""
+              ? "Select Status"
+              : filters?.resolved.toString()
+          }
+          onChange={handleStatusChange}
+          displayEmpty
+          input={<OutlinedInput />}
+          renderValue={(selected) =>
+            selected === ""
+              ? "Select Status"
+              : selected === "true"
+                ? "Resolved"
+                : "Unresolved"
+          }
+          style={{ width: 150, height: 40 }}
+        >
+          <MenuItem value="">
+            <em>Select Status</em>
+          </MenuItem>
+          <MenuItem value="true">Resolved</MenuItem>
+          <MenuItem value="false">Unresolved</MenuItem>
+        </Select>
+
+        {/* Sort by Timestamp */}
+        <Button onClick={() => handleSortChange()} style={{ height: 40 }}>
+          Sort by Time ({sort === "asc" ? "Latest First" : "Oldest First"})
+        </Button>
+      </Box>
+    );
+  };
+
+  const handleOpen = (item) => {
+    const imageUrl = `http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`;
+    const img = new Image();
+    img.onload = () => {
+      setSelectedItem(item);
+      setOpen(true);
+    };
+    img.onerror = () => {
+      console.log("Image not found or invalid. Modal will not open.");
+    };
+    img.src = imageUrl;
+  };
+
+  const headers = [
+    { label: "Thumbnail", key: "thumbnail" },
+    { label: "Time Stamp", key: "timestamp" },
+    { label: "Camera", key: "camera" },
+    { label: "Incident", key: "classConfidence" },
+    { label: "Alerts", key: "alerts" },
+    { label: "Status", key: "status" },
+  ];
+
+  const csvData = incidents?.map((item) => ({
+    thumbnail: `http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`,
+    timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
+    camera_ip: item?.camera_ip || item?.camera?.cameraIp,
+    detectionClass: item?.detectionClass,
+    classConfidence: item?.classConfidence?.toFixed(2),
+  }));
+
+  if (isLoading && !incidents.length) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="96vh"
       >
         <CircularProgress color="inherit" />
-      </div>
+      </Box>
     );
   }
 
-  if (isError) {
+  console.log("incidents",incidents)
+
+  if (error) {
     return (
       <Typography
         sx={{
@@ -109,21 +221,6 @@ const IncidentSearchTable = () => {
       </Typography>
     );
   }
-
-  const headers = [
-    { label: "Thumbnail", key: "thumbnail" },
-    { label: "Time Stamp", key: "timestamp" },
-    { label: "Camera IP", key: "camera_ip" },
-    { label: "Confidence", key: "classConfidence" },
-  ];
-
-  const csvData = data?.data?.map((item, index) => ({
-    thumbnail: `/assets/garbage/garbage${index + 1}.png`,
-    timestamp: new Date(item?.timestamp || item?.time_stamp).toLocaleString(),
-    camera_ip: item?.camera_ip || item?.camera?.cameraIp,
-    detectionClass: item?.detectionClass,
-    classConfidence: item?.classConfidence?.toFixed(2),
-  }));
 
   return (
     <Paper
@@ -168,171 +265,186 @@ const IncidentSearchTable = () => {
         <Table>
           <StickyTableHead>
             <TableRow>
+              <BoldTableCell>S.No.</BoldTableCell>
               <BoldTableCell>Thumbnail</BoldTableCell>
               <BoldTableCell>Time Stamp</BoldTableCell>
               <BoldTableCell>Camera</BoldTableCell>
               <BoldTableCell>Incident</BoldTableCell>
               <BoldTableCell>Alerts</BoldTableCell>
-              <BoldTableCell>Action</BoldTableCell>
+              <BoldTableCell>Status</BoldTableCell>
+              <BoldTableCell>Actions</BoldTableCell>
             </TableRow>
           </StickyTableHead>
           <TableBody>
-            {data?.data
-              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell
-                    onClick={() => handleOpen(item, index)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <img
-                      src={`http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`}
-                      alt={item.licenseNumber || "No License Number"}
-                      style={{ width: 100, height: 60, objectFit: "cover" }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(
-                      item?.timestamp || item?.time_stamp
-                    ).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <strong>Camera ID:</strong> {item?.camera?.cameraId}
-                    </div>
-                    <div>
-                      <strong>Camera Name:</strong> {item?.camera?.cameraName}
-                    </div>
-                    <div>
-                      <strong>Location:</strong> {item?.camera?.location}
-                    </div>
-                    <div>
-                      <strong>Type:</strong> {item?.camera?.cameraType}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {item?.detectionClass || item?.incidentType}
-                  </TableCell>
-                  <TableCell>{item?.alerts || 0}</TableCell>
-                  <TableCell>
-                    {item?.incidentType === "PEEING" ||
-                    item?.incidentType === "SPITTING" ? (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => navigate(`/dashboard/trackagent`)}
-                      >
-                        Track
-                      </Button>
-                    ) : (
-                      <Select
-                        value={statusMap[item.id] || "unresolved"}
-                        onChange={(e) => handleStatusChange(e, item.id)}
-                        sx={{ color: "white" }}
-                        MenuProps={{
-                          sx: {
-                            color: "white",
-                          },
-                        }}
-                      >
-                        <MenuItem value="resolved">Resolved</MenuItem>
-                        <MenuItem value="unresolved">Unresolved</MenuItem>
-                      </Select>
-                    )}
-                  </TableCell>
-                  {item?.license_number && (
-                    <TableCell>{item?.license_number || "N/A"}</TableCell>
+            {incidents.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  {incidents.indexOf(item) + 1 + page * rowsPerPage}
+                </TableCell>
+                <TableCell
+                  onClick={() => handleOpen(item)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <LazyImage
+                    src={`http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`}
+                    alt={item.licenseNumber || "No License Number"}
+                    width={100}
+                    height={60}
+                  />
+                </TableCell>
+                <TableCell>
+                  {new Date(
+                    item?.timestamp || item?.time_stamp
+                  ).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <strong>Camera ID:</strong> {item?.camera?.cameraId}
+                  </div>
+                  <div>
+                    <strong>Camera Name:</strong> {item?.camera?.cameraName}
+                  </div>
+                  <div>
+                    <strong>Location:</strong> {item?.camera?.location}
+                  </div>
+                  <div>
+                    <strong>Type:</strong> {item?.camera?.cameraType}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {item?.detectionClass || item?.incidentType}
+                </TableCell>
+                <TableCell>{item?.alerts || 0}</TableCell>
+                <TableCell>
+                  {item?.incidentType === "PEEING" ||
+                  item?.incidentType === "SPITTING" ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => navigate(`/dashboard/trackagent`)}
+                    >
+                      Track
+                    </Button>
+                  ) : (
+                    <Select
+                      value={statusMap[item.id] || "unresolved"}
+                      onChange={(e) => handleStatusChange(e, item.id)}
+                    >
+                      <MenuItem value="resolved">Resolved</MenuItem>
+                      <MenuItem value="unresolved">Unresolved</MenuItem>
+                    </Select>
                   )}
-                </TableRow>
-              ))}
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="white"
+                      onClick={() => handleOpen(item)}
+                      sx={{ width: 200 }}
+                    >
+                      Notify Traffic Officer
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="white"
+                      sx={{ width: 200 }}
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
+                        )
+                      }
+                    >
+                      View Camera
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="white"
+                      sx={{ width: 200 }}
+                      onClick={async () =>
+                        await handleMarkWrongDetection(item?.id, true)
+                      }
+                    >
+                      Wrong detection
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
-        {!data?.data?.length && !isError && (
+        {!incidents.length && !error && (
           <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
-            height="100%"
-            width="100%"
+            height="100vh"
           >
-            <Typography variant="h6" color="textSecondary">
-              No Incidents available
-            </Typography>
+            <Typography fontWeight="bold">No Incidents Found!</Typography>
           </Box>
         )}
       </TableContainer>
-      {/* Export Data Button */}
-      {data?.data && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "10px",
-          }}
+
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        padding={0.5}
+        bgcolor="#121212"
+      >
+        <CSVButton data={csvData} headers={headers} filename="incidents.csv" />
+        <Button
+          variant="contained"
+          color="white"
+          onClick={refreshData}
+          disabled={refreshing}
+          sx={{ width: 100 }}
         >
-          <Box sx={{ display: "flex", flexDirection: "row" }}>
-            <CSVButton
-              csvData={csvData}
-              headers={headers}
-              filename={`vehicle_search_data_${new Date().toLocaleString()}.csv`}
-              key={`vehicle_search_data_${new Date().toLocaleString()}`}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              style={{
-                margin: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-              }}
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <CircularProgress size={24} style={{ color: "white" }} />
-              ) : (
-                <RefreshRounded />
-              )}
-            </Button>
-          </Box>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50]}
-            component="div"
-            count={data?.data?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Box>
-      )}
-      {selectedItem && (
+          {refreshing ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Refresh"
+          )}
+        </Button>
+        <FilterAndSort />
+        <TablePagination
+          component="div"
+          count={total}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Box>
+
+      {isOpen && (
         <ImageModel
-          index={index}
-          selectedItem={selectedItem}
-          setSelectedItem={setSelectedItem}
           isOpen={isOpen}
           setOpen={setOpen}
-          incident={incidentType}
+          data={selectedItem}
+          setSelectedItem={setSelectedItem}
         />
       )}
     </Paper>
   );
 };
 
-const StickyTableHead = styled(TableHead)(({ theme }) => ({
+export default IncidentSearchTable;
+
+const StickyTableHead = styled(TableHead)({
   position: "sticky",
   top: 0,
-  backgroundColor: theme.palette.background.paper,
-  zIndex: theme.zIndex.appBar,
-}));
+  zIndex: 1,
+  backgroundColor: "#121212",
+  width: "100%",
+});
 
-const BoldTableCell = styled(TableCell)(({ theme }) => ({
+const BoldTableCell = styled(TableCell)({
   fontWeight: "bold",
-}));
-
-export default IncidentSearchTable;
+});

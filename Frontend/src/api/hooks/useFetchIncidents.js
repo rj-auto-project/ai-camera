@@ -38,3 +38,32 @@ export const useFetchIncidents = (dateRange) => {
     },
   });
 };
+
+
+export const useFetchDetectedVsSolved = (dateRange) => {
+  return useQuery({
+    queryKey: ["detectedVsSolved", dateRange],
+    queryFn: async () => {
+      let endpoint = `${BASE_URL}/incidents/detectedvssolved`;
+      if (dateRange === "today") {
+        endpoint += "/today";
+      } else if (dateRange === "weekly") {
+        endpoint += "/weekly";
+      } else if (dateRange === "monthly") {
+        endpoint += "/monthly";
+      }
+
+      const response = await axios.get(endpoint, config());
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log(data, "detected vs solved data");
+    },
+    onError: (error) => {
+      console.error(
+        "Error fetching detected vs solved incidents:",
+        error.response?.data?.message || error.message
+      );
+    },
+  });
+};

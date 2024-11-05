@@ -22,7 +22,7 @@ export const useAddCamera = () => {
       const response = await axios.post(
         `${BASE_URL}/settings/cameras`,
         cameraData,
-        config()
+        config(),
       );
       return response.data;
     },
@@ -42,7 +42,7 @@ export const useAddCamera = () => {
       setIsError(true);
       setError(error);
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });
@@ -71,7 +71,7 @@ export const useGetCameras = () => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });
@@ -92,7 +92,7 @@ export const useGetCameraById = (cameraId) => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });
@@ -107,7 +107,7 @@ export const useUpdateCamera = (cameraId) => {
       const response = await axios.put(
         `${BASE_URL}/settings/cameras/${cameraId}`,
         cameraData,
-        config()
+        config(),
       );
       return response.data;
     },
@@ -116,7 +116,7 @@ export const useUpdateCamera = (cameraId) => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });
@@ -136,7 +136,7 @@ export const useDeleteCamera = (cameraId) => {
     },
     onError: (error) => {
       dispatch(
-        fetchCamerasFailure(error.response?.data?.message || error.message)
+        fetchCamerasFailure(error.response?.data?.message || error.message),
       );
     },
   });

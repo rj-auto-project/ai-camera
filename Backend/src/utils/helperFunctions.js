@@ -98,4 +98,60 @@ const getDateRange = (period) => {
   return { startDate, endDate };
 };
 
-export { getObjectTypes, getClassList, formatTimestamp, getDateRange };
+const formatIncidentData = (incidents) => {
+  const cameraDataMap = {};
+
+  incidents.forEach((incident) => {
+    const { camera } = incident;
+    if (!cameraDataMap[camera.cameraId]) {
+      cameraDataMap[camera.cameraId] = {
+        cameraLocation: camera.location,
+        camId: camera.cameraId,
+        detectedIssues: [],
+      };
+    }
+
+    cameraDataMap[camera.cameraId].detectedIssues.push({
+      issueId: incident.id,
+      incidentType: mapIncidentType(incident.incidentType),
+      issueDate: incident.timestamp.toISOString().split("T")[0],
+      solvedDate: incident.resolvedAt
+        ? incident.resolvedAt.toISOString().split("T")[0]
+        : null,
+      alertCount: incident.alerts,
+    });
+  });
+
+  return Object.values(cameraDataMap);
+};
+
+const mapIncidentType = (type) => {
+  switch (type) {
+    case "GARBAGE":
+    case "POTHOLE":
+    case "GARBAGE_LITTERING":
+    case "CATTLE":
+    case "WATERLOGGING":
+    case "PEEING":
+    case "SPITTING":
+      return "municipal";
+    case "REDLIGHT_VIOLATION":
+    case "OVERSPEEDING":
+    case "ILLEGAL_PARKING":
+    case "WRONG_WAY_DRIVING":
+    case "ACCIDENT":
+    case "VEHICLE_RESTRICTION":
+    case "CROWD_RESTRICTION":
+      return "vehicleAndRoad";
+    default:
+      return "other";
+  }
+};
+
+export {
+  getObjectTypes,
+  getClassList,
+  formatTimestamp,
+  getDateRange,
+  formatIncidentData,
+};

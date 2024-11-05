@@ -20,7 +20,7 @@ const CanvasDraw = ({
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawMode, setDrawMode] = useState(
-    modelType === "illegalParking" ? "polygon" : "line"
+    modelType === "illegalParking" ? "polygon" : "line",
   );
   const [image, setImage] = useState(null);
   const [linePairs, setLinePairs] = useState([]);
@@ -55,7 +55,7 @@ const CanvasDraw = ({
         (canvasWidth - drawWidth) / 2,
         (canvasHeight - drawHeight) / 2,
         drawWidth,
-        drawHeight
+        drawHeight,
       );
     }
   };
@@ -224,7 +224,7 @@ const CanvasDraw = ({
       polygonCoordinates.forEach((polygon) => {
         drawPolygon(
           context,
-          polygon.map(([x, y]) => ({ x, y }))
+          polygon.map(([x, y]) => ({ x, y })),
         );
       });
       drawPolygon(context, currentPolygon);
@@ -370,15 +370,15 @@ const CanvasDraw = ({
             onClick={() => {
               if (modelType === "illegalParking") {
                 setIllegalParkingCords(
-                  drawMode === "line" ? linePairs : polygonCoordinates
+                  drawMode === "line" ? linePairs : polygonCoordinates,
                 );
               } else if (modelType === "redLightCrossing") {
                 setRedlightCrossingCords(
-                  drawMode === "line" ? linePairs : polygonCoordinates
+                  drawMode === "line" ? linePairs : polygonCoordinates,
                 );
               } else {
                 setWrongWayCords(
-                  drawMode === "line" ? linePairs : polygonCoordinates
+                  drawMode === "line" ? linePairs : polygonCoordinates,
                 );
               }
               closeModal();
