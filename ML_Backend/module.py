@@ -27,8 +27,6 @@ class ViolationDetector:
         self.logged_traffic = set() 
         self.static_objects = {}
         self.stationary_frame_threshold = 50
-        self.cam_ip = '127.0.0.1'
-        self.cam_id = "1"
         self.INCIDENT_TYPES = {
                         "TRAFFIC_VIOLATION": "REDLIGHT_VIOLATION",
                         "ILLEGAL_PARKING": "ILLEGAL_PARKING",
@@ -56,8 +54,8 @@ class ViolationDetector:
             self.tv_green_line.append(lines[1])
             self.tv_red_line.append(lines[0])
         # Database connection setup
-        self.db_connection = Database.get_connection()
-        self.db_cursor = self.db_connection.cursor()   
+        # self.db_connection = Database.get_connection()
+        # self.db_cursor = self.db_connection.cursor()   
     
     def save_violation_to_db(self, camera_id, track_id, camera_ip, bbox, incident_type, thumbnail):
         """Save violation details to the PostgreSQL database."""
@@ -66,8 +64,8 @@ class ViolationDetector:
                 INSERT INTO "IncidentLogs" ("cameraId", "trackId", "camera_ip", "boxCoords", "incidentType","thumbnail") 
                 VALUES (%s, %s, %s, %s, %s,%s)
             """
-            self.db_cursor.execute(insert_query, (camera_id, track_id, camera_ip, bbox, incident_type,thumbnail))
-            self.db_connection.commit()
+            # self.db_cursor.execute(insert_query, (camera_id, track_id, camera_ip, bbox, incident_type,thumbnail))
+            # self.db_connection.commit()
             print(f"Violation saved to DB: Track ID {track_id}")
         except Exception as e:
             print(f"Error saving violation to DB: {e}")
