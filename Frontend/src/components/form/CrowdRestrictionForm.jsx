@@ -1,15 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import TextFieldInput from "../Input/TextFieldInput";
 import { Button } from "@mui/material";
+import { formatDateTime } from "../../utils/formatTime";
 
-const CrowdRestrictionForm = ({ onSubmit }) => {
+const CrowdRestrictionForm = ({ cameraList }) => {
+  const [camIds, setCamIds] = useState([]);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    if (cameraList && cameraList.length > 0) {
+      const ids = cameraList.map((camera) => camera.cameraId);
+      setCamIds(ids);
+    }
+  }, [cameraList]);
+
+  const onSubmit = (formData) => {
+    const formattedStartTime = formatDateTime(formData.startTime);
+    const formattedEndTime = formatDateTime(formData.endTime);
+    let data = {
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      cameras: camIds,
+      threshold: formData.threshold,
+    };
+
+    console.log(data);
+  };
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "16px" }}>
       <TextFieldInput
