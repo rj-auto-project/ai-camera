@@ -56,13 +56,7 @@ class ViolationDetector:
             self.tv_green_line.append(lines[1])
             self.tv_red_line.append(lines[0])
         # Database connection setup
-        self.db_connection = psycopg2.connect(
-            host='34.47.148.81',
-            database='logs',
-            user="root",
-            password="team123",
-            port='8080'
-        )
+        self.db_connection = Database.get_connection()
         self.db_cursor = self.db_connection.cursor()   
     
     def save_violation_to_db(self, camera_id, track_id, camera_ip, bbox, incident_type, thumbnail):

@@ -2,6 +2,7 @@ from db import Database
 from utils import update_env_var
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # fetch camera details
@@ -10,7 +11,7 @@ def fetch_camera_data(cam_id :str):
         conn = Database.get_connection()
         cursor = conn.cursor()
         print(cam_id)
-        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "illegalParkingCords", "redlightCrossingCords", "wrongwayCords" FROM "Camera" WHERE "cameraId"= %s'''
+        query = '''SELECT "cameraId", "cameraIp", "location", "cameraName", "rtspLink", "illegalParkingCords", "redlightCrossingCords", "wrongwayCords" FROM "Camera" WHERE "status"= "ACTIVE"'''
         cursor.execute(query,(cam_id,))
         rows = cursor.fetchone()
         cursor.close()
@@ -34,7 +35,7 @@ def check_data_dirs(parent_dir):
             print("permission denies")
 
 # function to setup requirements before starting the ML engine
-def init_setup(cam_id):
+def init_setup():
     try:
         check_data_dirs(os.getenv("PARENT_DIR"))
     except:
@@ -68,4 +69,4 @@ def init_setup(cam_id):
     except:
         print("No Cameras registery found")
 if __name__ == "__main__":
-    init_setup("CAM3")
+    init_setup()

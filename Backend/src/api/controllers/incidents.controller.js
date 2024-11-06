@@ -1,5 +1,6 @@
 import pg from "pg"; // Import the default export from pg
 import { getDateRange } from "../../utils/helperFunctions.js";
+import dotenv from "dotenv";
 import {
   detectGarbageService,
   getGraphIncidents,
@@ -8,6 +9,9 @@ import {
   getSpecificIncidentService,
   markWrongOrRight,
 } from "../services/incidents.service.js";
+
+const envFile = process.env.NODE_ENV === "prod" ? `.env.prod` : ".env.dev";
+dotenv.config({ path: envFile });
 
 const { Pool } = pg; // Use Pool for connection management
 let clients = [];

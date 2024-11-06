@@ -201,7 +201,7 @@ const IncidentSearchTable = () => {
     );
   }
 
-  console.log("incidents",incidents)
+  console.log("incidents", incidents);
 
   if (error) {
     return (
@@ -316,24 +316,13 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>{item?.alerts || 0}</TableCell>
                 <TableCell>
-                  {item?.incidentType === "PEEING" ||
-                  item?.incidentType === "SPITTING" ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => navigate(`/dashboard/trackagent`)}
-                    >
-                      Track
-                    </Button>
-                  ) : (
-                    <Select
-                      value={statusMap[item.id] || "unresolved"}
-                      onChange={(e) => handleStatusChange(e, item.id)}
-                    >
-                      <MenuItem value="resolved">Resolved</MenuItem>
-                      <MenuItem value="unresolved">Unresolved</MenuItem>
-                    </Select>
-                  )}
+                  <Select
+                    value={statusMap[item.id] || "unresolved"}
+                    onChange={(e) => handleStatusChange(e, item.id)}
+                  >
+                    <MenuItem value="resolved">Resolved</MenuItem>
+                    <MenuItem value="unresolved">Unresolved</MenuItem>
+                  </Select>
                 </TableCell>
                 <TableCell>
                   <div
@@ -343,36 +332,38 @@ const IncidentSearchTable = () => {
                       gap: 10,
                     }}
                   >
-                    <Button
-                      variant="contained"
-                      color="white"
-                      onClick={() => handleOpen(item)}
+                    <Select
+                      value=""
+                      displayEmpty
                       sx={{ width: 200 }}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        if (value === "notify") {
+                          handleOpen(item);
+                        } else if (value === "viewCamera") {
+                          navigate(
+                            `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
+                          );
+                        } else if (value === "wrongDetection") {
+                          handleMarkWrongDetection(item?.id, true);
+                        } else if (value === "track") {
+                          navigate(`/dashboard/trackagent`);
+                        }
+                      }}
                     >
-                      Notify Traffic Officer
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="white"
-                      sx={{ width: 200 }}
-                      onClick={() =>
-                        navigate(
-                          `/dashboard/streams?cameraId=${item?.camera?.cameraId}`
-                        )
-                      }
-                    >
-                      View Camera
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="white"
-                      sx={{ width: 200 }}
-                      onClick={async () =>
-                        await handleMarkWrongDetection(item?.id, true)
-                      }
-                    >
-                      Wrong detection
-                    </Button>
+                      <MenuItem value="" disabled>
+                        Select Action
+                      </MenuItem>
+                      <MenuItem value="notify">Notify Traffic Officer</MenuItem>
+                      <MenuItem value="viewCamera">View Camera</MenuItem>
+                      <MenuItem value="wrongDetection">
+                        Wrong detection
+                      </MenuItem>
+                      {(item?.incidentType === "PEEING" ||
+                        item?.incidentType === "SPITTING") && (
+                        <MenuItem value="track">Track Agent</MenuItem>
+                      )}
+                    </Select>
                   </div>
                 </TableCell>
               </TableRow>

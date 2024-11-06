@@ -8,13 +8,16 @@
     "dev": "nodemon src/index.js",
     "test": "mocha tests/**/*.test.js",
     "lint": "eslint src/**/*.js",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "migrate:dev": "dotenv -e .env.dev -- npx prisma migrate deploy",
+    "migrate:prod": "dotenv -e .env.prod -- npx prisma migrate deploy"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@types/ioredis": "^4.28.10",
+    "dotenv-cli": "^7.4.2",
     "nodemon": "^3.1.4",
     "prisma": "^5.21.1"
   },
