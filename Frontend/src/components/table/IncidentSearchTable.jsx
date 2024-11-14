@@ -323,7 +323,7 @@ const IncidentSearchTable = () => {
                 </TableCell>
                 <TableCell>
                   <div>
-                    <strong>Camera ID:</strong> {item?.camera?.cameraId}
+                    <strong>Camera IP:</strong> {item?.camera?.cameraIp}
                   </div>
                   <div>
                     <strong>Camera Name:</strong> {item?.camera?.cameraName}
