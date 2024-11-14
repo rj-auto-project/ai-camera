@@ -13,8 +13,8 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
     const link = document.createElement("a");
     link.href = `http://localhost:6543/${selectedItem?.incidentType}/${selectedItem?.thumbnail}`;
     link.download =
-      `${selectedItem.licenseNumber}-${new Date().toLocaleString()}` ||
-      `${selectedItem.license_number}-${new Date().toLocaleString()}` ||
+      `${selectedItem?.licenseNumber}-${new Date().toLocaleString()}` ||
+      `${selectedItem?.license_number}-${new Date().toLocaleString()}` ||
       `thumbnail-${new Date().toLocaleString()}` ||
       "image";
     link.click();
@@ -59,7 +59,7 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
         <img
           src={`http://localhost:6543/${selectedItem?.incidentType}/${selectedItem?.thumbnail}`}
           alt={
-            selectedItem.licenseNumber ||
+            selectedItem?.licenseNumber ||
             selectedItem?.license_number ||
             "No License Number"
           }
@@ -89,16 +89,16 @@ const ImageModel = ({ selectedItem, setSelectedItem, isOpen, setOpen }) => {
           <Typography variant="body2">
             Timestamp: <br />
             {new Date(
-              selectedItem.timestamp || selectedItem?.time_stamp,
+              selectedItem?.timestamp || selectedItem?.time_stamp,
             ).toLocaleString()}
           </Typography>
           <Typography variant="body2">
             Camera IP: <br />
-            {selectedItem.camera_ip}
+            {selectedItem?.camera_ip}
           </Typography>
           <Typography variant="body2">
             Class: <br />
-            {selectedItem.detectionClass}
+            {selectedItem?.detectionClass}
           </Typography>
         </Box>
       </Box>

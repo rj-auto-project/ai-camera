@@ -159,15 +159,39 @@ const IncidentSearchTable = () => {
   };
 
   const handleOpen = (item) => {
-    const imageUrl = `http://localhost:6543/${item?.incidentType}/${item?.thumbnail}`;
+    // Guard clause to prevent undefined item
+    if (!item) {
+      console.error('No item provided to handleOpen');
+      return;
+    }
+  
+    // Destructure needed properties with default values
+    const { incidentType = '', thumbnail = '' } = item;
+    
+    // Guard clause for required properties
+    if (!incidentType || !thumbnail) {
+      console.error('Missing required properties:', { incidentType, thumbnail });
+      return;
+    }
+  
+    const imageUrl = `http://localhost:6543/${incidentType}/${thumbnail}`;
+    
+    // Set the item immediately to ensure state is updated
+    setSelectedItem(item);
+    
     const img = new Image();
+    
     img.onload = () => {
-      setSelectedItem(item);
       setOpen(true);
     };
+    
     img.onerror = () => {
-      console.log("Image not found or invalid. Modal will not open.");
+      console.error('Image failed to load:', imageUrl);
+      // Reset the selected item if image fails to load
+      setSelectedItem(null);
+      toast.error('Failed to load image');
     };
+    
     img.src = imageUrl;
   };
 
@@ -418,7 +442,7 @@ const IncidentSearchTable = () => {
         <ImageModel
           isOpen={isOpen}
           setOpen={setOpen}
-          data={selectedItem}
+          selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
         />
       )}
