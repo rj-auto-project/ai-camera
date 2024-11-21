@@ -150,6 +150,40 @@ model Class {
   objectType String @db.VarChar(255)
 }
 
+
+model Survey {
+  id               Int            @id @default(autoincrement())
+  surveyName       String         @db.VarChar(255)
+  date             DateTime       @default(now())
+  time             String         @db.VarChar(10)
+  initialDestination String       @db.VarChar(255)
+  finalDestination String         @db.VarChar(255)
+  type             SurveyType
+  reports          SurveyReport[]
+}
+
+model SurveyReport {
+  id         Int    @id @default(autoincrement())
+  surveyId   Int
+  thumbnail  String @db.VarChar(255)
+  className  String @db.VarChar(255)
+  location   String @db.VarChar(255)
+
+  survey     Survey @relation(fields: [surveyId], references: [id])
+}
+
+enum SurveyType {
+  CROWD_RESTRICTION
+  GARBAGE
+  POTHOLE
+  CATTLE
+  WATERLOGGING
+  PEEING
+  SPITTING
+  GARBAGE_LITTERING
+}
+
+
 enum Status {
   ACTIVE
   INACTIVE

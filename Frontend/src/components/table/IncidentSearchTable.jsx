@@ -18,11 +18,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ImageModel from "../model/imageModel";
-import CSVButton from "../buttons/CSVButton";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
 import toast from "react-hot-toast";
+import CSVButton from "../buttons/csvButton.jsx";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
@@ -233,7 +233,7 @@ const IncidentSearchTable = () => {
         sx={{
           height: "96vh",
           display: "flex",
-          width: "100vw",
+          width: "100%",
           textAlign: "center",
           alignItems: "center",
           justifyContent: "center",

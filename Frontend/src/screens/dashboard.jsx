@@ -14,8 +14,10 @@ const Operations = lazy(() => import("./operations"));
 const ModelWindow = lazy(() => import("../window/operationData"));
 const Incidents = lazy(() => import("./incidents"));
 const TrackAgent = lazy(() => import("./trackAgent"));
+const Survey = lazy(() => import("./survey"));
+const SurveyDetails = lazy(() => import("./surveydetails"));
 const StreamsConditionalRender = lazy(
-  () => import("../components/conditionalrender/streampage"),
+  () => import("../components/conditionalrender/streampage")
 );
 
 const Dashboard = () => {
@@ -56,7 +58,7 @@ const Dashboard = () => {
         atob(base64)
           .split("")
           .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(""),
+          .join("")
       );
       const payload = JSON.parse(jsonPayload);
       return Math.floor(Date.now() / 1000) > payload.exp;
@@ -81,6 +83,8 @@ const Dashboard = () => {
             <Route path="streams" element={<StreamsConditionalRender />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="incidents" element={<Incidents />} />
+            <Route path="survey" element={<Survey />} />
+            <Route path="survey/surveydetails" element={<SurveyDetails />} />
             <Route path="trackagent" element={<TrackAgent />} />
             <Route path="settings" element={<Setting />} />
           </Routes>
