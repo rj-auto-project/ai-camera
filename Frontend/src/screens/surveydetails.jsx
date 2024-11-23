@@ -22,6 +22,7 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../components/model/imageModel";
 import LazyImage from "../components/image/LazyloadImage";
+import { LocationCell } from "../components/Locationcell";
 
 
 const SurveyDetails = () => {
@@ -233,7 +234,7 @@ const SurveyDetails = () => {
                   {item.className.replace("-", " ").toUpperCase()}
                 </TableCell>
                 <TableCell>
-                  {JSON.parse(item.location).join(", ")}
+                <LocationCell coordinates={item.location}/>
                 </TableCell>
                 <TableCell>{item.distance}m</TableCell>
               </TableRow>
