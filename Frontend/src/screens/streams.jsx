@@ -165,7 +165,7 @@ const Streams = React.memo(() => {
                     alignItems="center"
                   >
                     <Typography variant="body2" color="white">
-                      CamId: {stream.cameraId}
+                      CamIP: {stream.cameraIp}
                     </Typography>
                     <Box display="flex" alignItems="center">
                       <Box

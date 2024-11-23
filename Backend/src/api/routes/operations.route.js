@@ -10,6 +10,7 @@ import {
   liveSuspectSearch,
   liveIncidentsTracking,
 } from "../controllers/operations.controller.js";
+import crowdDetectionController from "../controllers/crowdDection.contoller.js";
 
 const router = express.Router();
 
@@ -19,6 +20,11 @@ router.post("/vehicle", authMiddleware, vehicleOperation);
 router.get("/vehicle/live", authMiddleware, liveVehicleOperation);
 router.post("/", authMiddleware, getOperations);
 router.get("/incidents/live", authMiddleware, liveIncidentsTracking);
+router.post(
+  "/crowd-restriction",
+  authMiddleware,
+  crowdDetectionController.crowdRestriction
+);
 
 // Get the status of operations route
 router.get("/status", (req, res) => {

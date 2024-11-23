@@ -1,10 +1,28 @@
 import { parentPort, workerData } from "worker_threads";
+import CrowdCountService from "../services/crowd.service.js";
 
-function performCrowdDetection(cameraDetails) {
-  // Perform CPU-intensive Crowd Detection operation here
-  // Simulated with a delay
-  return { message: "Crowd Detection result", data: cameraDetails };
+async function performLiveCrowdDetection(operationDetails) {
+  const { cameras, initialTimestamp, finalTimestamp, threshold, employeeId } =
+    operationDetails;
+
+  try {
+    while (new Date() < new Date(finalTimestamp)) {
+      const results = await CrowdCountService.getLiveData(
+        cameras,
+        initialTimestamp,
+        threshold
+      );
+
+      if (results.length > 0) {
+        parentPort.postMessage({ data: results });
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+
+    parentPort.postMessage({ completed: true });
+  } catch (error) {
+    parentPort.postMessage({ error: error.message });
+  }
 }
 
-const result = performCrowdDetection(workerData.cameraDetails);
-parentPort.postMessage(result);
+performLiveCrowdDetection(workerData.operationDetails);
