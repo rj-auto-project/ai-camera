@@ -154,8 +154,8 @@ model Survey {
   id                 Int            @id @default(autoincrement())
   surveyName         String         @db.VarChar(255)
   date               DateTime       @default(now())
-  initialDestination String         @db.VarChar(255)
-  finalDestination   String         @db.VarChar(255)
+  initialDestination Json?
+  finalDestination   Json?
   type               SurveyType
   reports            SurveyReport[]
 }
@@ -165,7 +165,7 @@ model SurveyReport {
   surveyId  Int
   thumbnail String @db.VarChar(255)
   className String @db.VarChar(255)
-  location  String @db.VarChar(255)
+  location  Json?
   distance  Float?
 
   survey Survey @relation(fields: [surveyId], references: [id])
