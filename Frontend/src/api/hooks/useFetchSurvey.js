@@ -4,26 +4,56 @@ import { useDispatch } from "react-redux";
 import { BASE_URL } from "../url";
 import { config } from "../getConfig";
 import {
-  surveyFetchFailure,
-  surveyFetchStart,
-  surveyFetchSuccess,
+  allSurveyFetchFailure,
+  allSurveyFetchStart,
+  allSurveyFetchSuccess,
+} from "../../features/survey/allSurveySlice";
+import {
+  SurveyFetchFailure,
+  SurveyFetchStart,
+  SurveyFetchSuccess,
 } from "../../features/survey/surveySlice";
 
-export const useSurveyFetch = () => {
+export const useAllSurveyFetch = () => {
   const dispatch = useDispatch();
 
   return useMutation({
-    mutationFn: async () => {
-      dispatch(surveyFetchStart());
-      const response = await axios.get(`${BASE_URL}/survey/analytics`, config());
+    mutationFn: async ({ page, limit }) => {
+      dispatch(allSurveyFetchStart());
+      const response = await axios.get(
+        `${BASE_URL}/survey/all?limit=${limit}&page=${page}`,
+        config()
+      );
       return response.data;
     },
     onSuccess: (data) => {
-      dispatch(surveyFetchSuccess(data));
+      dispatch(allSurveyFetchSuccess(data));
     },
     onError: (error) => {
       dispatch(
-        surveyFetchFailure(error.response?.data?.message || error.message)
+        allSurveyFetchFailure(error.response?.data?.message || error.message)
+      );
+    },
+  });
+};
+
+export const useSurveyFetch = () => {
+  const dispatch = useDispatch();
+  return useMutation({
+    mutationFn: async ({surveyId}) => {
+      dispatch(SurveyFetchStart());
+      const response = await axios.get(
+        `${BASE_URL}/survey/reports/${surveyId}`,
+        config()
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      dispatch(SurveyFetchSuccess(data));
+    },
+    onError: (error) => {
+      dispatch(
+        SurveyFetchFailure(error.response?.data?.message || error.message)
       );
     },
   });

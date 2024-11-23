@@ -11,45 +11,42 @@ import {
   Typography,
   Box,
   Button,
+  CircularProgress,
+  AlertTitle,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { useSurveyFetch } from "../api/hooks/useFetchSurvey";
 import { useSelector } from "react-redux";
+import { useAllSurveyFetch } from "../api/hooks/useFetchSurvey";
 
 const SurveyTable = () => {
   const navigate = useNavigate();
-  const { mutate: fetchSurveys } = useSurveyFetch();
-  const { loading, data, error } = useSelector((state) => state.survey);
+  const { mutate: fetchSurveys } = useAllSurveyFetch();
+  const { loading, data, error } = useSelector((state) => state.allsurvey);
 
-  // Use the data fetched from the API instead of hardcoded demo data
   const [surveys, setSurveys] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    fetchSurveys(); // Fetch surveys from API
-  }, [fetchSurveys]);
-
-
-  console.log
+    fetchSurveys({ limit: rowsPerPage, page: page + 1 });
+  }, [fetchSurveys, rowsPerPage, page]);
 
   useEffect(() => {
-    if (data?.reportsBySurvey) {
-      // Map over the fetched survey data and store it in state
-      const formattedSurveys = data.reportsBySurvey.map((survey) => ({
+    if (data?.data) {
+      const formattedSurveys = data.data.map((survey) => ({
         id: survey.id,
         surveyName: survey.surveyName,
-        surveyId: `SURV-${survey.id}`, // Assuming this is how you want to generate the ID
-        startDestination: data.topInitialDestinations[0]?.initialDestination || "Unknown", // Use default if not available
-        finalDestination: data.topFinalDestinations[0]?.finalDestination || "Unknown", // Use default if not available
-        type: survey.surveyName, // You can modify this field based on your data structure
-        surveyDate: new Date().toISOString(), // Set the date dynamically or from API if available
+        surveyId: `SURV-${survey.id}`,
+        startDestination: survey.initialDestination || "Unknown",
+        finalDestination: survey.finalDestination || "Unknown",
+        type: survey.type || "Unknown",
+        surveyDate: survey.date || new Date().toISOString(),
       }));
-      setSurveys(formattedSurveys); // Set the formatted survey data
+      setSurveys(formattedSurveys);
     }
   }, [data]);
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -61,8 +58,9 @@ const SurveyTable = () => {
   };
 
   const handleSurveyAction = (survey) => {
-    navigate("/dashboard/survey/surveydetails");
-    console.log("Survey Action for:", survey);
+    navigate("/dashboard/survey/surveydetails", {
+      state: { surveyId: survey.id },
+    });
   };
 
   const formatDateTime = (dateString) => {
@@ -76,6 +74,29 @@ const SurveyTable = () => {
       hour12: true,
     });
   };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="95vh"
+        width="100%"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ maxWidth: "600px", mx: "auto", mt: 2 }}>
+        <AlertTitle>Error</AlertTitle>
+        Failed to load surveys. Please try again later.
+      </Alert>
+    );
+  }
 
   return (
     <Paper
@@ -91,7 +112,6 @@ const SurveyTable = () => {
           <StickyTableHead>
             <TableRow>
               <BoldTableCell>S.No.</BoldTableCell>
-              <BoldTableCell>Survey ID</BoldTableCell>
               <BoldTableCell>Survey Name</BoldTableCell>
               <BoldTableCell>Start Destination</BoldTableCell>
               <BoldTableCell>Final Destination</BoldTableCell>
@@ -102,47 +122,53 @@ const SurveyTable = () => {
           </StickyTableHead>
           <TableBody>
             {(rowsPerPage > 0
-              ? surveys.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              ? surveys.slice(
+                  page * rowsPerPage,
+                  page * rowsPerPage + rowsPerPage
+                )
               : surveys
-            ).map((survey, index) => (
-              <TableRow key={survey.id}>
-                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                <TableCell>{survey.surveyId}</TableCell>
-                <TableCell>{survey.surveyName}</TableCell>
-                <TableCell>{survey.startDestination}</TableCell>
-                <TableCell>{survey.finalDestination}</TableCell>
-                <TableCell>{formatDateTime(survey.surveyDate)}</TableCell>
-                <TableCell>{survey.type}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleSurveyAction(survey)}
-                  >
-                    View All
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            ).map((survey, index) => {
+              console.log(survey)
+              
+              return (
+                <TableRow key={survey.id}>
+                  <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                  <TableCell>{survey.surveyName}</TableCell>
+                  <TableCell>{survey.startDestination}</TableCell>
+                  <TableCell>{survey.finalDestination}</TableCell>
+                  <TableCell>{formatDateTime(survey.surveyDate)}</TableCell>
+                  <TableCell>{survey.type}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleSurveyAction(survey)}
+                    >
+                      View Analaytics
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
-        </Table>
 
-        {surveys.length === 0 && (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100%"
-          >
-            <Typography fontWeight="bold">No Surveys Found!</Typography>
-          </Box>
-        )}
+          {surveys.length === 0 && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100%"
+            >
+              <Typography fontWeight="bold">No Surveys Found!</Typography>
+            </Box>
+          )}
+        </Table>
       </TableContainer>
 
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={surveys.length}
+        count={data?.totalSurveys || 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

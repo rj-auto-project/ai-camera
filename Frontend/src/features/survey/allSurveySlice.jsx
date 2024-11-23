@@ -1,29 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const surveySlice = createSlice({
-  name: "survey",
+  name: "allsurvey",
   initialState: {
     data: null,
     loading: false,
     error: null,
   },
   reducers: {
-    SurveyFetchStart: (state) => {
+    allSurveyFetchStart: (state) => {
       state.loading = true;
       state.error = null;
     },
-    SurveyFetchSuccess: (state, action) => {
+    allSurveyFetchSuccess: (state, action) => {
       state.loading = false;
       state.data = action.payload;
     },
-    SurveyFetchFailure: (state, action) => {
+    allSurveyFetchFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
   },
 });
 
-export const { SurveyFetchStart, SurveyFetchSuccess, SurveyFetchFailure } =
-  surveySlice.actions;
+export const {
+  allSurveyFetchStart,
+  allSurveyFetchSuccess,
+  allSurveyFetchFailure,
+} = surveySlice.actions;
 
 export default surveySlice.reducer;
