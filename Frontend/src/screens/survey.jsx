@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,91 +14,76 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { useSurveyFetch } from "../api/hooks/useFetchSurvey";
+import { useSelector } from "react-redux";
 
 const SurveyTable = () => {
   const navigate = useNavigate();
+  const { mutate: fetchSurveys } = useSurveyFetch();
+  const { loading, data, error } = useSelector((state) => state.survey);
+
+  // Use the data fetched from the API instead of hardcoded demo data
+  const [surveys, setSurveys] = useState([]);
+
+  useEffect(() => {
+    fetchSurveys(); // Fetch surveys from API
+  }, [fetchSurveys]);
 
 
-  const [surveys, setSurveys] = useState([
-    {
-      id: 1,
-      surveyName: "Urban Transportation Study",
-      surveyId: "SURV-2024-001",
-      startDestination: "New York City",
-      finalDestination: "Boston",
-      type: "Transportation",
-      surveyDate: "2024-03-15T09:30:00"
-    },
-    {
-      id: 2,
-      surveyName: "Regional Connectivity Assessment",
-      surveyId: "SURV-2024-002", 
-      startDestination: "San Francisco",
-      finalDestination: "Los Angeles",
-      type: "Infrastructure",
-       surveyDate: "2024-03-15T09:30:00"
-    },
-    {
-      id: 3,
-      surveyName: "Coastal Route Analysis",
-      surveyId: "SURV-2024-003",
-      startDestination: "Seattle",
-      finalDestination: "Portland",
-      type: "Geographic",
-       surveyDate: "2024-03-15T09:30:00"
-    },
-    {
-      id: 4,
-      surveyName: "Metropolitan Corridor Evaluation",
-      surveyId: "SURV-2024-004",
-      startDestination: "Chicago",
-      finalDestination: "Milwaukee",
-      type: "Urban Planning",
-      surveyDate: "2024-03-15T09:30:00"
+  console.log
+
+  useEffect(() => {
+    if (data?.reportsBySurvey) {
+      // Map over the fetched survey data and store it in state
+      const formattedSurveys = data.reportsBySurvey.map((survey) => ({
+        id: survey.id,
+        surveyName: survey.surveyName,
+        surveyId: `SURV-${survey.id}`, // Assuming this is how you want to generate the ID
+        startDestination: data.topInitialDestinations[0]?.initialDestination || "Unknown", // Use default if not available
+        finalDestination: data.topFinalDestinations[0]?.finalDestination || "Unknown", // Use default if not available
+        type: survey.surveyName, // You can modify this field based on your data structure
+        surveyDate: new Date().toISOString(), // Set the date dynamically or from API if available
+      }));
+      setSurveys(formattedSurveys); // Set the formatted survey data
     }
-  ]);
-
+  }, [data]);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-
   const handleSurveyAction = (survey) => {
-    navigate('/dashboard/survey/surveydetails')
+    navigate("/dashboard/survey/surveydetails");
     console.log("Survey Action for:", survey);
   };
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
-
   return (
-    <Paper 
+    <Paper
       style={{
-        width: '100%',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column'
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <TableContainer style={{ flex: 1, overflow: "auto" }}>
@@ -120,8 +105,8 @@ const SurveyTable = () => {
               ? surveys.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : surveys
             ).map((survey, index) => (
-                <TableRow key={survey.id}>
-                  <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+              <TableRow key={survey.id}>
+                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                 <TableCell>{survey.surveyId}</TableCell>
                 <TableCell>{survey.surveyName}</TableCell>
                 <TableCell>{survey.startDestination}</TableCell>
@@ -129,9 +114,9 @@ const SurveyTable = () => {
                 <TableCell>{formatDateTime(survey.surveyDate)}</TableCell>
                 <TableCell>{survey.type}</TableCell>
                 <TableCell>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
+                  <Button
+                    variant="contained"
+                    color="primary"
                     onClick={() => handleSurveyAction(survey)}
                   >
                     View All
@@ -166,7 +151,6 @@ const SurveyTable = () => {
     </Paper>
   );
 };
-
 
 const StickyTableHead = styled(TableHead)({
   position: "sticky",

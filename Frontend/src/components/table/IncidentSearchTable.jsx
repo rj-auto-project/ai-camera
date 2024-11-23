@@ -399,7 +399,7 @@ const IncidentSearchTable = () => {
             display="flex"
             justifyContent="center"
             alignItems="center"
-            height="100vh"
+            height="100%"
           >
             <Typography fontWeight="bold">No Incidents Found!</Typography>
           </Box>

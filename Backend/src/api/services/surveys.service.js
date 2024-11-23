@@ -76,6 +76,8 @@ const getSurveysAnalyticsService = async () => {
         reportsBySurvey,
         reportThumbnails
     };
+
+    return data
 }
 
 export { getSurveysAnalyticsService }
