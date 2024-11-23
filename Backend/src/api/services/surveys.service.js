@@ -80,4 +80,19 @@ const getSurveysAnalyticsService = async () => {
     return data
 }
 
-export { getSurveysAnalyticsService }
+const getPaginatedSurveysService = async (offset, limit) => {
+    const surveys = await prisma.survey.findMany({
+        skip: offset,
+        take: limit,
+        include: {
+            reports: true
+        },
+        orderBy: {
+            date: "desc"
+        }
+    })
+
+    return surveys || [];
+}
+
+export { getSurveysAnalyticsService, getPaginatedSurveysService }

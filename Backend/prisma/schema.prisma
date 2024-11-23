@@ -113,35 +113,35 @@ model DetectionTable {
 }
 
 model Camera {
-  cameraId              String           @id @db.VarChar(30)
-  cameraIp              String           @db.VarChar(30)
-  facingAngle           String           @db.VarChar(5)
-  location              String           @db.VarChar(50)
-  cameraName            String           @db.VarChar(50)
-  connectionType        String           @db.VarChar(10)
-  cameraType            String           @db.VarChar(10)
+  cameraId              String    @id @db.VarChar(30)
+  cameraIp              String    @db.VarChar(30)
+  facingAngle           String    @db.VarChar(5)
+  location              String    @db.VarChar(50)
+  cameraName            String    @db.VarChar(50)
+  connectionType        String    @db.VarChar(10)
+  cameraType            String    @db.VarChar(10)
   status                Status?
-  installed             DateTime?        @db.Timestamptz(6)
-  lastOnline            DateTime?        @db.Timestamptz(6)
+  installed             DateTime? @db.Timestamptz(6)
+  lastOnline            DateTime? @db.Timestamptz(6)
   coordinates           Json
-  manufacturer          String?          @db.VarChar(30)
-  routerIp              String?          @db.VarChar(30)
-  crowdThreshold        Float?           @default(0)
-  areaName              String?          @db.VarChar(255)
-  rtspLink              String?          @db.VarChar(255)
-  crowdCountThreshold   String?          @db.VarChar(10)
-  vehicleCountThreshold String?          @db.VarChar(10)
+  manufacturer          String?   @db.VarChar(30)
+  routerIp              String?   @db.VarChar(30)
+  crowdThreshold        Float?    @default(0)
+  areaName              String?   @db.VarChar(255)
+  rtspLink              String?   @db.VarChar(255)
+  crowdCountThreshold   String?   @db.VarChar(10)
+  vehicleCountThreshold String?   @db.VarChar(10)
   illegalParkingCords   Json?
   redlightCrossingCords Json?
   wrongwayCords         Json?
   illegalParkingTimer   Int?
 
-  AnprLogs              AnprLogs[]
-  CrowdCount            CrowdCount[]
-  DetectionLog          DetectionLog[]
-  DetectionTable        DetectionTable[]
-  IncidentLogs          IncidentLogs[]
-  operations            OperationLog[]   @relation("OperationCameras")
+  AnprLogs       AnprLogs[]
+  CrowdCount     CrowdCount[]
+  DetectionLog   DetectionLog[]
+  DetectionTable DetectionTable[]
+  IncidentLogs   IncidentLogs[]
+  operations     OperationLog[]   @relation("OperationCameras")
 }
 
 model Class {
@@ -150,39 +150,31 @@ model Class {
   objectType String @db.VarChar(255)
 }
 
-
 model Survey {
-  id               Int            @id @default(autoincrement())
-  surveyName       String         @db.VarChar(255)
-  date             DateTime       @default(now())
-  time             String         @db.VarChar(10)
-  initialDestination String       @db.VarChar(255)
-  finalDestination String         @db.VarChar(255)
-  type             SurveyType
-  reports          SurveyReport[]
+  id                 Int            @id @default(autoincrement())
+  surveyName         String         @db.VarChar(255)
+  date               DateTime       @default(now())
+  initialDestination String         @db.VarChar(255)
+  finalDestination   String         @db.VarChar(255)
+  type               SurveyType
+  reports            SurveyReport[]
 }
 
 model SurveyReport {
-  id         Int    @id @default(autoincrement())
-  surveyId   Int
-  thumbnail  String @db.VarChar(255)
-  className  String @db.VarChar(255)
-  location   String @db.VarChar(255)
+  id        Int    @id @default(autoincrement())
+  surveyId  Int
+  thumbnail String @db.VarChar(255)
+  className String @db.VarChar(255)
+  location  String @db.VarChar(255)
+  distance  Float?
 
-  survey     Survey @relation(fields: [surveyId], references: [id])
+  survey Survey @relation(fields: [surveyId], references: [id])
 }
 
 enum SurveyType {
-  CROWD_RESTRICTION
-  GARBAGE
-  POTHOLE
-  CATTLE
-  WATERLOGGING
-  PEEING
-  SPITTING
-  GARBAGE_LITTERING
+  ROAD_DEFECTS
+  ROAD_FURNITURE
 }
-
 
 enum Status {
   ACTIVE
