@@ -10,7 +10,9 @@
     "lint": "eslint src/**/*.js",
     "format": "npx prettier --write .",
     "migrate:dev": "dotenv -e .env.dev -- npx prisma migrate deploy",
-    "migrate:prod": "dotenv -e .env.prod -- npx prisma migrate deploy"
+    "migrate:prod": "dotenv -e .env.prod -- npx prisma migrate deploy",
+    "generate:dev": "dotenv -e .env.dev -- npx prisma generate",
+    "generate:prod": "dotenv -e .env.prod -- npx prisma generate"
   },
   "author": "",
   "license": "ISC",
