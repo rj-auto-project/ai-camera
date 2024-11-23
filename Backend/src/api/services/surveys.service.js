@@ -84,9 +84,6 @@ const getPaginatedSurveysService = async (offset, limit) => {
     const surveys = await prisma.survey.findMany({
         skip: offset,
         take: limit,
-        include: {
-            reports: true
-        },
         orderBy: {
             date: "desc"
         }
@@ -95,4 +92,14 @@ const getPaginatedSurveysService = async (offset, limit) => {
     return surveys || [];
 }
 
-export { getSurveysAnalyticsService, getPaginatedSurveysService }
+const getSurveyReportsService = async (surveyId) => {
+    const surveyReports = await prisma.surveyReport.findMany({
+        where: {
+            surveyId: surveyId
+        }
+    })
+
+    return surveyReports || [];
+}
+
+export { getSurveysAnalyticsService, getPaginatedSurveysService, getSurveyReportsService }

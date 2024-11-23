@@ -1,4 +1,4 @@
-import { getPaginatedSurveysService, getSurveysAnalyticsService } from "../services/surveys.service.js";
+import { getPaginatedSurveysService, getSurveyReportsService, getSurveysAnalyticsService } from "../services/surveys.service.js";
 
 const getSurveysAnalytics = async (req, res) => {
   try {
@@ -47,4 +47,26 @@ const getPaginatedSurveys = async (req, res) => {
   }
 }
 
-export { getSurveysAnalytics, getPaginatedSurveys };
+const getSurveyReportsBySurveyId = async (req, res) => {
+  try {
+    let surveyId = req.params.id;
+    if (!surveyId) {
+      return res.status(400).json({ status: "fail", message: "Survey ID is required" });
+    }
+    surveyId = parseInt(surveyId);
+    const surveyReports = await getSurveyReportsService(surveyId);
+    if (surveyReports.length === 0) {
+      return res
+        .status(200)
+        .json({ status: "success", message: "No data found" });
+    }
+    return res.status(200).json({ status: "success", data: surveyReports });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ status: "fail", message: "Internal server error" });
+  }
+}
+
+export { getSurveysAnalytics, getPaginatedSurveys, getSurveyReportsBySurveyId };
