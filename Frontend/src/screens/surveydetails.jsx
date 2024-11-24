@@ -185,21 +185,30 @@ const SurveyDetails = () => {
       </Typography>
     );
   }
-  
 
   const generateColor = (index) => {
     const colors = [
-      "#FF4136", "#2ECC40", "#0074D9", "#FFDC00", "#FF851B", "#B10DC9", "#01FF70", "#F012BE"
+      "#FF5733",
+      "#FFD700",
+      "#4169E1",
+      "#1E90FF",
+      "#8B4513",
+      "#9932CC",
+      "#2E8B57",
+      "#4B0082",
+      "#CD853F",
+      "#DC143C",
+      "#FF8C00",
+      "#006400",
+      "#8B008B",
     ];
     return colors[index % colors.length];
   };
-  
 
-  
   const surveyData = data?.data?.reduce((acc, { className, distance }) => {
     // Ensure the distance is a number with two decimal points
     const numericDistance = parseFloat(distance).toFixed(2);
-  
+
     // Check if the class already exists in the accumulator
     const existingClass = acc.find((item) => item.class === className);
     if (existingClass) {
@@ -215,7 +224,6 @@ const SurveyDetails = () => {
     }
     return acc;
   }, []);
-
 
   return (
     <Paper
@@ -263,32 +271,33 @@ const SurveyDetails = () => {
               const distanceInMeters = parseFloat(item.distance);
               const formattedDistance =
                 distanceInMeters < 1000
-                  ? `${(distanceInMeters).toFixed(2)} m`
+                  ? `${distanceInMeters.toFixed(2)} m`
                   : `${(distanceInMeters / 1000).toFixed(2)} km`;
-          
+
               return (
-              <TableRow key={item.id}>
-                <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                <TableCell
-                  onClick={() => handleOpen(item)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <LazyImage
-                    src={`http://localhost:6543/surveys/${item.thumbnail}`}
-                    alt={item.className}
-                    width={100}
-                    height={60}
-                  />
-                </TableCell>
-                <TableCell>
-                  {item.className.replace("-", " ").toUpperCase()}
-                </TableCell>
-                <TableCell>
-                  <LocationCell coordinates={item.location} />
-                </TableCell>
-                <TableCell>{formattedDistance}</TableCell>
-              </TableRow>
-            )})}
+                <TableRow key={item.id}>
+                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                  <TableCell
+                    onClick={() => handleOpen(item)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <LazyImage
+                      src={`http://localhost:6543/surveys/${item.thumbnail}`}
+                      alt={item.className}
+                      width={100}
+                      height={60}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {item.className.replace("-", " ").toUpperCase()}
+                  </TableCell>
+                  <TableCell>
+                    <LocationCell coordinates={item.location} />
+                  </TableCell>
+                  <TableCell>{formattedDistance}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
 
@@ -365,7 +374,7 @@ const SurveyDetails = () => {
         onClose={() => setIsChartOpen(false)}
         title="Analyze Issues"
       >
-        <SurveyScatterPlot data={surveyData}/>
+        <SurveyScatterPlot data={surveyData} />
       </CustomModel>
     </Paper>
   );
