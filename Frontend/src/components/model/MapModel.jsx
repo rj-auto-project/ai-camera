@@ -6,28 +6,14 @@ import "leaflet/dist/leaflet.css";
 import MapView from "../../screens/map/mapview";
 import MapPieChart from "./MapPieChart";
 import CustomModel from "./CustomModel";
+import { classColors } from "../../constants/constant";
 
 const MapModal = ({ isOpen, onClose, data = [], title = "Map View" }) => {
 
-  const classColors = {
-    "traffic-poles": "#FF5733", // Bright Orange-Red
-    "electric-poles": "#FFD700", // Golden Yellow
-    "telephone-poles": "#4169E1", // Royal Blue
-    "water-logging": "#1E90FF", // Dodger Blue
-    garbage: "#8B4513", // Saddle Brown
-    hoarding: "#9932CC", // Dark Orchid
-    "public-toilets": "#2E8B57", // Sea Green
-    "broken-drainage": "#4B0082", // Indigo
-    "fault-manholes": "#CD853F", // Peru
-    potholes: "#DC143C", // Crimson
-    cracks: "#FF8C00", // Dark Orange
-    "broken-road-side": "#006400", // Dark Green
-    "broken-divider": "#8B008B", // Dark Magenta
-  };
 
   // Create custom dot icon for each class
   const createDotIcon = (className) => {
-    const color = classColors[className] || "#888888"; // Default gray for unknown classes
+    const color = classColors[className] || "#888888"; 
 
     const svgTemplate = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">

@@ -1,22 +1,9 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { classColors } from '../../constants/constant';
 
 const MapPieChart = ({ data }) => {
-  const classColors = {
-    "traffic-poles": "#FF5733",
-    "electric-poles": "#FFD700",
-    "telephone-poles": "#4169E1",
-    "water-logging": "#1E90FF",
-    "garbage": "#8B4513",
-    "hoarding": "#9932CC",
-    "public-toilets": "#2E8B57",
-    "broken-drainage": "#4B0082",
-    "fault-manholes": "#CD853F",
-    "potholes": "#DC143C",
-    "cracks": "#FF8C00",
-    "broken-road-side": "#006400",
-    "broken-divider": "#8B008B"
-  };
+
 
   const processData = (inputData) => {
     const counts = {};
