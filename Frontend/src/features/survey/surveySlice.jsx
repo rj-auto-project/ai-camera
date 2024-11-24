@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const surveySlice = createSlice({
   name: "survey",
   initialState: {
-    data: null,
+    data: [],
     loading: false,
     error: null,
   },

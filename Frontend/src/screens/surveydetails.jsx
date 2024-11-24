@@ -24,7 +24,9 @@ import ImageModel from "../components/model/imageModel";
 import LazyImage from "../components/image/LazyloadImage";
 import { LocationCell } from "../components/Locationcell";
 import MapModal from "../components/model/MapModel";
-import { Map } from "lucide-react";
+import { ChartAreaIcon, Map } from "lucide-react";
+import CustomModel from "../components/model/CustomModel";
+import SurveyScatterPlot from "../components/charts/SurveyScatterPlot";
 
 const SurveyDetails = () => {
   const location = useLocation();
@@ -37,6 +39,7 @@ const SurveyDetails = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isChartOpen, setIsChartOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [filters, setFilters] = useState({
     className: "",
@@ -182,6 +185,37 @@ const SurveyDetails = () => {
       </Typography>
     );
   }
+  
+
+  const generateColor = (index) => {
+    const colors = [
+      "#FF4136", "#2ECC40", "#0074D9", "#FFDC00", "#FF851B", "#B10DC9", "#01FF70", "#F012BE"
+    ];
+    return colors[index % colors.length];
+  };
+  
+
+  
+  const surveyData = data?.data?.reduce((acc, { className, distance }) => {
+    // Ensure the distance is a number with two decimal points
+    const numericDistance = parseFloat(distance).toFixed(2);
+  
+    // Check if the class already exists in the accumulator
+    const existingClass = acc.find((item) => item.class === className);
+    if (existingClass) {
+      // Add the distance to the existing class
+      existingClass.distances.push(Number(numericDistance));
+    } else {
+      // Create a new entry for the class
+      acc.push({
+        class: className,
+        distances: [Number(numericDistance)],
+        color: generateColor(acc.length), // Assign a color based on the index
+      });
+    }
+    return acc;
+  }, []);
+
 
   return (
     <Paper
@@ -225,7 +259,14 @@ const SurveyDetails = () => {
             </TableRow>
           </StickyTableHead>
           <TableBody>
-            {paginatedData.map((item, index) => (
+            {paginatedData.map((item, index) => {
+              const distanceInMeters = parseFloat(item.distance);
+              const formattedDistance =
+                distanceInMeters < 1000
+                  ? `${(distanceInMeters).toFixed(2)} m`
+                  : `${(distanceInMeters / 1000).toFixed(2)} km`;
+          
+              return (
               <TableRow key={item.id}>
                 <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                 <TableCell
@@ -245,9 +286,9 @@ const SurveyDetails = () => {
                 <TableCell>
                   <LocationCell coordinates={item.location} />
                 </TableCell>
-                <TableCell>{item.distance}m</TableCell>
+                <TableCell>{formattedDistance}</TableCell>
               </TableRow>
-            ))}
+            )})}
           </TableBody>
         </Table>
 
@@ -278,9 +319,19 @@ const SurveyDetails = () => {
             style={{ height: 40 }}
             variant="contained"
             color="white"
-            startIcon={<Map/>}
+            startIcon={<Map />}
           >
             View Map
+          </Button>
+          <Button
+            onClick={() => setIsChartOpen(true)}
+            disabled={loading}
+            style={{ height: 40, marginLeft: 10 }}
+            variant="contained"
+            color="white"
+            startIcon={<ChartAreaIcon />}
+          >
+            Analyze
           </Button>
         </Box>
         <TablePagination
@@ -309,6 +360,13 @@ const SurveyDetails = () => {
         data={sortedData}
         title="Survey Locations"
       />
+      <CustomModel
+        isOpen={isChartOpen}
+        onClose={() => setIsChartOpen(false)}
+        title="Analyze Issues"
+      >
+        <SurveyScatterPlot data={surveyData}/>
+      </CustomModel>
     </Paper>
   );
 };
