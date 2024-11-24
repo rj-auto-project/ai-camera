@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getLocationFromCoordinates } from "../utils/reverseGeo";
+import { getLocationFromCoordinates } from "../../utils/reverseGeo";
 
-export const LocationCell = ({ coordinates }) => {
+const LocationCell = ({ coordinates }) => {
     const [location, setLocation] = useState("Loading...");
   
     useEffect(() => {
@@ -21,3 +21,5 @@ export const LocationCell = ({ coordinates }) => {
     return <>{location}</>;
   };
   
+
+  export default LocationCell;

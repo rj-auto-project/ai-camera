@@ -19,7 +19,8 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAllSurveyFetch } from "../api/hooks/useFetchSurvey";
-import { LocationCell } from "../components/Locationcell";
+import LocationCell from "../components/buttons/LocationCell";
+
 
 const SurveyTable = () => {
   const navigate = useNavigate();
