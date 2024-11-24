@@ -5,6 +5,8 @@ import operationsReducer from "./features/operations/operationsSlice";
 import notificationsReducer from "./features/notification/notification";
 import incidentSearchReducer from "./features/incidentSearch/incidentSearch";
 import mapReducer from "./features/camera/cameraSlice";
+import allSurveyReducer from "./features/survey/allSurveySlice";
+import surveySlice from "./features/survey/surveySlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ const store = configureStore({
     notifications: notificationsReducer,
     incidentSearch: incidentSearchReducer,
     mapcamera: mapReducer,
+    allsurvey: allSurveyReducer,
+    survey: surveySlice,
   },
 });
 

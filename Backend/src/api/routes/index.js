@@ -6,6 +6,7 @@ import operationsRoutes from "./operations.route.js";
 import incidentsRoutes from "./incidents.routes.js";
 import adminRoutes from "./admin.routes.js";
 import settingRoutes from "./settings.routes.js";
+import surveyRoutes from "./survey.routes.js";
 
 import authMiddleware from "../../middleware/authMiddleware.js";
 import { getClassList, getObjectTypes } from "../../utils/helperFunctions.js";
@@ -25,6 +26,7 @@ router.get("/incidentspaginated", authMiddleware, paginatedIncidents);
 
 router.use("/admin", adminRoutes);
 router.use("/settings", settingRoutes);
+router.use("/survey", surveyRoutes);
 
 router.get("/objectTypes", authMiddleware, getObjectTypes);
 router.get("/classlist", authMiddleware, getClassList);

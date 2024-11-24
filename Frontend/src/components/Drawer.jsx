@@ -22,6 +22,7 @@ import {
   Stream,
   TaskAltOutlined,
   AnalyticsOutlined,
+  EditRoad,
 } from "@mui/icons-material";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import { Link, useLocation } from "react-router-dom";
@@ -51,7 +52,7 @@ export default function CustomDrawer() {
   const handleOpenLogoutDialog = () => dispatch(openLogoutDialog());
 
   const notificationCount = useSelector(
-    (state) => state.notifications.notificationCount,
+    (state) => state.notifications.notificationCount
   );
 
   if (notificationCount > 0 && notificationCount % 10 === 0) {
@@ -66,7 +67,7 @@ export default function CustomDrawer() {
 
   React.useEffect(() => {
     const eventSource = new EventSource(
-      `${BASE_URL}/incidents/notifications/sse`,
+      `${BASE_URL}/incidents/notifications/sse`
     );
     eventSource.onmessage = (event) => {
       try {
@@ -88,6 +89,7 @@ export default function CustomDrawer() {
     { text: "Operations", path: "operations", icon: <TaskAltOutlined /> },
     { text: "Analytics", path: "analytics", icon: <AnalyticsOutlined /> },
     { text: "Incidents", path: "incidents", icon: <FaExclamationTriangle /> },
+    { text: "Survey", path: "survey", icon: <EditRoad /> },
     {
       text: "Track Agent",
       path: "trackagent",

@@ -12,8 +12,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useVideo } from "../context/videoContext";
 import { useSelector } from "react-redux";
 import { useFetchCameras } from "../api/hooks/useFetchCameras";
-import video1 from "/assets/videos/output1.mp4";
-import LazyVideo from "../components/video/LazyVideo";
 import ReactPlayer from "react-player";
 
 const Streams = React.memo(() => {
@@ -165,7 +163,7 @@ const Streams = React.memo(() => {
                     alignItems="center"
                   >
                     <Typography variant="body2" color="white">
-                      CamId: {stream.cameraId}
+                      CamIP: {stream.cameraIp}
                     </Typography>
                     <Box display="flex" alignItems="center">
                       <Box
