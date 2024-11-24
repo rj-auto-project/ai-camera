@@ -1,31 +1,13 @@
-import React, { useState } from "react";
-import { Box, IconButton, Paper, Typography } from "@mui/material";
+import React from "react";
+import { Box,  Typography } from "@mui/material";
 import L from "leaflet";
-import { Minimize2, Maximize2, X } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import {  Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import MapView from "../../screens/map/mapview";
 import MapPieChart from "./MapPieChart";
 import CustomModel from "./CustomModel";
 
 const MapModal = ({ isOpen, onClose, data = [], title = "Map View" }) => {
-  const [isMaximized, setIsMaximized] = useState(false);
-
-  if (!isOpen) return null;
-
-  const modalStyle = {
-    position: "fixed",
-    top: isMaximized ? 0 : "50%",
-    left: isMaximized ? 0 : "50%",
-    transform: isMaximized ? "none" : "translate(-50%, -50%)",
-    width: isMaximized ? "100vw" : "80vw",
-    height: isMaximized ? "100vh" : "80vh",
-    backgroundColor: "background.paper",
-    zIndex: 1300,
-    transition: "all 0.3s ease",
-    display: "flex",
-    flexDirection: "column",
-  };
 
   const classColors = {
     "traffic-poles": "#FF5733", // Bright Orange-Red
@@ -61,7 +43,6 @@ const MapModal = ({ isOpen, onClose, data = [], title = "Map View" }) => {
     });
   };
 
-  console.log(data);
 
   const center =
     data.length > 0
@@ -71,7 +52,6 @@ const MapModal = ({ isOpen, onClose, data = [], title = "Map View" }) => {
         ]
       : [0, 0];
 
-  console.log(data);
 
   return (
     <>
