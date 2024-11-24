@@ -19,7 +19,10 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAllSurveyFetch } from "../api/hooks/useFetchSurvey";
-import LocationCell from "../components/buttons/LocationCell";
+import Locationcell from "../components/location/Locationcell";
+
+
+
 
 
 const SurveyTable = () => {
@@ -136,8 +139,8 @@ const SurveyTable = () => {
                 <TableRow key={survey.id}>
                   <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                   <TableCell>{survey.surveyName}</TableCell>
-                  <TableCell><LocationCell coordinates={survey.startDestination}/></TableCell>
-                  <TableCell><LocationCell coordinates={survey.finalDestination}/></TableCell>
+                  <TableCell><Locationcell coordinates={survey.startDestination}/></TableCell>
+                  <TableCell><Locationcell coordinates={survey.finalDestination}/></TableCell>
                   <TableCell>{formatDateTime(survey.surveyDate)}</TableCell>
                   <TableCell>{survey.type}</TableCell>
                   <TableCell>
