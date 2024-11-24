@@ -2,7 +2,6 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const MapPieChart = ({ data }) => {
-
   const classColors = {
     "traffic-poles": "#FF5733",
     "electric-poles": "#FFD700",
@@ -60,19 +59,38 @@ const MapPieChart = ({ data }) => {
               const radius = 25 + innerRadius + (outerRadius - innerRadius);
               const x = cx + radius * Math.cos(-midAngle * RADIAN);
               const y = cy + radius * Math.sin(-midAngle * RADIAN);
+              
+ 
+              const text = `${chartData[index].name} (${value})`;
+              const textWidth = text.length * 5.5;
+              const backgroundHeight = 16;
+              const backgroundPadding = 4;
+              
               return (
-                <text
-                  x={x}
-                  y={y}
-                  fill="#FFFFFF"
-                  backgroundColor="black"
-                  fontWeight="bold" 
-                  fontSize="12px"
-                  textAnchor={x > cx ? 'start' : 'end'}
-                  dominantBaseline="central"
-                >
-                  {`${chartData[index].name} (${value})`}
-                </text>
+                <g>
+                  {/* Black background rectangle */}
+                  <rect
+                    x={x > cx ? x - backgroundPadding : x - textWidth - backgroundPadding}
+                    y={y - backgroundHeight/2}
+                    width={textWidth + 2 * backgroundPadding}
+                    height={backgroundHeight}
+                    fill="rgba(0, 0, 0, 0.8)"
+                    rx={4}
+                    ry={4}
+                  />
+                  {/* White text */}
+                  <text
+                    x={x}
+                    y={y}
+                    fill="#FFFFFF"
+                    fontSize="12px"
+                    fontWeight="bold"
+                    textAnchor={x > cx ? 'start' : 'end'}
+                    dominantBaseline="central"
+                  >
+                    {text}
+                  </text>
+                </g>
               );
             }}
           >
@@ -82,13 +100,13 @@ const MapPieChart = ({ data }) => {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: '#FFFFFF', // White background
-              border: '1px solid #ccc', // Optional: add a border
-              borderRadius: '5px', // Optional: round the corners
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #ccc',
+              borderRadius: '5px',
             }}
             itemStyle={{
-              fontWeight: 'bold', // Bold text
-              color: '#333' // Text color
+              fontWeight: 'bold',
+              color: '#333'
             }}
             formatter={(value, name) => [`${value} issues`, name]}
           />
