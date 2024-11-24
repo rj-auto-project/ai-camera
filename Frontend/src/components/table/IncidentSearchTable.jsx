@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import LazyImage from "../image/LazyloadImage";
 import useFetchIncidentsData from "../../api/hooks/useFetchIncidentsData.js";
 import toast from "react-hot-toast";
-import CSVButton from "../buttons/csvButton.jsx";
+import CSVButton from "../buttons/CSVButton.jsx";
 
 const IncidentSearchTable = () => {
   const navigate = useNavigate();
