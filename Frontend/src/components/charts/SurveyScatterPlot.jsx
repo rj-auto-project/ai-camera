@@ -15,17 +15,21 @@ const SurveyScatterPlot = ({
   backgroundColor = "#111827",
   textColor = "#e5e7eb",
 }) => {
+
   const transformedData = data.map((item, index) => {
-    return item.distances.map((distance) => ({
+    const distanceCounts = item.distances.reduce((acc, distance) => {
+      acc[distance] = (acc[distance] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(distanceCounts).map(([distance, count]) => ({
       class: item.class,
-      distance: distance,
+      distance: parseFloat(distance),
+      count,
       yAxis: data.length - 1 - index,
     }));
   });
 
   const maxDistance = Math.max(...data.flatMap((item) => item.distances));
-
-  console.log("max", maxDistance);
 
   return (
     <div
@@ -69,7 +73,10 @@ const SurveyScatterPlot = ({
             }}
             itemStyle={{ color: textColor }}
             formatter={(value, name, props) => {
-              if (name === "Distance") return `${value} km`;
+              if (name === "Distance") {
+                const { count, class: className } = props.payload;
+                return `${value} km (${count} ${className}s)`;
+              }
               return props.payload.class;
             }}
           />

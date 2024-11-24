@@ -206,20 +206,15 @@ const SurveyDetails = () => {
   };
 
   const surveyData = data?.data?.reduce((acc, { className, distance }) => {
-    // Ensure the distance is a number with two decimal points
     const numericDistance = parseFloat(distance).toFixed(2);
-
-    // Check if the class already exists in the accumulator
     const existingClass = acc.find((item) => item.class === className);
     if (existingClass) {
-      // Add the distance to the existing class
       existingClass.distances.push(Number(numericDistance));
     } else {
-      // Create a new entry for the class
       acc.push({
         class: className,
         distances: [Number(numericDistance)],
-        color: generateColor(acc.length), // Assign a color based on the index
+        color: generateColor(acc.length), 
       });
     }
     return acc;
