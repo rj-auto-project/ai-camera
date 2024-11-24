@@ -22,11 +22,11 @@ import {
 import { styled } from "@mui/material/styles";
 import ImageModel from "../components/model/imageModel";
 import LazyImage from "../components/image/LazyloadImage";
-import { LocationCell } from "../components/Locationcell";
 import MapModal from "../components/model/MapModel";
 import { ChartAreaIcon, Map } from "lucide-react";
 import CustomModel from "../components/model/CustomModel";
 import SurveyScatterPlot from "../components/charts/SurveyScatterPlot";
+import Locationcell from "../components/location/Locationcell";
 
 const SurveyDetails = () => {
   const location = useLocation();
@@ -287,7 +287,7 @@ const SurveyDetails = () => {
                     {item.className.replace("-", " ").toUpperCase()}
                   </TableCell>
                   <TableCell>
-                    <LocationCell coordinates={item.location} />
+                    <Locationcell coordinates={item.location} />
                   </TableCell>
                   <TableCell>{formattedDistance}</TableCell>
                 </TableRow>
