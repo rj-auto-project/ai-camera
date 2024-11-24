@@ -142,7 +142,7 @@ const SurveyTable = () => {
                   <TableCell>
                     <Button
                       variant="contained"
-                      color="primary"
+                      color="white"
                       onClick={() => handleSurveyAction(survey)}
                     >
                       View Analaytics

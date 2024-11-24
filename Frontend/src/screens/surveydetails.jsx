@@ -23,7 +23,8 @@ import { styled } from "@mui/material/styles";
 import ImageModel from "../components/model/imageModel";
 import LazyImage from "../components/image/LazyloadImage";
 import { LocationCell } from "../components/Locationcell";
-
+import MapModal from "../components/model/MapModel";
+import { Map } from "lucide-react";
 
 const SurveyDetails = () => {
   const location = useLocation();
@@ -35,6 +36,7 @@ const SurveyDetails = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpen, setOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [filters, setFilters] = useState({
     className: "",
@@ -58,24 +60,24 @@ const SurveyDetails = () => {
 
   const handleOpen = (item) => {
     if (!item) {
-      console.error('No item provided to handleOpen');
+      console.error("No item provided to handleOpen");
       return;
     }
-  
-    const { thumbnail = '' } = item;
+
+    const { thumbnail = "" } = item;
     if (!thumbnail) {
-      console.error('Missing thumbnail');
+      console.error("Missing thumbnail");
       return;
     }
-  
+
     const imageUrl = `http://localhost:6543/surveys/${thumbnail}`;
     setSelectedItem(item);
-    
+
     const img = new Image();
     img.onload = () => setOpen(true);
     img.onerror = () => {
       setSelectedItem(null);
-      toast.error('Failed to load image');
+      toast.error("Failed to load image");
     };
     img.src = imageUrl;
   };
@@ -84,11 +86,12 @@ const SurveyDetails = () => {
     fetchSurveys({ surveyId });
   };
 
-
-  const filteredData = data?.data?.filter(item => {
-    if (filters.className && item.className !== filters.className) return false;
-    return true;
-  }) || [];
+  const filteredData =
+    data?.data?.filter((item) => {
+      if (filters.className && item.className !== filters.className)
+        return false;
+      return true;
+    }) || [];
 
   const sortedData = [...filteredData].sort((a, b) => {
     const distA = parseFloat(a.distance);
@@ -103,14 +106,16 @@ const SurveyDetails = () => {
 
   const FilterAndSort = () => {
     const uniqueClasses = Array.from(
-      new Set(data?.data?.map(item => item.className))
+      new Set(data?.data?.map((item) => item.className))
     );
 
     return (
       <Box display="flex" gap={1} alignItems="center" padding={1}>
         <Select
           value={filters.className || ""}
-          onChange={(e) => setFilters(prev => ({ ...prev, className: e.target.value }))}
+          onChange={(e) =>
+            setFilters((prev) => ({ ...prev, className: e.target.value }))
+          }
           displayEmpty
           input={<OutlinedInput />}
           style={{ width: 150, height: 40 }}
@@ -125,23 +130,22 @@ const SurveyDetails = () => {
           ))}
         </Select>
 
-        <Button 
-          onClick={() => setSort(prev => prev === "asc" ? "desc" : "asc")}
+        <Button
+          variant="contained"
+          color="white"
+          onClick={() => setSort((prev) => (prev === "asc" ? "desc" : "asc"))}
           style={{ height: 40 }}
         >
           Sort by Distance ({sort === "asc" ? "↑" : "↓"})
         </Button>
-
-        <Button 
-          onClick={handleRefresh} 
+        <Button
+          variant="contained"
+          color="white"
+          onClick={handleRefresh}
           disabled={loading}
-          style={{ height: 40 }}
+          sx={{ width: 100 }}
         >
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            "Refresh"
-          )}
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Refresh"}
         </Button>
       </Box>
     );
@@ -149,7 +153,12 @@ const SurveyDetails = () => {
 
   if (loading && !data?.data?.length) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="96vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="96vh"
+      >
         <CircularProgress color="inherit" />
       </Box>
     );
@@ -219,7 +228,7 @@ const SurveyDetails = () => {
             {paginatedData.map((item, index) => (
               <TableRow key={item.id}>
                 <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                <TableCell 
+                <TableCell
                   onClick={() => handleOpen(item)}
                   style={{ cursor: "pointer" }}
                 >
@@ -234,14 +243,14 @@ const SurveyDetails = () => {
                   {item.className.replace("-", " ").toUpperCase()}
                 </TableCell>
                 <TableCell>
-                <LocationCell coordinates={item.location}/>
+                  <LocationCell coordinates={item.location} />
                 </TableCell>
                 <TableCell>{item.distance}m</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        
+
         {!paginatedData.length && !error && (
           <Box
             display="flex"
@@ -261,7 +270,19 @@ const SurveyDetails = () => {
         padding={0.5}
         bgcolor="#121212"
       >
-        <FilterAndSort />
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <FilterAndSort />
+          <Button
+            onClick={() => setIsMapOpen(true)}
+            disabled={loading}
+            style={{ height: 40 }}
+            variant="contained"
+            color="white"
+            startIcon={<Map/>}
+          >
+            View Map
+          </Button>
+        </Box>
         <TablePagination
           component="div"
           count={sortedData.length}
@@ -281,6 +302,13 @@ const SurveyDetails = () => {
           setSelectedItem={setSelectedItem}
         />
       )}
+
+      <MapModal
+        isOpen={isMapOpen}
+        onClose={() => setIsMapOpen(false)}
+        data={sortedData}
+        title="Survey Locations"
+      />
     </Paper>
   );
 };

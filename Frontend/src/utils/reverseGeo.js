@@ -23,8 +23,6 @@ export const getLocationFromCoordinates = async (coordinates) => {
     const locationParts = locationFields
       .map((field) => address[field]) // Extract the address fields
       .filter(Boolean); // Filter out undefined or null values
-
-    console.log(address);
     return locationParts.join(", ");
   } catch (error) {
     console.error("Error fetching location:", error);

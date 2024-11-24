@@ -11,7 +11,7 @@ export const inActiveCam = L.icon({
 });
 
 export const compass = L.icon({
-  iconUrl: "/assets/plus.png",
-  iconSize: [100, 100],
+  iconUrl: "/assets/add.png",
+  iconSize: [40, 40],
   iconAnchor: [100, 100],
 });
