@@ -102,4 +102,18 @@ const getSurveyReportsService = async (surveyId) => {
     return surveyReports || [];
 }
 
-export { getSurveysAnalyticsService, getPaginatedSurveysService, getSurveyReportsService }
+const getSurveyReportsPDFService = async (surveyId) => {
+    console.log("surveyId", surveyId)
+    const surveyReports = await prisma.surveyReport.findMany({
+        where: {
+            surveyId: surveyId
+        },
+        include: {
+            survey: true
+        }
+    })
+
+    return surveyReports || [];
+}
+
+export { getSurveysAnalyticsService, getPaginatedSurveysService, getSurveyReportsService, getSurveyReportsPDFService }

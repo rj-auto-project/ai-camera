@@ -27,6 +27,7 @@ import { ChartAreaIcon, Map } from "lucide-react";
 import CustomModel from "../components/model/CustomModel";
 import SurveyScatterPlot from "../components/charts/SurveyScatterPlot";
 import Locationcell from "../components/location/Locationcell";
+import { downloadReport } from "../api/api";
 
 const SurveyDetails = () => {
   const location = useLocation();
@@ -220,6 +221,10 @@ const SurveyDetails = () => {
     return acc;
   }, []);
 
+  const handleDownloadReport = async () => {
+    await downloadReport(surveyId)
+  }
+
   return (
     <Paper
       style={{
@@ -336,6 +341,16 @@ const SurveyDetails = () => {
             startIcon={<ChartAreaIcon />}
           >
             Analyze
+          </Button>
+          <Button
+            onClick={handleDownloadReport}
+            disabled={loading}
+            style={{ height: 40, marginLeft: 10 }}
+            variant="contained"
+            color="white"
+            startIcon={<ChartAreaIcon />}
+          >
+            Download Report
           </Button>
         </Box>
         <TablePagination

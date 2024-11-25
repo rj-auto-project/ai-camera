@@ -78,3 +78,21 @@ export const useFetchCameras = () => {
     },
   });
 };
+
+export const downloadReport = async (surveyId) => {
+  try {
+    console.log(surveyId);
+    const response = await axios.get(`${BASE_URL}/survey/report/download?surveyId=${surveyId}`, {
+      ...config(),
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `survey-${surveyId}-reports.pdf`);
+    document.body.appendChild(link);
+    link.click();
+  } catch (error) {
+    console.error(error);
+  }
+}
