@@ -1,9 +1,13 @@
 import fs from "fs";
-import PDFDocument from "pdfkit";
 import path from "path";
 import { fileURLToPath } from "url";
+import XLSX from "xlsx";
+import XLSXPopulate from "xlsx-populate"
 
 import { getPaginatedSurveysService, getSurveyReportsPDFService, getSurveyReportsService, getSurveysAnalyticsService } from "../services/surveys.service.js";
+import { getLocationFromCoordinates } from "../../utils/reverseGeo.js";
+import fetchImageBuffer from "../../utils/imageBuffer.js";
+import convertImage from "../../utils/convertImage .js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,120 +81,95 @@ const getSurveyReportsBySurveyId = async (req, res) => {
   }
 }
 
-const getSurveyReportsPDF = async (req, res) => {
+const getSurveyReportsExcel = async (req, res) => {
+  console.log("getSurveyReportsExcel");
   try {
     let { surveyId } = req.query;
     surveyId = parseInt(surveyId);
     if (!surveyId) {
-      return res.status(400).json({ status: "fail", message: "Survey ID is required" });
+      return res.status(400).json({ status: 'fail', message: 'Survey ID is required' });
     }
 
-    const surveyReportsPdf = await getSurveyReportsPDFService(surveyId);
+    const { surveyReports, finalDestination, initialDestination } = await getSurveyReportsPDFService(surveyId);
 
-    if (!surveyReportsPdf || surveyReportsPdf.length === 0) {
-      return res.status(200).json({ status: "success", message: "No data found" });
+    if (!surveyReports || surveyReports.length === 0) {
+      return res.status(200).json({ status: 'success', message: 'No data found' });
     }
 
-    const doc = new PDFDocument();
-    const tempFilePath = path.join(__dirname, `../../../temp/survey-${surveyId}-${Date.now()}.pdf`);
-    const writeStream = fs.createWriteStream(tempFilePath);
-    doc.pipe(writeStream);
+    const data = [
+      ['Survey Title', surveyReports[0].survey.surveyName],
+      ['Type of Survey', surveyReports[0].survey.type === 'ROAD_DEFECTS' ? 'Road Defects' : 'Road Furniture'],
+      ['Total Reports', surveyReports.length],
+      ['Survey Date', new Date(surveyReports[0].survey.date).toLocaleString()],
+      ['Survey Location', `${initialDestination} to ${finalDestination}`],
+      [],
+      ['Object Detected', 'Distance Covered', 'Coordinates', 'Thumbnail'],
+    ];
 
-    doc.fontSize(20).font('Times-Bold').text('Survey Report', {
-      align: 'center',
-      underline: true,
+    // Initialize a new workbook
+    const workbook = await XLSXPopulate.fromBlankAsync();
+
+    // Add data rows
+    let rowIndex = 1;
+    data.forEach((row) => {
+      row.forEach((cell, colIndex) => {
+        workbook.sheet(0).cell(rowIndex, colIndex + 1).value(cell);
+      });
+      rowIndex++;
     });
-    doc.moveDown(2);
 
-    for (const report of surveyReportsPdf) {
-      // Add a separator line between reports for clarity
-      doc
-        .moveTo(50, doc.y)
-        .lineTo(550, doc.y)
-        .stroke('#cccccc')
-        .moveDown(1);
+    // Add survey report rows with images
+    for (const report of surveyReports) {
+      workbook.sheet(0).cell(rowIndex, 1).value(report.className || 'N/A');
+      workbook.sheet(0).cell(rowIndex, 2).value(report.distance ? `${report.distance} km` : 'N/A');
+      workbook.sheet(0).cell(rowIndex, 3).value(JSON.stringify(report.address || {}, null, 2));
 
-      // Add survey name and type in bold with friendly labels
-      doc.fontSize(16).font('Times-Bold').text(`Survey Title: ${report.survey.surveyName}`, { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(14).font('Times-Roman').text(`Type of Survey: ${report.survey.type === 'ROAD_DEFECTS' ? 'Road Defects' : 'Road Furniture'}`);
-      doc.moveDown(1);
+      // Fetch the image and insert it
+      const imageUrl = report.thumbnail || 'https://placehold.co/600x400';
+      try {
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const imageData = Buffer.from(response.data, 'binary');
 
-      // Object type and distance details
-      doc
-        .fontSize(12)
-        .font('Times-Bold')
-        .text(`Object Detected:`, { continued: true })
-        .font('Times-Roman')
-        .text(` ${report.className}`);
-
-      doc
-        .font('Times-Bold')
-        .text(`Distance Covered:`, { continued: true })
-        .font('Times-Roman')
-        .text(` ${report.distance ? `${report.distance} km` : 'N/A'}`);
-
-      doc.moveDown(0.5);
-
-      // Date and location details
-      doc
-        .font('Times-Bold')
-        .text(`Survey Date:`, { continued: true })
-        .font('Times-Roman')
-        .text(` ${new Date(report.survey.date).toLocaleString()}`);
-
-      doc.moveDown(0.5);
-
-      doc
-        .font('Times-Bold')
-        .text(`Survey Location Coordinates:`, { continued: true })
-        .font('Times-Roman')
-        .text(` ${JSON.stringify(report.location || {}, null, 2)}`);
-      doc.moveDown(1);
-
-      // Add the thumbnail with borders and caption
-      if (fs.existsSync(report.thumbnail)) {
-        doc
-          .rect(doc.x, doc.y, 150, 100)
-          .stroke('#cccccc'); // Draw a border around the image
-        doc.image(report.thumbnail, {
-          fit: [150, 100],
-          align: 'center',
-          valign: 'center',
+        const imageCell = workbook.sheet(0).cell(rowIndex, 4);
+        workbook.addImage({
+          image: imageData,
+          type: 'image/png', // Adjust type as needed (e.g., 'image/jpeg')
+          position: {
+            sheet: workbook.sheet(0),
+            cell: imageCell,
+          },
         });
-        doc.fontSize(10).font('Times-Italic').text('Thumbnail of the Object', { align: 'center' });
-      } else {
-        doc.font('Times-Italic').text('(Thumbnail not available)', { align: 'center' });
+      } catch (err) {
+        console.error(`Error fetching image: ${imageUrl}`, err);
+        workbook.sheet(0).cell(rowIndex, 4).value('Image not available');
       }
 
-      doc.moveDown(2);
+      rowIndex++;
     }
 
-    // Finalize the document
-    doc.end();
+    // Save the workbook to a temporary file
+    const tempFilePath = path.join(__dirname, `../../../temp/survey-${surveyId}-${Date.now()}.xlsx`);
+    await workbook.toFileAsync(tempFilePath);
 
+    console.log("tempFilePath", tempFilePath);
 
-    writeStream.on("finish", () => {
-      res.download(tempFilePath, `survey-${surveyId}-${Date.now()}.pdf`, (err) => {
-        if (err) {
-          console.error("Error sending file:", err);
-        }
-        fs.unlink(tempFilePath, (err) => {
-          if (err) {
-            console.error("Error deleting temp file:", err);
-          }
-        });
+    // Set response headers and send the file
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.download(tempFilePath, `survey-${surveyId}.xlsx`, (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        return res.status(500).json({ status: 'fail', message: 'Error sending file' });
+      }
+
+      // Clean up temporary file
+      fs.unlink(tempFilePath, (err) => {
+        if (err) console.error('Error deleting temp file:', err);
       });
     });
-
-    writeStream.on("error", (err) => {
-      console.error("Error writing temp file:", err);
-      return res.status(500).json({ status: "fail", message: "Internal server error" });
-    });
   } catch (error) {
-    console.error("Error generating PDF:", error);
-    return res.status(500).json({ status: "fail", message: "Internal server error" });
+    console.error('Error generating Excel:', error);
+    res.status(500).json({ status: 'fail', message: 'Internal server error' });
   }
 };
 
-export { getSurveysAnalytics, getPaginatedSurveys, getSurveyReportsBySurveyId, getSurveyReportsPDF };
+export { getSurveysAnalytics, getPaginatedSurveys, getSurveyReportsBySurveyId, getSurveyReportsExcel };

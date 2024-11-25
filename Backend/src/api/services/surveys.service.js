@@ -1,4 +1,5 @@
 import prisma from "../../config/prismaClient.js"
+import { getLocationFromCoordinates } from "../../utils/reverseGeo.js"
 
 const getSurveysAnalyticsService = async () => {
     const totalSurveys = await prisma.survey.count()
@@ -104,7 +105,7 @@ const getSurveyReportsService = async (surveyId) => {
 
 const getSurveyReportsPDFService = async (surveyId) => {
     console.log("surveyId", surveyId)
-    const surveyReports = await prisma.surveyReport.findMany({
+    let surveyReports = await prisma.surveyReport.findMany({
         where: {
             surveyId: surveyId
         },
@@ -113,7 +114,18 @@ const getSurveyReportsPDFService = async (surveyId) => {
         }
     })
 
-    return surveyReports || [];
+    // surveyReports = surveyReports.map(async report => {
+    //     let address = await getLocationFromCoordinates(report.location) || "Unknown"
+    //     return {
+    //         ...report,
+    //         address
+    //     }
+    // })
+
+    let initialDestination = await getLocationFromCoordinates(surveyReports[0].survey.initialDestination)
+    let finalDestination = await getLocationFromCoordinates(surveyReports[0].survey.finalDestination)
+
+    return { surveyReports, initialDestination, finalDestination } || [];
 }
 
 export { getSurveysAnalyticsService, getPaginatedSurveysService, getSurveyReportsService, getSurveyReportsPDFService }
