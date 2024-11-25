@@ -5,6 +5,11 @@ import { useVideo } from "../context/videoContext";
 import BackButton from "../components/buttons/backbutton";
 import ReactPlayer from "react-player";
 import CustomVideoPlayer from "../components/customVideoPlayer";
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+} from "react-zoom-pan-pinch";
 import vid1 from "../video/output1.mp4";
 
 const CameraPage = ({ camId }) => {
@@ -28,6 +33,18 @@ const CameraPage = ({ camId }) => {
 
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
+
+  const Controls = () => {
+    const { zoomIn, zoomOut, resetTransform } = useControls();
+  
+    return (
+      <div className="tools">
+        <button onClick={() => zoomIn()}>+</button>
+        <button onClick={() => zoomOut()}>-</button>
+        <button onClick={() => resetTransform()}>x</button>
+      </div>
+    );
+  };
 
   return (
     <Box
@@ -85,7 +102,28 @@ const CameraPage = ({ camId }) => {
           
         /> */}
 
-          <CustomVideoPlayer videoSrc="https://videos.pexels.com/video-files/3141319/3141319-uhd_2560_1440_25fps.mp4" />
+  
+      <CustomVideoPlayer videoSrc="https://videos.pexels.com/video-files/3141319/3141319-uhd_2560_1440_25fps.mp4" />
+      {/* <video src="https://videos.pexels.com/video-files/3141319/3141319-uhd_2560_1440_25fps.mp4"></video> */}
+     
+
+    {/* <TransformWrapper
+      initialScale={1}
+      initialPositionX={400}
+      initialPositionY={100}
+    >
+      {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+        <>
+          <Controls />
+          <TransformComponent>
+            <img src="https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600" alt="test" />
+            <div>Example text</div>
+          </TransformComponent>
+        </>
+      )}
+    </TransformWrapper> */}
+
+          
         </Box>
       </Card>
     </Box>
