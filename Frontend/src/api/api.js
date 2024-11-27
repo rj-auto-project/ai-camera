@@ -79,10 +79,9 @@ export const useFetchCameras = () => {
   });
 };
 
-export const downloadReport = async (surveyId) => {
+export const downloadReport = async (surveyId, mode="pdf") => {
   try {
-    console.log(surveyId);
-    const response = await axios.get(`${BASE_URL}/survey/report/download?surveyId=${surveyId}`, {
+    const response = await axios.get(`${BASE_URL}/survey/report/download/${mode}?surveyId=${surveyId}`, {
       ...config(),
       responseType: "blob",
     });

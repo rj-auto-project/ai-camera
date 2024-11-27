@@ -29,6 +29,34 @@ import SurveyScatterPlot from "../components/charts/SurveyScatterPlot";
 import Locationcell from "../components/location/Locationcell";
 import { downloadReport } from "../api/api";
 
+const DownloadModal = ({ isOpen, onClose, onDownload, downloading }) => {
+  return (
+    <CustomModel isOpen={isOpen} onClose={onClose} title="Download Report">
+      <Box display="flex" flexDirection="row" justifyContent={"center"} alignItems={"center"} gap={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => onDownload("pdf")}
+          disabled={downloading}
+        >
+          Download as PDF
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => onDownload("csv")}
+          disabled={downloading}
+        >
+          Download as CSV
+        </Button>
+      </Box>
+      <Box display="flex" justifyContent="center" alignItems="center" padding={2}>
+        {downloading && <CircularProgress />}
+      </Box>
+    </CustomModel>
+  );
+};
+
 const SurveyDetails = () => {
   const location = useLocation();
   const { surveyId } = location.state || {};
@@ -46,6 +74,9 @@ const SurveyDetails = () => {
     className: "",
   });
   const [sort, setSort] = useState("asc");
+  const [downloading, setDownloading] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [downloadMode, setDownloadMode] = useState("pdf");
 
   useEffect(() => {
     if (surveyId) {
@@ -215,15 +246,27 @@ const SurveyDetails = () => {
       acc.push({
         class: className,
         distances: [Number(numericDistance)],
-        color: generateColor(acc.length), 
+        color: generateColor(acc.length),
       });
     }
     return acc;
   }, []);
 
-  const handleDownloadReport = async () => {
-    await downloadReport(surveyId)
-  }
+  const handleDownloadReport = async (mode) => {
+    try {
+      setDownloading(true);
+      await downloadReport(surveyId, mode);
+    } catch (error) {
+      console.error("Failed to download report", error);
+      setDownloading(false);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadModal = () => {
+    setIsDownloadModalOpen(true);
+  };
 
   return (
     <Paper
@@ -343,8 +386,8 @@ const SurveyDetails = () => {
             Analyze
           </Button>
           <Button
-            onClick={handleDownloadReport}
-            disabled={loading}
+            onClick={handleDownloadModal}
+            disabled={downloading}
             style={{ height: 40, marginLeft: 10 }}
             variant="contained"
             color="white"
@@ -353,6 +396,12 @@ const SurveyDetails = () => {
             Download Report
           </Button>
         </Box>
+        <DownloadModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => setIsDownloadModalOpen(false)}
+          onDownload={handleDownloadReport}
+          downloading={downloading}
+        />
         <TablePagination
           component="div"
           count={sortedData.length}

@@ -114,6 +114,16 @@ const getSurveyReportsPDFService = async (surveyId) => {
         }
     })
 
+    let surveyReportsByClasses = await prisma.surveyReport.groupBy({
+        by: ["className"],
+        _count: { className: true },
+        where: {
+            surveyId: surveyId
+        }
+    })
+
+    console.log("surveyReportsByClasses", surveyReportsByClasses[0])
+
     // surveyReports = surveyReports.map(async report => {
     //     let address = await getLocationFromCoordinates(report.location) || "Unknown"
     //     return {
@@ -125,7 +135,7 @@ const getSurveyReportsPDFService = async (surveyId) => {
     let initialDestination = await getLocationFromCoordinates(surveyReports[0].survey.initialDestination)
     let finalDestination = await getLocationFromCoordinates(surveyReports[0].survey.finalDestination)
 
-    return { surveyReports, initialDestination, finalDestination } || [];
+    return { surveyReports, initialDestination, finalDestination, surveyReportsByClasses } || [];
 }
 
 export { getSurveysAnalyticsService, getPaginatedSurveysService, getSurveyReportsService, getSurveyReportsPDFService }
