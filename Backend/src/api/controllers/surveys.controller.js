@@ -268,21 +268,28 @@ const getSurveyReportsPDF = async (req, res) => {
           <th>Thumbnail</th>
         </tr>
       </thead>
-      <tbody>
-        ${surveyReports
-        .map((report) => `
-            <tr>
-              <td>${report.className || 'N/A'}</td>
-              <td>${report.distance ? `${report.distance} km` : 'N/A'}</td>
-              <td>${JSON.stringify(report.location || {}, null, 2)}</td>
-              <td>
-                <a href="${thumbnailUrl}/${report.thumbnail}" target="_blank">
-                  <img src="${thumbnailUrl}/${report.thumbnail}" alt="Thumbnail">
-                </a>
-              </td>
-            </tr>
-          `).join('')}
-      </tbody>
+<tbody>
+  ${surveyReports
+    .map((report) => {
+      const locationUrl = report.location
+        ? `<a href="https://www.google.com/maps?q=${report.location[0]},${report.location[1]}" target="_blank">View</a>`
+        : 'N/A';
+      return `
+        <tr>
+          <td>${report.className || 'N/A'}</td>
+          <td>${report.distance ? `${report.distance} km` : 'N/A'}</td>
+          <td>${report.location[0]}, ${report.location[1]} <br/> ${locationUrl}</td>
+          <td>
+            <a href="${thumbnailUrl}/${report.thumbnail}" target="_blank">
+              <img src="${thumbnailUrl}/${report.thumbnail}" alt="Thumbnail">
+            </a>
+          </td>
+        </tr>
+      `;
+    })
+    .join('')}
+</tbody>
+
     </table>
 
     <div class="analytics-section">

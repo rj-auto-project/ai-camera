@@ -122,8 +122,6 @@ const getSurveyReportsPDFService = async (surveyId) => {
         }
     })
 
-    console.log("surveyReportsByClasses", surveyReportsByClasses[0])
-
     // surveyReports = surveyReports.map(async report => {
     //     let address = await getLocationFromCoordinates(report.location) || "Unknown"
     //     return {
