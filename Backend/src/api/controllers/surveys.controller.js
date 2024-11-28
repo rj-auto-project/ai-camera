@@ -8,6 +8,9 @@ import { getLocationFromCoordinates } from "../../utils/reverseGeo.js";
 import fetchImageBuffer from "../../utils/imageBuffer.js";
 import convertImage from "../../utils/convertImage .js";
 
+const thumbnailUrl = process.env.IMAGE_BASE_URL
+console.log("thumbnailUrl", thumbnailUrl);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -273,8 +276,8 @@ const getSurveyReportsPDF = async (req, res) => {
               <td>${report.distance ? `${report.distance} km` : 'N/A'}</td>
               <td>${JSON.stringify(report.location || {}, null, 2)}</td>
               <td>
-                <a href="${'https://placehold.co/600x400'}" target="_blank">
-                  <img src="${'https://placehold.co/100x75'}" alt="Thumbnail">
+                <a href="${thumbnailUrl}/${report.thumbnail}" target="_blank">
+                  <img src="${thumbnailUrl}/${report.thumbnail}" alt="Thumbnail">
                 </a>
               </td>
             </tr>
@@ -308,7 +311,9 @@ const getSurveyReportsPDF = async (req, res) => {
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    page.setDefaultNavigationTimeout(60000);
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
 
     const tempFilePath = path.join(__dirname, `../../../temp/survey-${surveyId}-${Date.now()}.pdf`);
     await page.pdf({ path: tempFilePath, format: 'A4', printBackground: true });
