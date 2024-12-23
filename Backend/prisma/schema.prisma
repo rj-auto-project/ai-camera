@@ -151,13 +151,15 @@ model Class {
 }
 
 model Survey {
-  id                 Int            @id @default(autoincrement())
-  surveyName         String         @db.VarChar(255)
-  date               DateTime       @default(now())
+  id                 Int        @id @default(autoincrement())
+  surveyName         String     @db.VarChar(255)
+  date               DateTime   @default(now())
   initialDestination Json?
   finalDestination   Json?
   type               SurveyType
-  reports            SurveyReport[]
+  survey_location    Json?
+
+  reports SurveyReport[]
 }
 
 model SurveyReport {
