@@ -137,6 +137,8 @@ const getGraphIncidents = async (timeframe) => {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()); 
     } else if (timeframe === 'monthly') {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (timeframe === 'all') {
+      startDate = new Date(0);
     } else {
       throw new Error("Invalid timeframe specified.");
     }

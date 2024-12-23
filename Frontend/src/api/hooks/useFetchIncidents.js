@@ -23,6 +23,8 @@ export const useFetchIncidents = (dateRange) => {
         endpoint += "/weekly";
       } else if (dateRange === "monthly") {
         endpoint += "/monthly";
+      } else if (dateRange === "all") {
+        endpoint += "/all";
       }
       const response = await axios.get(endpoint, config());
       return response.data;
@@ -51,6 +53,8 @@ export const useFetchDetectedVsSolved = (dateRange) => {
         endpoint += "/weekly";
       } else if (dateRange === "monthly") {
         endpoint += "/monthly";
+      } else if (dateRange === "all") {
+        endpoint += "/all";
       }
 
       const response = await axios.get(endpoint, config());

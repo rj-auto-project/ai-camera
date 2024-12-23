@@ -73,6 +73,7 @@ const formatTimestamp = (timestamp) => {
 const getDateRange = (period) => {
   const now = new Date();
   let startDate, endDate;
+  console.log("period", period);
 
   switch (period) {
     case "today":
@@ -90,6 +91,10 @@ const getDateRange = (period) => {
     case "yearly":
       startDate = moment().startOf("year").toDate();
       endDate = moment().endOf("year").toDate();
+      break;
+    case "all":
+      startDate = new Date(0);
+      endDate = now;
       break;
     default:
       throw new Error("Invalid period");
