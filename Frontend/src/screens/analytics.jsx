@@ -60,7 +60,6 @@ export default function Analytics() {
     useState("allIncidents");
 
   const { data: incidentData, isLoading } = useFetchIncidents(dateRange);
-  console.log("incidentData", incidentData);
 
   const {
     totalIncidents,
@@ -71,6 +70,7 @@ export default function Analytics() {
     topIncidentTypes,
   } = useMemo(() => {
     if (!incidentData?.data || !Array.isArray(incidentData?.data)) {
+      console.log("no data");
       return {
         filteredData: [],
         totalIncidents: 0,
@@ -95,12 +95,15 @@ export default function Analytics() {
       case "monthly":
         startDate = now.subtract(1, "month");
         break;
+      case "all":
+        startDate = now.startOf("day").subtract(1, "year");
+        break;
       default:
         startDate = now.startOf("day");
     }
 
     const filtered = incidentData?.data?.filter((incident) => {
-      const incidentDate = dayjs(incident.timestamp);
+      const incidentDate = dayjs(incident?.timestamp);
       return (
         incidentDate.isAfter(startDate) &&
         (selectedIncidentType === "allIncidents" ||
@@ -206,6 +209,7 @@ export default function Analytics() {
     };
   }, [incidentData, dateRange, selectedIncidentType]);
 
+
   const handleDateRangeChange = useCallback((range) => {
     setDateRange(range);
   }, []);
@@ -298,7 +302,7 @@ export default function Analytics() {
               size="small"
               sx={{ mb: { xs: 2, md: 0 } }}
             >
-              {["today", "weekly", "monthly"].map((range) => (
+              {["today", "weekly", "monthly", "all"].map((range) => (
                 <Button
                   key={range}
                   onClick={() => handleDateRangeChange(range)}
@@ -516,7 +520,7 @@ export default function Analytics() {
           </Card>
         </Grid> */}
 
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -531,7 +535,7 @@ export default function Analytics() {
               />
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>

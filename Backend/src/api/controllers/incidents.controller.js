@@ -194,6 +194,7 @@ const paginatedIncidents = async (req, res) => {
 const getIncidents = async (req, res) => {
   try {
     const { timeframe } = req.params;
+    console.log("timeframe", timeframe);
     let startDate, endDate;
     if (timeframe) {
       ({ startDate, endDate } = getDateRange(timeframe)); // Destructure date range
