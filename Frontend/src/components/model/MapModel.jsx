@@ -56,7 +56,7 @@ const MapModal = ({ isOpen, onClose, data = [], title = "Map View" }) => {
                     <Typography variant="body2">
                       Class: {item.className}
                       <br />
-                      Distance: {item.distance}m
+                      Distance: {item.distance.toFixed(2)}m
                     </Typography>
                   </Popup>
                 </Marker>
