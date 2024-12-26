@@ -1,17 +1,10 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
 import { Box, Typography, Card } from "@mui/material";
-import { useVideo } from "../context/videoContext";
 import BackButton from "../components/buttons/backbutton";
-import ReactPlayer from "react-player";
 import CustomVideoPlayer from "../components/customVideoPlayer";
-import vid1 from "../video/output1.mp4";
 
 const CameraPage = ({ camId }) => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const page = queryParams.get("page");
-  const { videoSrc } = useVideo();
+
   const containerRef = useRef(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -85,7 +78,7 @@ const CameraPage = ({ camId }) => {
           
         /> */}
 
-          <CustomVideoPlayer videoSrc="https://videos.pexels.com/video-files/3141319/3141319-uhd_2560_1440_25fps.mp4" />
+          <CustomVideoPlayer videoSrc="" />
         </Box>
       </Card>
     </Box>

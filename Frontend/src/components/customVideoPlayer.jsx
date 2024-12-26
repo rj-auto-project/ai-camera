@@ -150,7 +150,7 @@ const CustomVideoPlayer = ({ videoSrc }) => {
 
   return (
     <Box
-      sx={{ width: "90%", display: "flex", flexDirection: "column", alignItems: "center" }}
+      sx={{ width: "75%", display: "flex", flexDirection: "column", alignItems: "center" }}
       onMouseMove={updateSelection}
       onMouseUp={finishSelection}
     >

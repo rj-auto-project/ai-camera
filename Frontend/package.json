@@ -84,6 +84,7 @@
   "productName": "Argus",
   "copyright": "Copyright © 2024 Argus",
   "directories": {
+    "buildResources": "assets",
     "output": "release" 
   },
   "files": [
