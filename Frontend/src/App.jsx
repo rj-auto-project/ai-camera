@@ -1,9 +1,8 @@
 import React, { useState, Suspense, lazy } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import darkTheme from "./theme";
 import PrivateRoute from "./components/privateRoute";
-import NotFound from "./screens/pagenotfound/notfound";
 import SplashScreen from "./screens/splashscreen";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./screens/dashboard";
@@ -28,7 +27,7 @@ const App = () => {
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard/*" element={<Dashboard />} />
               </Route>
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Suspense>
         </Router>

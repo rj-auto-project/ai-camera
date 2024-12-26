@@ -36,7 +36,7 @@ const LazyImage = ({ src, alt, width, height, ...props }) => {
   };
 
   const handleError = (e) => {
-    e.target.src = "/assets/no_image.jpg";
+    e.target.src = "./assets/no_image.jpg";
     e.target.alt = "No Image Available";
     console.log("Image Loading error");
     setIsLoaded(true);

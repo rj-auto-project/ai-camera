@@ -58,7 +58,7 @@ const SplashScreen = () => {
     <div style={splashScreenStyle}>
       <div style={splashContentStyle}>
         <img
-          src="/assets/logo.png"
+          src="./assets/logo.png"
           alt="City Crime AI"
           style={splashLogoStyle}
         />
